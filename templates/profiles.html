@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FarmTrack — Profile</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --bg: #161618;
+    --card: #242426;
+    --card2: #2c2c2e;
+    --border: rgba(255,255,255,0.08);
+    --text: #f5f5f7;
+    --text2: #d1d1d6;
+    --muted: #8e8e93;
+    --green: #30d158;
+    --red: #ff453a;
+    --blue: #0a84ff;
+    --sep: rgba(255,255,255,0.06);
+  }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Helvetica Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: -0.01em;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* lang toggle — top right corner */
+  .lang-btn {
+    position: fixed;
+    top: 16px;
+    right: 16px;
+    background: rgba(10,132,255,0.12);
+    border: 1px solid rgba(10,132,255,0.28);
+    color: var(--blue);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 5px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .lang-btn:hover { background: rgba(10,132,255,0.22); }
+
+  .box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 36px 36px 32px;
+    width: 420px;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
+  }
+
+  .logo { text-align: center; }
+  .logo h1 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo h1 span { color: var(--green); }
+  .logo .version {
+    font-size: 0.68rem;
+    color: var(--muted);
+    margin-top: 3px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  .logo .sub {
+    font-size: 0.82rem;
+    color: var(--muted);
+    margin-top: 8px;
+  }
+
+  .section-label {
+    font-size: 0.68rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 8px;
+  }
+
+  .profiles-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 260px;
+    overflow-y: auto;
+  }
+  .profiles-list::-webkit-scrollbar { width: 4px; }
+  .profiles-list::-webkit-scrollbar-track { background: transparent; }
+  .profiles-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+
+  .profile-row { display: flex; align-items: center; gap: 6px; }
+
+  .profile-btn {
+    flex: 1;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 11px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    text-align: left;
+    font-size: 0.88rem;
+    font-family: inherit;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: border-color 0.15s, background 0.15s;
+    letter-spacing: -0.01em;
+  }
+  .profile-btn:hover { border-color: var(--green); background: rgba(48,209,88,0.06); }
+  .profile-btn .icon { font-size: 1rem; }
+  .profile-btn .name { flex: 1; font-weight: 500; }
+  .profile-btn .open-lbl { font-size: 0.72rem; color: var(--muted); }
+
+  .btn-rename, .btn-delete {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 9px 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    font-family: inherit;
+    white-space: nowrap;
+    transition: border-color 0.15s, color 0.15s;
+    flex-shrink: 0;
+  }
+  .btn-rename:hover { border-color: var(--blue); color: var(--blue); }
+  .btn-delete:hover { border-color: var(--red); color: var(--red); }
+
+  .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 14px 0; }
+
+  .divider { border: none; border-top: 1px solid var(--sep); }
+
+  .new-section { display: flex; flex-direction: column; gap: 10px; }
+  .input-row { display: flex; gap: 8px; }
+
+  input[type="text"] {
+    flex: 1;
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 13px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.15s;
+    letter-spacing: -0.01em;
+  }
+  input[type="text"]:focus { border-color: var(--blue); }
+  input[type="text"]::placeholder { color: var(--muted); }
+
+  .btn-create {
+    background: var(--blue);
+    color: #fff;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: opacity 0.15s;
+    letter-spacing: -0.01em;
+  }
+  .btn-create:hover { opacity: 0.85; }
+
+  .err { color: var(--red); font-size: 0.78rem; min-height: 1em; }
+</style>
+</head>
+<body>
+
+<button class="lang-btn" id="lang-btn" onclick="toggleLang()">RU</button>
+
+<div class="box">
+  <div class="logo">
+    <h1>Farm<span>Track</span></h1>
+    <div class="version">alpha v0.2</div>
+    <p class="sub" id="sub-text">Select a profile to continue</p>
+  </div>
+
+  <div id="existing-section">
+    <div class="section-label" id="label-existing">Existing profiles</div>
+    <div class="profiles-list" id="list">
+      <div class="empty" id="loading-text">Loading...</div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="new-section">
+    <div class="section-label" id="label-new">Create new profile</div>
+    <div class="input-row">
+      <input type="text" id="new-name" placeholder="Profile name" maxlength="64">
+      <button class="btn-create" id="btn-create" onclick="createAndOpen()">Create</button>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+</div>
+
+<script>
+// ── i18n ──────────────────────────────────────────────────────────────────
+let lang = localStorage.getItem('farmtrack_lang') || 'en';
+
+const T = {
+  en: {
+    sub:          'Select a profile to continue',
+    label_existing: 'Existing profiles',
+    label_new:    'Create new profile',
+    loading:      'Loading...',
+    no_profiles:  'No profiles — create your first one',
+    open_lbl:     'Open →',
+    placeholder:  'Profile name',
+    btn_create:   'Create',
+    lang_btn:     'RU',
+    err_empty:    'Enter a name',
+    err_chars:    'Invalid characters',
+    err_generic:  'Error',
+    rename_prompt: 'New name for profile',
+    delete_confirm: 'Delete profile',
+    delete_msg: 'This will permanently delete the profile and all its data. Are you sure?',
+    err_active: 'Cannot delete the active profile',
+  },
+  ru: {
+    sub:          'Выберите профиль для работы',
+    label_existing: 'Существующие профили',
+    label_new:    'Создать новый профиль',
+    loading:      'Загрузка...',
+    no_profiles:  'Нет профилей — создайте первый',
+    open_lbl:     'Открыть →',
+    placeholder:  'Название профиля',
+    btn_create:   'Создать',
+    lang_btn:     'EN',
+    err_empty:    'Введите название',
+    err_chars:    'Недопустимые символы',
+    err_generic:  'Ошибка',
+    rename_prompt: 'Новое название для профиля',
+    delete_confirm: 'Удалить профиль',
+    delete_msg: 'Это безвозвратно удалит профиль и все его данные. Вы уверены?',
+    err_active: 'Нельзя удалить активный профиль',
+  }
+};
+
+function t(k) { return (T[lang] || T.en)[k] || k; }
+
+function applyLang() {
+  document.getElementById('lang-btn').textContent   = t('lang_btn');
+  document.getElementById('sub-text').textContent   = t('sub');
+  document.getElementById('label-existing').textContent = t('label_existing');
+  document.getElementById('label-new').textContent  = t('label_new');
+  document.getElementById('btn-create').textContent = t('btn_create');
+  document.getElementById('new-name').placeholder   = t('placeholder');
+  // re-render list to update labels
+  loadProfiles();
+}
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ru' : 'en';
+  localStorage.setItem('farmtrack_lang', lang);
+  applyLang();
+}
+
+// ── Profiles ──────────────────────────────────────────────────────────────
+async function loadProfiles() {
+  const res = await fetch('/api/profiles');
+  const profiles = await res.json();
+  const list = document.getElementById('list');
+  if (!profiles.length) {
+    list.innerHTML = `<div class="empty">${t('no_profiles')}</div>`;
+    return;
+  }
+  list.innerHTML = profiles.map(name => `
+    <div class="profile-row">
+      <button class="profile-btn" onclick="openProfile('${name}')">
+        <span class="icon">🗂</span>
+        <span class="name">${name}</span>
+        <span class="open-lbl">${t('open_lbl')}</span>
+      </button>
+      <button class="btn-rename" title="Rename" onclick="renameProfile('${name}')">✎</button>
+      <button class="btn-delete" title="Delete" onclick="deleteProfile('${name}')">✕</button>
+    </div>
+  `).join('');
+}
+
+async function openProfile(name) {
+  const res = await fetch('/api/profiles/select', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name})
+  });
+  if ((await res.json()).ok) location.href = '/';
+}
+
+async function renameProfile(oldName) {
+  const newName = prompt(`${t('rename_prompt')} "${oldName}":`, oldName);
+  if (!newName || newName.trim() === oldName) return;
+  const res = await fetch('/api/profiles/rename', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({old_name: oldName, new_name: newName.trim()})
+  });
+  const data = await res.json();
+  if (data.ok) loadProfiles();
+  else alert(data.error || t('err_generic'));
+}
+
+async function deleteProfile(name) {
+  if (!confirm(`${t('delete_confirm')} "${name}"\n\n${t('delete_msg')}`)) return;
+  const res = await fetch('/api/profiles/delete', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name})
+  });
+  const data = await res.json();
+  if (data.ok) loadProfiles();
+  else alert(data.error || t('err_generic'));
+}
+
+async function createAndOpen() {
+  const name = document.getElementById('new-name').value.trim();
+  const err = document.getElementById('err');
+  err.textContent = '';
+  if (!name) { err.textContent = t('err_empty'); return; }
+  if (/[\/\\\.]{2,}/.test(name)) { err.textContent = t('err_chars'); return; }
+  const res = await fetch('/api/profiles/select', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({name})
+  });
+  const data = await res.json();
+  if (data.ok) location.href = '/';
+  else err.textContent = data.error || t('err_generic');
+}
+
+document.getElementById('new-name').addEventListener('keydown', e => {
+  if (e.key === 'Enter') createAndOpen();
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────
+applyLang();
+</script>
+</body>
+</html>

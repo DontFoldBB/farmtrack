@@ -1,0 +1,3132 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project632</title>
+<style>
+/* ── Apple System Font ── */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg:      #161618;
+  --sidebar: #1c1c1e;
+  --card:    #242426;
+  --card2:   #2c2c2e;
+  --border:  rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.05);
+  --text:    #f5f5f7;
+  --text2:   #d1d1d6;
+  --muted:   #8e8e93;
+  --muted2:  #636366;
+  --green:   #30d158;
+  --red:     #ff453a;
+  --amber:   #ff9f0a;
+  --blue:    #0a84ff;
+  --purple:  #bf5af2;
+  --teal:    #5ac8fa;
+  --sep:     rgba(255,255,255,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Helvetica Neue', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  font-size: 13px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.01em;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  width: 216px;
+  min-width: 216px;
+  background: var(--sidebar);
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid var(--border);
+}
+
+.logo {
+  padding: 20px 16px 16px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  border-bottom: 1px solid var(--border);
+}
+.logo span { color: var(--blue); }
+
+nav { padding: 8px 8px; flex: 1; }
+
+nav a {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  color: var(--muted);
+  text-decoration: none;
+  border-radius: 8px;
+  transition: background 0.12s, color 0.12s;
+  font-size: 0.82rem;
+  font-weight: 500;
+  position: relative;
+  margin-bottom: 1px;
+}
+nav a:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
+nav a.active {
+  color: var(--text);
+  background: rgba(10,132,255,0.15);
+  color: var(--blue);
+}
+nav a svg {
+  width: 15px; height: 15px;
+  stroke: currentColor; fill: none;
+  stroke-width: 1.8;
+  flex-shrink: 0;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.nav-badge {
+  margin-left: auto;
+  background: var(--red);
+  color: #fff;
+  font-size: 0.6rem;
+  font-weight: 700;
+  border-radius: 8px;
+  padding: 1px 5px;
+  display: none;
+}
+
+.sidebar-bottom { padding: 10px 8px 12px; border-top: 1px solid var(--border); }
+
+.btn-export {
+  width: 100%;
+  padding: 8px 10px;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: background 0.12s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+.btn-export:hover { background: rgba(255,255,255,0.1); }
+
+/* ── Main ── */
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-width: 0;
+}
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+  background: rgba(22,22,24,0.8);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+.topbar h1 {
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255,255,255,0.1) transparent;
+}
+.content::-webkit-scrollbar { width: 5px; }
+.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+
+/* ── Sections ── */
+section { display: none; }
+section.active { display: block; }
+
+/* ── Stats grid ── */
+.stats-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 16px 15px;
+  position: relative;
+  overflow: hidden;
+  flex: 1 1 140px;
+  transition: background 0.12s;
+}
+.stat-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--stat-accent, transparent) 40%, transparent);
+  opacity: 0.6;
+}
+.stat-card::after {
+  content: '';
+  position: absolute;
+  top: 0; left: 0;
+  width: 3px; bottom: 0;
+  background: var(--stat-accent, transparent);
+  border-radius: 14px 0 0 14px;
+  opacity: 0.7;
+}
+.stat-card:hover { background: var(--card2); }
+.stat-label {
+  font-size: 0.64rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  white-space: nowrap;
+  font-weight: 500;
+}
+.stat-label .si { font-size: 0.75rem; opacity: 0.5; flex-shrink: 0; }
+.stat-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+  white-space: nowrap;
+}
+
+/* ── Section header ── */
+.sec-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.sec-title {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+}
+
+/* ── Table ── */
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+table { width: 100%; border-collapse: collapse; }
+
+th {
+  text-align: left;
+  padding: 9px 14px;
+  font-size: 0.65rem;
+  text-transform: uppercase;
+  letter-spacing: 0.7px;
+  color: var(--muted2);
+  border-bottom: 1px solid var(--sep);
+  background: rgba(255,255,255,0.015);
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+td {
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--sep);
+  vertical-align: middle;
+  font-size: 0.83rem;
+}
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.03); }
+
+.td-mono {
+  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.td-note {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--muted);
+}
+
+.empty-row td {
+  text-align: center;
+  padding: 40px;
+  color: var(--muted2);
+  font-size: 0.82rem;
+}
+
+/* ── Colors ── */
+.c-green { color: var(--green); }
+.c-red   { color: var(--red); }
+.c-amber { color: var(--amber); }
+.c-blue  { color: var(--blue); }
+.c-muted { color: var(--muted); }
+
+/* ── Badge ── */
+.badge {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 6px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+.badge-green  { background: rgba(48,209,88,0.12);  color: var(--green); }
+.badge-amber  { background: rgba(255,159,10,0.12); color: var(--amber); }
+.badge-gray   { background: rgba(142,142,147,0.14); color: var(--muted); }
+.badge-red    { background: rgba(255,69,58,0.12);   color: var(--red); }
+
+/* ── Buttons ── */
+.btn {
+  padding: 7px 14px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-size: 0.78rem;
+  font-weight: 500;
+  transition: all 0.12s;
+  line-height: 1;
+  font-family: inherit;
+  letter-spacing: -0.01em;
+}
+.btn-primary {
+  background: var(--blue);
+  color: #fff;
+  box-shadow: 0 1px 3px rgba(10,132,255,0.3);
+}
+.btn-primary:hover { background: #1a8fff; }
+.btn-ghost {
+  background: rgba(255,255,255,0.07);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.btn-ghost:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.btn-secondary {
+  background: rgba(255,255,255,0.08);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+.btn-secondary:hover { background: rgba(255,255,255,0.13); }
+.btn-danger {
+  background: rgba(255,69,58,0.1);
+  border: 1px solid rgba(255,69,58,0.25);
+  color: var(--red);
+}
+.btn-danger:hover { background: rgba(255,69,58,0.18); }
+.btn-sm { padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; }
+.btn-icon { padding: 4px 7px; }
+
+.row-actions { display: flex; gap: 4px; }
+
+/* ── Filter row ── */
+.filter-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+.filter-row select { max-width: 220px; }
+
+/* ── Forms ── */
+.form-group { margin-bottom: 13px; }
+label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; letter-spacing: 0.01em; }
+
+input, select, textarea {
+  width: 100%;
+  background: rgba(255,255,255,0.06);
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 8px 10px;
+  border-radius: 8px;
+  font-size: 0.83rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.12s, background 0.12s;
+  letter-spacing: -0.01em;
+}
+input:focus, select:focus, textarea:focus {
+  border-color: var(--blue);
+  background: rgba(10,132,255,0.06);
+}
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+select option { background: #2c2c2e; color: var(--text); }
+textarea { resize: vertical; min-height: 72px; }
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+/* ── Modal ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.hidden { display: none !important; }
+.overlay.hidden { display: none; }
+
+.modal {
+  background: #2c2c2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  width: 440px;
+  max-width: 95vw;
+  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.06);
+}
+.modal-header {
+  padding: 18px 20px 0;
+  font-size: 0.95rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+}
+.modal-body { padding: 16px 20px; }
+.modal-footer {
+  padding: 0 20px 16px;
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+/* ── Toast ── */
+.toast {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  background: rgba(44,44,46,0.95);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 0.8rem;
+  z-index: 200;
+  transform: translateY(70px);
+  opacity: 0;
+  transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
+  max-width: 300px;
+  pointer-events: none;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.success { border-left: 2px solid var(--green); }
+.toast.error   { border-left: 2px solid var(--red); }
+.toast.info    { border-left: 2px solid var(--amber); }
+
+/* ── Due-reminder banner ── */
+.due-banner {
+  background: rgba(255,159,10,0.08);
+  border: 1px solid rgba(255,159,10,0.2);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.82rem;
+}
+.due-banner.show { display: flex; }
+.due-banner-close { margin-left: auto; cursor: pointer; color: var(--muted2); font-size: 0.9rem; }
+.due-banner-close:hover { color: var(--text2); }
+
+/* ── Protocol color dot ── */
+.proto-dot {
+  display: inline-block;
+  width: 8px; height: 8px;
+  border-radius: 50%;
+  margin-right: 7px;
+  flex-shrink: 0;
+  vertical-align: middle;
+}
+
+/* ── Color palette ── */
+.color-palette {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 4px;
+}
+.color-swatch {
+  width: 24px; height: 24px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: transform 0.12s, border-color 0.12s;
+  outline: none;
+}
+.color-swatch:hover { transform: scale(1.2); }
+.color-swatch.active { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+
+/* ── Inline amount edit ── */
+.amount-cell { cursor: text; white-space: nowrap; }
+.amount-cell:hover::after { content: ' ✎'; font-size: 0.65rem; opacity: 0.4; }
+.amount-wrap { display: inline-flex; align-items: center; gap: 4px; }
+.amount-add-btn {
+  opacity: 0;
+  background: transparent;
+  border: 1px solid rgba(255,255,255,0.1);
+  color: var(--muted2);
+  cursor: pointer;
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 0.65rem;
+  line-height: 1.4;
+  transition: opacity 0.12s, color 0.12s;
+  font-family: inherit;
+}
+tr:hover .amount-add-btn { opacity: 1; }
+.amount-add-btn:hover { color: var(--blue); border-color: rgba(10,132,255,0.4); }
+.amount-input {
+  background: rgba(10,132,255,0.08);
+  border: 1px solid var(--blue);
+  color: var(--text);
+  padding: 2px 6px;
+  border-radius: 5px;
+  font-size: 0.83rem;
+  font-family: inherit;
+  outline: none;
+  width: 90px;
+  text-align: right;
+}
+
+/* ── Inline label edit ── */
+.label-cell { cursor: text; min-width: 80px; }
+.label-cell:hover { color: var(--text2); }
+.label-placeholder { font-style: italic; font-size: 0.75rem; color: var(--muted2); }
+.label-input {
+  background: rgba(10,132,255,0.08);
+  border: 1px solid var(--blue);
+  color: var(--text);
+  padding: 3px 8px;
+  border-radius: 5px;
+  font-size: 0.83rem;
+  font-family: inherit;
+  outline: none;
+  width: 140px;
+}
+
+/* ── Done row ── */
+.done-row td { opacity: 0.35; }
+
+/* ── Overdue ── */
+.overdue { color: var(--red); }
+
+/* ── Wallets: checkboxes ── */
+input[type="checkbox"] {
+  width: 14px; height: 14px;
+  cursor: pointer;
+  accent-color: var(--blue);
+  flex-shrink: 0;
+}
+th.cb-col, td.cb-col { width: 34px; padding-right: 0; }
+.wallet-cb { opacity: 0; transition: opacity 0.12s; }
+tr:hover .wallet-cb, .wallet-cb:checked { opacity: 1; }
+.in-selection .wallet-cb { opacity: 1; }
+tr:has(.wallet-cb:checked) td { background: rgba(10,132,255,0.05) !important; }
+
+/* ── Copy address button ── */
+.addr-wrap { display: flex; align-items: center; gap: 6px; }
+.copy-btn {
+  opacity: 0;
+  background: transparent;
+  border: none;
+  color: var(--muted2);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  line-height: 1;
+  transition: opacity 0.12s, color 0.12s;
+  flex-shrink: 0;
+}
+tr:hover .copy-btn { opacity: 1; }
+.copy-btn:hover { color: var(--blue); }
+.copy-btn.copied { opacity: 1; color: var(--green); }
+
+/* ── Wallets: protocol assign ── */
+.btn-assign {
+  font-size: 0.68rem;
+  color: var(--blue);
+  background: rgba(10,132,255,0.1);
+  border: 1px solid rgba(10,132,255,0.2);
+  border-radius: 5px;
+  padding: 2px 8px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.12s;
+}
+.btn-assign:hover { background: rgba(10,132,255,0.18); }
+
+.proto-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
+.btn-tiny {
+  background: transparent; border: none;
+  color: var(--muted2); cursor: pointer;
+  font-size: 0.72rem; padding: 0 2px; line-height: 1;
+}
+.btn-tiny:hover { color: var(--text2); }
+
+/* ── Assign modal checkboxes ── */
+.proto-checkboxes {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-height: 280px;
+  overflow-y: auto;
+  padding-right: 2px;
+}
+.cb-proto-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background 0.1s;
+  font-size: 0.82rem;
+  user-select: none;
+}
+.cb-proto-item:hover { background: rgba(255,255,255,0.05); }
+.cb-proto-item input { cursor: pointer; flex-shrink: 0; }
+
+/* ── Selection bar ── */
+.selection-bar {
+  position: fixed;
+  bottom: 0; left: 216px; right: 0;
+  background: rgba(36,36,38,0.95);
+  border-top: 1px solid rgba(10,132,255,0.3);
+  padding: 10px 24px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 50;
+  transform: translateY(100%);
+  transition: transform 0.2s cubic-bezier(0.34,1.2,0.64,1);
+  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+.selection-bar.show { transform: translateY(0); }
+.sel-count { font-size: 0.82rem; font-weight: 600; color: var(--blue); white-space: nowrap; }
+.sel-sep { width: 1px; height: 18px; background: var(--border); }
+.selection-bar select { max-width: 200px; }
+.sel-clear {
+  margin-left: auto;
+  background: transparent; border: none;
+  color: var(--muted); cursor: pointer;
+  font-size: 0.75rem; padding: 4px 8px;
+  font-family: inherit;
+}
+.sel-clear:hover { color: var(--text2); }
+
+/* ── Calculator ── */
+.token-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0;
+  background: #2c2c2e;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 10px;
+  z-index: 100;
+  max-height: 220px;
+  overflow-y: auto;
+  margin-top: 3px;
+  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+}
+.token-dropdown-item {
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 0.82rem;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.token-dropdown-item:hover { background: rgba(255,255,255,0.07); }
+.token-sym { font-weight: 600; color: var(--text); }
+.token-name { color: var(--muted); font-size: 0.75rem; }
+
+.badge-long  { background: rgba(48,209,88,0.12);  color: var(--green); }
+.badge-short { background: rgba(255,69,58,0.12);   color: var(--red); }
+.liq-safe    { color: var(--green); }
+.liq-warn    { color: var(--amber); }
+.liq-danger  { color: var(--red); font-weight: 600; }
+
+.calc-draggable { cursor: grab; }
+.calc-draggable:active { cursor: grabbing; }
+.calc-dragging { opacity: 0.3; }
+.calc-drop-active td { background: rgba(10,132,255,0.08) !important; outline: 2px dashed rgba(10,132,255,0.4); outline-offset: -2px; }
+
+/* ── Perp tabs ── */
+.perp-tabs {
+  display: flex; gap: 2px;
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px; padding: 2px;
+}
+.perp-tab {
+  background: none; border: none;
+  color: var(--muted); cursor: pointer;
+  padding: 4px 14px; border-radius: 7px;
+  font-size: 0.78rem; font-weight: 500;
+  transition: background 0.12s, color 0.12s;
+  font-family: inherit;
+}
+.perp-tab:hover { color: var(--text2); }
+.perp-tab.active { background: rgba(255,255,255,0.1); color: var(--text); }
+
+.calc-dir-btn.active { border-color: var(--green); color: var(--green); background: rgba(48,209,88,0.1); }
+.calc-dir-btn[data-dir="short"].active { border-color: var(--red); color: var(--red); background: rgba(255,69,58,0.1); }
+.calc-size-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  color: var(--muted);
+  cursor: pointer;
+  font-family: inherit;
+}
+.calc-size-btn.active { border-color: rgba(10,132,255,0.5); color: var(--blue); background: rgba(10,132,255,0.1); }
+.form-label {
+  display: block;
+  font-size: 0.67rem;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin-bottom: 5px;
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<aside class="sidebar">
+  <div class="logo">Project<span>632</span><span style="display:block;font-size:0.6rem;font-weight:400;color:var(--muted);letter-spacing:0.05em;margin-top:2px">alpha v0.2</span></div>
+  <nav>
+    <a href="#" class="active" data-section="overview" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      <span data-i18n="nav_overview">Overview</span>
+    </a>
+    <a href="#" data-section="protocols" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3" cy="6" r="1.5"/><circle cx="3" cy="12" r="1.5"/><circle cx="3" cy="18" r="1.5"/></svg>
+      <span data-i18n="nav_protocols">Protocols</span>
+    </a>
+    <a href="#" data-section="wallets" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <span data-i18n="nav_wallets">Wallets</span>
+    </a>
+    <a href="#" data-section="perp" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
+      Perp
+    </a>
+  </nav>
+  <div class="sidebar-bottom">
+    <button class="btn-export" onclick="exportData()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      <span data-i18n="btn_export">Export Excel</span>
+    </button>
+    <button class="btn-export" style="margin-top:8px;background:rgba(148,163,184,0.08);border-color:rgba(148,163,184,0.2);color:var(--muted)" onclick="location.href='/profiles'">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+      <span data-i18n="btn_switch_profile">Switch Profile</span>
+    </button>
+    <button id="lang-toggle-btn" onclick="toggleLang()"
+      style="margin-top:8px;width:100%;background:rgba(59,130,246,0.1);border:1px solid rgba(59,130,246,0.25);border-radius:6px;color:var(--blue);padding:7px 12px;cursor:pointer;font-size:0.78rem;font-weight:600;letter-spacing:0.5px">
+      RU
+    </button>
+    <div id="active-profile" style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:6px;opacity:0.7"></div>
+  </div>
+</aside>
+
+<!-- Main -->
+<div class="main">
+  <div class="topbar">
+    <h1 id="page-title">Overview</h1>
+  </div>
+  <div class="content">
+
+    <!-- Overview -->
+    <section id="s-overview" class="active">
+      <div class="stats-grid" id="stats-grid"></div>
+      <div id="overview-charts" style="display:flex;gap:16px;flex-wrap:wrap;margin-bottom:24px"></div>
+    </section>
+
+    <!-- Protocols -->
+    <section id="s-protocols">
+      <!-- List view -->
+      <div id="proto-list-view">
+        <div class="sec-header">
+          <span class="sec-title" data-i18n="nav_protocols">Protocols</span>
+          <button class="btn btn-primary" onclick="openProtocolModal()" data-i18n="btn_add">+ Add</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th data-i18n="th_protocol">Protocol</th>
+              <th style="text-align:right" data-i18n="th_deposit">Deposit</th>
+              <th style="text-align:right" data-i18n="th_balance">Balance</th>
+              <th style="text-align:right" data-i18n="th_spent">Spent</th>
+              <th style="text-align:right" class="c-muted" data-i18n="th_withdrawn">Withdrawn</th>
+              <th style="text-align:right">P&amp;L</th>
+              <th style="text-align:right" data-i18n="th_points">Points</th>
+              <th data-i18n="th_status">Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="protocols-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Detail view -->
+      <div id="proto-detail-view" class="hidden">
+        <div class="sec-header" style="margin-bottom:16px">
+          <button class="btn btn-ghost" onclick="closeProtocolDetail()" style="display:flex;align-items:center;gap:6px">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            <span data-i18n="btn_back">Back</span>
+          </button>
+          <span id="proto-detail-name" class="sec-title" style="margin-left:8px"></span>
+          <div style="margin-left:auto;display:flex;gap:8px">
+            <button class="btn btn-ghost btn-sm" onclick="openProtoImport()" data-i18n="btn_import">↧ Import</button>
+            <button class="btn btn-ghost btn-sm" id="proto-detail-edit-btn" data-i18n="btn_edit_proto">✎ Edit</button>
+          </div>
+        </div>
+
+        <!-- Stats bar -->
+        <div id="proto-detail-stats" style="display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px"></div>
+
+        <!-- Wallets table -->
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th data-i18n="th_address">Address</th>
+              <th data-i18n="th_label">Label</th>
+              <th style="text-align:right" data-i18n="th_deposit">Deposit</th>
+              <th style="text-align:right" data-i18n="th_balance">Balance</th>
+              <th style="text-align:right"><span data-i18n="th_withdrawn">Withdrawn</span> <button class="btn btn-ghost btn-sm" style="padding:1px 6px;font-size:0.7rem;opacity:0.7" onclick="withdrawAllWallets()" id="withdraw-all-btn" data-i18n="th_withdraw_all">↑ all</button></th>
+              <th style="text-align:right" data-i18n="th_spent">Spent</th>
+              <th style="text-align:right" data-i18n="th_points">Points</th>
+            </tr></thead>
+            <tbody id="proto-detail-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- Wallets -->
+    <section id="s-wallets">
+      <div class="sec-header">
+        <div class="filter-row" style="margin:0">
+          <select id="wallet-filter" onchange="loadWallets()">
+            <option value="" data-i18n="all_wallets">All wallets</option>
+          </select>
+          <input id="wallet-search" type="search" data-i18n-ph="wallet_search_ph" placeholder="Search by address / label..."
+            oninput="filterWallets()" style="max-width:260px">
+          <span id="wallet-counter" class="c-muted" style="font-size:0.8rem;white-space:nowrap"></span>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-primary" onclick="openBulkAddModal()" data-i18n="btn_add">+ Add</button>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;min-height:20px">
+        <span id="sync-status" style="font-size:0.78rem;color:var(--muted)"></span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th class="cb-col"><input type="checkbox" id="wallet-select-all" onchange="toggleSelectAll(this)"></th>
+            <th data-i18n="th_address">Address</th>
+            <th data-i18n="nav_protocols">Protocols</th>
+            <th data-i18n="th_label">Label</th>
+            <th data-i18n="th_added">Added</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="wallets-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Reminders -->
+    <section id="s-reminders">
+      <div class="sec-header">
+        <span class="sec-title" data-i18n="nav_reminders">Reminders</span>
+        <button class="btn btn-primary" onclick="openReminderModal()" data-i18n="btn_add">+ Add</button>
+      </div>
+      <div class="due-banner" id="due-banner">
+        <span>🔔</span>
+        <span id="due-banner-text"></span>
+        <span class="due-banner-close" onclick="document.getElementById('due-banner').classList.remove('show')">✕</span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th data-i18n="nav_protocols">Protocols</th>
+            <th data-i18n="th_date">Date</th>
+            <th data-i18n="th_status">Status</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="reminders-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Perp (merged HL Live + Manual positions) -->
+    <section id="s-perp">
+      <div class="sec-header">
+        <span class="sec-title">Perp</span>
+        <div class="perp-tabs">
+          <button class="perp-tab active" data-tab="manual" onclick="switchPerpTab('manual')" data-i18n="perp_my_positions">My Positions</button>
+          <button class="perp-tab" data-tab="hl" onclick="switchPerpTab('hl')" data-i18n="perp_hl_live">HL Live</button>
+        </div>
+        <div id="perp-actions-manual" style="display:flex;gap:8px;align-items:center">
+          <button class="btn btn-ghost" onclick="createCalcGroup()" data-i18n="btn_group">+ Group</button>
+          <button class="btn btn-primary" onclick="openCalcForm()" data-i18n="btn_position">+ Position</button>
+        </div>
+        <div id="perp-actions-hl" style="display:none;gap:8px;align-items:center">
+          <span id="hlpos-ts" class="c-muted" style="font-size:0.75rem"></span>
+          <button class="btn btn-secondary" onclick="refreshHLPos()" id="hlpos-refresh-btn" data-i18n="btn_refresh">↻ Refresh</button>
+          <button class="btn btn-primary" onclick="openHLAddAccount()" data-i18n="btn_add_account">+ Account</button>
+        </div>
+      </div>
+
+      <!-- Manual positions tab -->
+      <div id="perp-tab-manual">
+        <div id="calc-add-wrap" class="hidden" style="margin-bottom:20px">
+          <div class="table-wrap" style="padding:20px">
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px">
+              <div style="position:relative">
+                <label class="form-label" data-i18n="calc_coin">Coin</label>
+                <input id="calc-symbol" type="text" data-i18n-ph="coin_search_ph" placeholder="Search: ETH, BTC..." autocomplete="off"
+                  oninput="searchCalcToken(this.value)">
+                <div id="calc-token-dropdown" class="token-dropdown hidden"></div>
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_direction">Direction</label>
+                <div style="display:flex;gap:8px">
+                  <button class="btn btn-secondary calc-dir-btn active" data-dir="long" onclick="setCalcDir('long')">LONG</button>
+                  <button class="btn btn-secondary calc-dir-btn" data-dir="short" onclick="setCalcDir('short')">SHORT</button>
+                </div>
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_entry_price">Entry Price ($)</label>
+                <input id="calc-entry" type="number" min="0" step="any" data-i18n-ph="calc_entry_ph" placeholder="auto from HL">
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_pos_size">Position Size
+                  <span style="margin-left:6px">
+                    <button type="button" class="calc-size-btn active" data-unit="usd" onclick="setCalcUnit('usd')" style="font-size:0.7rem;padding:1px 6px">$</button>
+                    <button type="button" class="calc-size-btn" data-unit="token" onclick="setCalcUnit('token')" style="font-size:0.7rem;padding:1px 6px">TOKEN</button>
+                  </span>
+                </label>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <input id="calc-size" type="number" min="0" step="any" oninput="updateCalcMargin()" style="flex:1">
+                  <span id="calc-size-unit" class="c-muted" style="font-size:0.8rem;white-space:nowrap">USD</span>
+                </div>
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_leverage">Leverage (×)</label>
+                <input id="calc-leverage" type="number" min="1" step="0.5" value="5" oninput="updateCalcMargin()">
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_margin">Margin (calc.)</label>
+                <input id="calc-margin-display" type="text" readonly placeholder="—" style="color:var(--amber);background:rgba(245,158,11,0.05)">
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_note">Note</label>
+                <input id="calc-note" type="text">
+              </div>
+              <div>
+                <label class="form-label" data-i18n="calc_group">Group</label>
+                <select id="calc-group-select" style="width:100%">
+                  <option value="" data-i18n="calc_no_group">No group</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:flex;gap:8px;margin-top:14px">
+              <button id="calc-save-btn" class="btn btn-primary" onclick="saveCalcPosition()" data-i18n="btn_add_pos">Add</button>
+              <button class="btn btn-ghost" onclick="closeCalcForm()" data-i18n="btn_cancel">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrap">
+          <table id="calc-table">
+            <thead><tr>
+              <th data-i18n="th_coin">Coin</th>
+              <th data-i18n="th_type">Type</th>
+              <th style="text-align:right" data-i18n="th_entry">Entry</th>
+              <th style="text-align:right" data-i18n="th_current_hl">Current (HL)</th>
+              <th style="text-align:right" data-i18n="th_leverage">Leverage</th>
+              <th style="text-align:right" data-i18n="th_margin">Margin</th>
+              <th style="text-align:right">P&amp;L</th>
+              <th style="text-align:right" data-i18n="th_liq_calc">Liq. (calc)</th>
+              <th style="text-align:right" data-i18n="th_to_liq">To Liq.</th>
+              <th></th>
+            </tr></thead>
+            <tbody id="calc-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HL Live tab -->
+      <div id="perp-tab-hl" class="hidden">
+        <div id="hlpos-accounts" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px"></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th data-i18n="th_account">Account</th>
+              <th data-i18n="th_coin">Coin</th>
+              <th data-i18n="th_type">Type</th>
+              <th style="text-align:right" data-i18n="th_size">Size</th>
+              <th style="text-align:right" data-i18n="th_entry">Entry</th>
+              <th style="text-align:right" data-i18n="th_current">Current</th>
+              <th style="text-align:right" data-i18n="th_leverage">Leverage</th>
+              <th style="text-align:right" data-i18n="th_collateral">Collateral</th>
+              <th style="text-align:right">P&amp;L</th>
+              <th style="text-align:right">ROE</th>
+              <th style="text-align:right" data-i18n="th_liq">Liq.</th>
+              <th style="text-align:right" data-i18n="th_to_liq">To Liq.</th>
+            </tr></thead>
+            <tbody id="hlpos-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+  </div><!-- .content -->
+</div><!-- .main -->
+
+<!-- Modal -->
+<div class="overlay hidden" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-header" id="modal-title"></div>
+    <div class="modal-body"  id="modal-body"></div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="modalConfirm()" data-i18n="btn_save">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- Selection bar -->
+<div class="selection-bar" id="selection-bar">
+  <span class="sel-count" id="sel-count">Selected: 0</span>
+  <span class="sel-sep"></span>
+  <span style="font-size:0.82rem;color:var(--muted)" data-i18n="assign_protocol">Assign protocol:</span>
+  <select id="bar-protocol-select" style="max-width:200px">
+    <option value="" data-i18n="no_protocol_bar">— No protocol</option>
+  </select>
+  <button class="btn btn-primary btn-sm" onclick="bulkAssignSelected()" data-i18n="btn_apply">Apply</button>
+  <button class="btn btn-secondary btn-sm" onclick="bulkCopySelected()" data-i18n="btn_copy_addresses">Copy Addresses</button>
+  <button class="btn btn-danger btn-sm" onclick="bulkDeleteSelected()" data-i18n="btn_delete">Delete</button>
+  <button class="sel-clear" onclick="clearSelection()" data-i18n="btn_clear_selection">✕ Clear selection</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Language / i18n ────────────────────────────────────────────
+let lang = localStorage.getItem('farmtrack_lang') || 'en';
+
+const T = {
+  en: {
+    nav_overview:'Overview', nav_protocols:'Protocols', nav_wallets:'Wallets',
+    nav_reminders:'Reminders', nav_perp:'Perp',
+    btn_export:'Export Excel', btn_switch_profile:'Switch Profile',
+    page_overview:'Overview', page_protocols:'Protocols', page_wallets:'Wallets',
+    page_reminders:'Reminders', page_perp:'Perp',
+    stat_protocols:'Protocols', stat_active:'Active', stat_wallets:'Wallets',
+    stat_balance:'Balance', stat_spent:'Spent',
+    donut_total:'total', donut_spent:'Spent', no_data:'No data',
+    th_protocol:'Protocol', th_deposit:'Deposit', th_balance:'Balance',
+    th_spent:'Spent', th_withdrawn:'Withdrawn', th_points:'Points', th_status:'Status',
+    th_address:'Address', th_label:'Label', th_withdraw_all:'↑ all',
+    stat_deposit:'Deposit', stat_withdrawn:'Withdrawn', stat_pnl:'P&L',
+    stat_per_point:'$/point',
+    btn_back:'Back', btn_import:'↧ Import', btn_edit_proto:'✎ Edit',
+    all_wallets:'All wallets', no_protocol_opt:'— No protocol',
+    th_added:'Added',
+    wallet_search_ph:'Search by address / label...',
+    wallets_no_protocol:'without protocol',
+    label_placeholder:'— add label',
+    last_import:'Last import:', sync_importing:'Importing...',
+    th_date:'Date',
+    status_done_badge:'done', status_overdue_badge:'overdue', status_active_badge:'active',
+    status_farming:'farming', status_awaiting:'awaiting drop', status_closed:'closed',
+    btn_cancel:'Cancel', btn_save:'Save', btn_add:'+ Add',
+    modal_add_protocol:'Add Protocol', modal_edit_protocol:'Edit Protocol',
+    field_name:'Name *', field_name_ph:'E.g.: Scroll',
+    field_extra_costs:'Extra costs ($)', field_extra_costs_hint:'— added to calculated',
+    field_status:'Status', field_note:'Note', field_note_ph:'Optional...',
+    field_color:'Color',
+    modal_add_wallets:'Add Wallets',
+    field_addresses:'Addresses', field_addresses_hint:'— one per line',
+    addr_count:'Addresses:',
+    field_assign_protos:'Assign to protocols (optional)',
+    field_label_opt:'Label (optional)', field_label_ph:'E.g.: main',
+    modal_assign:'Wallet Protocols',
+    assign_hint:'Select all protocols this wallet participates in',
+    no_protocols_yet:'Add protocols first',
+    modal_add_reminder:'Add Reminder',
+    field_protocol:'Protocol *', field_protocol_ph:'Select protocol...',
+    field_remind_at:'Remind at *',
+    empty_protocols:'No protocols added yet',
+    empty_wallets_proto:'No wallets in this protocol',
+    empty_wallets:'No wallets found',
+    empty_reminders:'No reminders added yet',
+    empty_positions:'No positions',
+    empty_no_positions:'— no positions',
+    empty_search:'Nothing found',
+    toast_proto_updated:'Protocol updated', toast_proto_added:'Protocol added',
+    toast_proto_deleted:'Protocol deleted', toast_wallet_deleted:'Wallet deleted',
+    toast_reminder_deleted:'Reminder deleted', toast_reminder_done:'Marked as done',
+    toast_reminder_added:'Reminder added', toast_protos_updated:'Protocols updated',
+    toast_enter_name:'Enter a name', toast_enter_addresses:'Enter addresses',
+    toast_select_protocol:'Select a protocol', toast_enter_date:'Enter a date',
+    toast_no_balance:'No wallets with balance', toast_fill_all:'Fill in all fields',
+    wallets_updated:'Updated:', wallets_deleted:'Deleted:', wallets_added:'Added',
+    selected:'Selected:', assign_protocol:'Assign protocol:',
+    no_protocol_bar:'— No protocol',
+    btn_apply:'Apply', btn_copy_addresses:'Copy Addresses',
+    btn_delete:'Delete', btn_clear_selection:'✕ Clear selection',
+    perp_my_positions:'My Positions', perp_hl_live:'HL Live',
+    btn_group:'+ Group', btn_position:'+ Position',
+    btn_refresh:'↻ Refresh', btn_add_account:'+ Account',
+    calc_coin:'Coin', calc_direction:'Direction',
+    calc_entry_ph:'auto from HL', calc_entry_price:'Entry Price ($)',
+    calc_pos_size:'Position Size', calc_leverage:'Leverage (×)',
+    calc_margin:'Margin (calc.)', calc_note:'Note', calc_group:'Group',
+    calc_no_group:'No group',
+    btn_add_pos:'Add', btn_save_pos:'Save',
+    th_coin:'Coin', th_type:'Type', th_entry:'Entry',
+    th_current_hl:'Current (HL)', th_leverage:'Leverage',
+    th_margin:'Margin', th_liq_calc:'Liq. (calc)', th_to_liq:'To Liq.',
+    th_account:'Account', th_size:'Size', th_current:'Current',
+    th_collateral:'Collateral', th_roe:'ROE', th_liq:'Liq.',
+    hl_account:'account', hl_no_accounts:'No accounts — add your first',
+    hl_error:'Load error', hl_updated:'updated',
+    group_margin:'margin', group_no_positions:'— no positions',
+    group_ungrouped:'Ungrouped',
+    add_to_deposit:'Add to deposit', add_to_balance:'Add to balance',
+    add_points_prompt:'Add points', add_to_withdrawn:'Add to withdrawn',
+    import_title:'Import from Table',
+    import_hint:'Copy data from Google Sheets and paste below. Each row is one wallet, columns are tab-separated. Assign a role to each column.',
+    import_paste_ph:'Paste data (Ctrl+V)...',
+    import_assign_cols:'Assign columns:', import_col_label:'Column',
+    import_preview:'Preview (first 5 rows):',
+    btn_import_run:'Import',
+    import_add_deposit:'Add deposit to existing',
+    import_add_points:'Add points to existing',
+    import_importing:'Importing...',
+    import_no_addr_col:'Address column not assigned',
+    col_skip:'(skip)', col_address:'Address', col_deposit:'Deposit',
+    col_balance:'Balance', col_points:'Points', col_withdrawn:'Withdrawn',
+    pos_added:'Position added', pos_updated:'Position updated',
+    open_folder:'Open folder',
+    coin_search_ph:'Search: ETH, BTC...',
+    lang_btn:'RU',
+  },
+  ru: {
+    nav_overview:'Обзор', nav_protocols:'Протоколы', nav_wallets:'Кошельки',
+    nav_reminders:'Напоминания', nav_perp:'Perp',
+    btn_export:'Экспорт Excel', btn_switch_profile:'Сменить профиль',
+    page_overview:'Обзор', page_protocols:'Протоколы', page_wallets:'Кошельки',
+    page_reminders:'Напоминания', page_perp:'Perp',
+    stat_protocols:'Протоколов', stat_active:'Активных', stat_wallets:'Кошельков',
+    stat_balance:'Баланс', stat_spent:'Потрачено',
+    donut_total:'итого', donut_spent:'Потрачено', no_data:'Нет данных',
+    th_protocol:'Протокол', th_deposit:'Депозит', th_balance:'Баланс',
+    th_spent:'Потрачено', th_withdrawn:'Выведено', th_points:'Поинты', th_status:'Статус',
+    th_address:'Адрес', th_label:'Метка', th_withdraw_all:'↑ все',
+    stat_deposit:'Депозит', stat_withdrawn:'Выведено', stat_pnl:'P&L',
+    stat_per_point:'$ за поинт',
+    btn_back:'Назад', btn_import:'↧ Импорт', btn_edit_proto:'✎ Редактировать',
+    all_wallets:'Все кошельки', no_protocol_opt:'— Без протокола',
+    th_added:'Добавлен',
+    wallet_search_ph:'Поиск по адресу / метке...',
+    wallets_no_protocol:'без протокола',
+    label_placeholder:'— добавить метку',
+    last_import:'Последний импорт:', sync_importing:'Импортирую...',
+    th_date:'Дата',
+    status_done_badge:'выполнено', status_overdue_badge:'просрочено', status_active_badge:'активно',
+    status_farming:'фармлю', status_awaiting:'жду дроп', status_closed:'закрыт',
+    btn_cancel:'Отмена', btn_save:'Сохранить', btn_add:'+ Добавить',
+    modal_add_protocol:'Добавить протокол', modal_edit_protocol:'Редактировать протокол',
+    field_name:'Название *', field_name_ph:'Например: Scroll',
+    field_extra_costs:'Доп. расходы ($)', field_extra_costs_hint:'— прибавляется к расчётным',
+    field_status:'Статус', field_note:'Заметка', field_note_ph:'Опционально...',
+    field_color:'Цвет',
+    modal_add_wallets:'Добавить кошельки',
+    field_addresses:'Адреса', field_addresses_hint:'— по одному на строке',
+    addr_count:'Адресов:',
+    field_assign_protos:'Назначить в протоколы (опционально)',
+    field_label_opt:'Метка (опционально)', field_label_ph:'Например: основной',
+    modal_assign:'Протоколы кошелька',
+    assign_hint:'Выберите все протоколы в которых участвует этот кошелёк',
+    no_protocols_yet:'Сначала добавьте протоколы',
+    modal_add_reminder:'Добавить напоминание',
+    field_protocol:'Протокол *', field_protocol_ph:'Выберите протокол...',
+    field_remind_at:'Напомнить *',
+    empty_protocols:'Протоколы ещё не добавлены',
+    empty_wallets_proto:'Нет кошельков в этом протоколе',
+    empty_wallets:'Кошельки не найдены',
+    empty_reminders:'Напоминания ещё не добавлены',
+    empty_positions:'Нет позиций',
+    empty_no_positions:'— нет позиций',
+    empty_search:'Ничего не найдено',
+    toast_proto_updated:'Протокол обновлён', toast_proto_added:'Протокол добавлен',
+    toast_proto_deleted:'Протокол удалён', toast_wallet_deleted:'Кошелёк удалён',
+    toast_reminder_deleted:'Напоминание удалено', toast_reminder_done:'Отмечено как выполненное',
+    toast_reminder_added:'Напоминание добавлено', toast_protos_updated:'Протоколы обновлены',
+    toast_enter_name:'Введите название', toast_enter_addresses:'Введите адреса',
+    toast_select_protocol:'Выберите протокол', toast_enter_date:'Укажите дату',
+    toast_no_balance:'Нет кошельков с балансом', toast_fill_all:'Заполните все поля',
+    wallets_updated:'Обновлено:', wallets_deleted:'Удалено:', wallets_added:'Добавлено',
+    selected:'Выбрано:', assign_protocol:'Назначить протокол:',
+    no_protocol_bar:'— Без протокола',
+    btn_apply:'Применить', btn_copy_addresses:'Копировать адреса',
+    btn_delete:'Удалить', btn_clear_selection:'✕ Снять выделение',
+    perp_my_positions:'Мои позиции', perp_hl_live:'HL Live',
+    btn_group:'+ Группа', btn_position:'+ Позиция',
+    btn_refresh:'↻ Обновить', btn_add_account:'+ Аккаунт',
+    calc_coin:'Монета', calc_direction:'Направление',
+    calc_entry_ph:'авто с HL', calc_entry_price:'Цена входа ($)',
+    calc_pos_size:'Размер позиции', calc_leverage:'Плечо (×)',
+    calc_margin:'Маржа (расч.)', calc_note:'Заметка', calc_group:'Группа',
+    calc_no_group:'Без группы',
+    btn_add_pos:'Добавить', btn_save_pos:'Сохранить',
+    th_coin:'Монета', th_type:'Тип', th_entry:'Вход',
+    th_current_hl:'Текущая (HL)', th_leverage:'Плечо',
+    th_margin:'Маржа', th_liq_calc:'Ликв. (расч.)', th_to_liq:'До ликв.',
+    th_account:'Аккаунт', th_size:'Размер', th_current:'Текущая',
+    th_collateral:'Залог', th_roe:'ROE', th_liq:'Ликв.',
+    hl_account:'аккаунт', hl_no_accounts:'Нет аккаунтов — добавьте первый',
+    hl_error:'Ошибка загрузки', hl_updated:'обновлено',
+    group_margin:'маржа', group_no_positions:'— нет позиций',
+    group_ungrouped:'Без группы',
+    add_to_deposit:'Добавить к депозиту', add_to_balance:'Добавить к балансу',
+    add_points_prompt:'Добавить поинты', add_to_withdrawn:'Добавить к выведено',
+    import_title:'Импорт из таблицы',
+    import_hint:'Скопируй данные из Google Таблиц и вставь ниже. Каждая строка — один кошелёк, колонки разделены табом. Назначь каждой колонке роль.',
+    import_paste_ph:'Вставьте данные (Ctrl+V)...',
+    import_assign_cols:'Назначь колонки:', import_col_label:'Колонка',
+    import_preview:'Превью (первые 5 строк):',
+    btn_import_run:'Импортировать',
+    import_add_deposit:'Добавить депозит к существующему',
+    import_add_points:'Добавить поинты к существующим',
+    import_importing:'Импортирую...',
+    import_no_addr_col:'Не назначена колонка "Адрес"',
+    col_skip:'(пропустить)', col_address:'Адрес', col_deposit:'Депозит',
+    col_balance:'Баланс', col_points:'Поинты', col_withdrawn:'Выведено',
+    pos_added:'Позиция добавлена', pos_updated:'Позиция обновлена',
+    open_folder:'Открыть папку',
+    coin_search_ph:'Поиск: ETH, BTC...',
+    lang_btn:'EN',
+  }
+};
+
+function t(k) { return (T[lang] || T.en)[k] || k; }
+
+function toggleLang() {
+  lang = lang === 'en' ? 'ru' : 'en';
+  localStorage.setItem('farmtrack_lang', lang);
+  document.getElementById('lang-toggle-btn').textContent = t('lang_btn');
+  applyLang();
+  if (currentSection === 'overview')   loadOverview();
+  else if (currentSection === 'protocols') { if (_protoDetail) { refreshProtoDetail(); loadProtocolDetailWallets(_protoDetail.name); } else loadProtocols(); }
+  else if (currentSection === 'wallets')   loadWallets();
+  else if (currentSection === 'reminders') loadReminders();
+  else if (currentSection === 'perp')      initPerp();
+}
+
+function applyLang() {
+  document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
+  document.getElementById('page-title').textContent = t('page_' + currentSection) || currentSection;
+}
+
+function getColRoles() {
+  return [t('col_skip'), t('col_address'), t('col_deposit'), t('col_balance'), t('col_points'), t('col_withdrawn')];
+}
+
+// ── State ──────────────────────────────────────────────────────
+let currentSection = 'overview';
+let modalAction = null;
+let editingId = null;
+
+// ── Navigation ─────────────────────────────────────────────────
+let _perpActiveTab = 'manual';
+
+function navigate(el) {
+  event.preventDefault();
+  const section = el.dataset.section;
+
+  document.querySelectorAll('nav a').forEach(a => a.classList.remove('active'));
+  el.classList.add('active');
+
+  document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+  document.getElementById('s-' + section).classList.add('active');
+
+  currentSection = section;
+  document.getElementById('page-title').textContent = t('page_' + section) || section;
+
+  if (section === 'overview')   loadOverview();
+  if (section === 'protocols')  loadProtocols();
+  if (section === 'wallets')    loadWallets();
+  if (section === 'reminders')  loadReminders();
+  if (section === 'perp')       initPerp();
+}
+
+function initPerp() {
+  if (_perpActiveTab === 'manual') initCalc();
+  else initHLPos();
+}
+
+function switchPerpTab(tab) {
+  _perpActiveTab = tab;
+  document.querySelectorAll('.perp-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  document.getElementById('perp-tab-manual').classList.toggle('hidden', tab !== 'manual');
+  document.getElementById('perp-tab-hl').classList.toggle('hidden', tab !== 'hl');
+  document.getElementById('perp-actions-manual').style.display = tab === 'manual' ? 'flex' : 'none';
+  document.getElementById('perp-actions-hl').style.display = tab === 'hl' ? 'flex' : 'none';
+  if (tab === 'manual') initCalc();
+  else initHLPos();
+}
+
+// ── API ────────────────────────────────────────────────────────
+async function api(method, url, body) {
+  const opts = { method, headers: { 'Content-Type': 'application/json' } };
+  if (body !== undefined) opts.body = JSON.stringify(body);
+  const r = await fetch(url, opts);
+  return r.json();
+}
+
+// ── Formatters ─────────────────────────────────────────────────
+function fmt(n) {
+  if (n === null || n === undefined) return '—';
+  const s = Math.abs(n).toLocaleString(lang === 'en' ? 'en-US' : 'ru-RU', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return (n < 0 ? '−' : '') + s + ' $';
+}
+
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s.replace(' ', 'T'));
+  if (isNaN(d)) return s;
+  return d.toLocaleString(lang === 'en' ? 'en-GB' : 'ru-RU', { day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+function pnlCls(v) { return v > 0 ? 'c-green' : v < 0 ? 'c-red' : 'c-muted'; }
+
+function statusBadge(s) {
+  const map = {
+    'фармлю':   { cls: 'badge-green', key: 'status_farming' },
+    'жду дроп': { cls: 'badge-amber', key: 'status_awaiting' },
+    'закрыт':   { cls: 'badge-gray',  key: 'status_closed' },
+  };
+  const info = map[s];
+  if (!info) return `<span class="badge badge-gray">${s || '—'}</span>`;
+  return `<span class="badge ${info.cls}">${t(info.key)}</span>`;
+}
+
+// ── Overview ───────────────────────────────────────────────────
+async function loadOverview() {
+  const [stats, protocols] = await Promise.all([
+    api('GET', '/api/stats'),
+    api('GET', '/api/protocols'),
+  ]);
+
+  const pnl = stats.pnl || 0;
+  document.getElementById('stats-grid').innerHTML = `
+    <div class="stat-card" style="--stat-accent:#3b82f6"><div class="stat-label"><span class="si">◈</span>${t('stat_protocols')}</div><div class="stat-value">${stats.total || 0}</div></div>
+    <div class="stat-card" style="--stat-accent:#10b981"><div class="stat-label"><span class="si">▶</span>${t('stat_active')}</div><div class="stat-value c-green">${stats.active || 0}</div></div>
+    <div class="stat-card" style="--stat-accent:#64748b"><div class="stat-label"><span class="si">◎</span>${t('stat_wallets')}</div><div class="stat-value">${stats.total_wallets || 0}</div></div>
+    <div class="stat-card" style="--stat-accent:#10b981"><div class="stat-label"><span class="si">◉</span>${t('stat_balance')}</div><div class="stat-value c-green">${fmt(stats.total_balance)}</div></div>
+    <div class="stat-card" style="--stat-accent:#f59e0b"><div class="stat-label"><span class="si">↑</span>${t('stat_spent')}</div><div class="stat-value c-amber">${fmt(stats.total_spent)}</div></div>
+    <div class="stat-card" style="--stat-accent:${pnl >= 0 ? '#10b981' : '#ef4444'}"><div class="stat-label"><span class="si">≈</span>P&L</div><div class="stat-value ${pnlCls(pnl)}" style="font-size:1.6rem">${fmt(pnl)}</div></div>
+  `;
+
+  const chartsEl = document.getElementById('overview-charts');
+  if (!protocols.length) {
+    chartsEl.innerHTML = '';
+    return;
+  }
+  chartsEl.innerHTML = `
+    <div class="table-wrap" style="flex:1;min-width:280px;padding:20px">
+      <div style="font-size:0.75rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:16px">${t('donut_spent')}</div>
+      ${buildDonutChart(protocols, 'total_spent')}
+    </div>
+  `;
+}
+
+function buildDonutChart(protocols, field) {
+  const items = protocols.filter(p => (p[field] || 0) > 0);
+  if (!items.length) return `<div class="c-muted" style="font-size:0.85rem;padding:8px 0">${t('no_data')}</div>`;
+
+  const total = items.reduce((s, p) => s + (p[field] || 0), 0);
+  const cx = 80, cy = 80, R = 65, hole = 40;
+  const segments = [];
+  let angle = -Math.PI / 2;
+
+  for (const p of items) {
+    const frac = (p[field] || 0) / total;
+    const sweep = frac * 2 * Math.PI;
+    // clamp tiny slices so arc doesn't collapse
+    const a1 = angle, a2 = angle + Math.max(sweep, 0.01);
+    const x1 = cx + R * Math.cos(a1), y1 = cy + R * Math.sin(a1);
+    const x2 = cx + R * Math.cos(a2), y2 = cy + R * Math.sin(a2);
+    const x3 = cx + hole * Math.cos(a2), y3 = cy + hole * Math.sin(a2);
+    const x4 = cx + hole * Math.cos(a1), y4 = cy + hole * Math.sin(a1);
+    const lg = sweep > Math.PI ? 1 : 0;
+    const d = `M${x1},${y1} A${R},${R} 0 ${lg},1 ${x2},${y2} L${x3},${y3} A${hole},${hole} 0 ${lg},0 ${x4},${y4} Z`;
+    segments.push({ d, color: p.color || '#64748b', name: p.name, value: p[field] || 0, pct: frac * 100 });
+    angle += sweep;
+  }
+
+  const paths = segments.map(s =>
+    `<path d="${s.d}" fill="${s.color}" style="opacity:0.85;transition:opacity 0.15s" onmouseenter="this.style.opacity=1" onmouseleave="this.style.opacity=0.85"><title>${esc(s.name)}: ${fmt(s.value)} (${s.pct.toFixed(1)}%)</title></path>`
+  ).join('');
+
+  const legend = segments.map(s => `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;font-size:0.78rem">
+      <div style="width:9px;height:9px;border-radius:2px;background:${s.color};flex-shrink:0"></div>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--muted)">${esc(s.name)}</span>
+      <span style="font-weight:600;white-space:nowrap">${fmt(s.value)}</span>
+      <span style="color:var(--muted);width:32px;text-align:right">${s.pct.toFixed(0)}%</span>
+    </div>`).join('');
+
+  return `<div style="display:flex;align-items:center;gap:20px">
+    <svg width="160" height="160" viewBox="0 0 160 160" style="flex-shrink:0">
+      ${paths}
+      <text x="80" y="76" text-anchor="middle" fill="var(--muted)" font-size="10" font-family="inherit">${t('donut_total')}</text>
+      <text x="80" y="93" text-anchor="middle" fill="var(--fg)" font-size="14" font-weight="600" font-family="inherit">${fmt(total)}</text>
+    </svg>
+    <div style="flex:1;min-width:0">${legend}</div>
+  </div>`;
+}
+
+// ── Protocols ──────────────────────────────────────────────────
+async function loadProtocols() {
+  const protocols = await api('GET', '/api/protocols');
+  const tbody = document.getElementById('protocols-tbody');
+
+  if (!protocols.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">${t('empty_protocols')}</td></tr>`;
+    return;
+  }
+  tbody.innerHTML = protocols.map(p => {
+    const deposit  = p.total_deposit   || 0;
+    const balance  = p.total_balance   || 0;
+    const wearned  = p.total_wp_earned || 0;
+    const spent    = p.total_spent     || 0;
+    const pnl      = p.pnl            || 0;
+    const pts      = p.total_wp_points || 0;
+    return `<tr style="cursor:pointer" onclick='openProtocolDetail(${JSON.stringify(p)})'>
+      <td onclick="event.stopPropagation()"><span onclick='openProtocolDetail(${JSON.stringify(p)})'><strong>${dot(p.color)}${esc(p.name)}</strong></span>
+        ${p.wallet_count ? `<small class="c-muted"> · ${p.wallet_count}w</small>` : ''}</td>
+      <td style="text-align:right" class="c-muted">${deposit ? fmt(deposit) : '<span class="c-muted">—</span>'}</td>
+      <td style="text-align:right" class="c-muted">${balance ? fmt(balance) : '<span class="c-muted">—</span>'}</td>
+      <td style="text-align:right" class="c-amber">${spent ? fmt(spent) : '<span class="c-muted">—</span>'}</td>
+      <td style="text-align:right" class="c-muted">${wearned ? fmt(wearned) : '—'}</td>
+      <td style="text-align:right" class="${pnlCls(pnl)}">${fmt(pnl)}</td>
+      <td style="text-align:right" class="c-blue">${pts ? fmtPts(pts) : '<span class="c-muted">—</span>'}</td>
+      <td onclick="event.stopPropagation()">${statusBadge(p.status)}</td>
+      <td onclick="event.stopPropagation()">
+        <div class="row-actions">
+          <button class="btn btn-sm btn-ghost btn-icon" title="Редактировать" onclick='event.stopPropagation();openProtocolModal(${JSON.stringify(p)})'>✎</button>
+          <button class="btn btn-sm btn-danger btn-icon" title="Удалить" onclick="event.stopPropagation();delProtocol(${p.id},'${esc(p.name)}')">✕</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ── Protocol detail ────────────────────────────────────────────
+let _protoDetail = null;
+
+async function openProtocolDetail(p) {
+  _protoDetail = p;
+  document.getElementById('proto-list-view').classList.add('hidden');
+  document.getElementById('proto-detail-view').classList.remove('hidden');
+  document.getElementById('proto-detail-name').textContent = p.name;
+  document.getElementById('proto-detail-edit-btn').onclick = () => openProtocolModal(p);
+
+  const deposit = p.total_deposit || 0;
+  const balance = p.total_balance || 0;
+  const earned = p.total_wp_earned || 0;
+  const pts = p.total_wp_points || 0;
+  const spent = Math.max(0, deposit - balance - earned);
+  const pnlVal = earned + balance - deposit;
+  const pnlCl = pnlVal >= 0 ? 'c-green' : 'c-red';
+  document.getElementById('proto-detail-stats').innerHTML = `
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_deposit')}</div>
+      <div class="stat-value">${fmt(deposit)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_balance')}</div>
+      <div class="stat-value c-green">${fmt(balance)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_withdrawn')}</div>
+      <div class="stat-value c-green">${fmt(earned)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_spent')}</div>
+      <div class="stat-value c-amber">${fmt(spent)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">P&L</div>
+      <div class="stat-value ${pnlCl}">${fmt(pnlVal)}</div>
+    </div>
+    <div class="stat-card" style="min-width:120px">
+      <div class="stat-label">${t('th_points')}</div>
+      <div class="stat-value c-blue">${fmtPts(pts)}</div>
+    </div>
+    <div class="stat-card" style="min-width:110px">
+      <div class="stat-label">${t('th_status')}</div>
+      <div class="stat-value" style="font-size:0.85rem">${statusBadge(p.status)}</div>
+    </div>
+  `;
+
+  await loadProtocolDetailWallets(p.name);
+}
+
+async function refreshProtoDetail() {
+  if (!_protoDetail) return;
+  const protocols = await api('GET', '/api/protocols');
+  const updated = protocols.find(p => p.name === _protoDetail.name);
+  if (!updated) return;
+  _protoDetail = updated;
+  // re-render stats
+  const deposit = updated.total_deposit || 0;
+  const balance = updated.total_balance || 0;
+  const earned = updated.total_wp_earned || 0;
+  const pts = updated.total_wp_points || 0;
+  const pp = updated.point_price || 0;
+  const ptsValue = pts * pp;
+  const spent = Math.max(0, deposit - balance - earned);
+  const pnlVal = earned + balance - deposit;
+  const pnlCl = pnlVal >= 0 ? 'c-green' : 'c-red';
+  document.getElementById('proto-detail-stats').innerHTML = `
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_deposit')}</div>
+      <div class="stat-value">${fmt(deposit)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_balance')}</div>
+      <div class="stat-value c-green">${fmt(balance)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_withdrawn')}</div>
+      <div class="stat-value c-green">${fmt(earned)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('stat_spent')}</div>
+      <div class="stat-value c-amber">${fmt(spent)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">P&L</div>
+      <div class="stat-value ${pnlCl}">${fmt(pnlVal)}</div>
+    </div>
+    <div class="stat-card" style="min-width:130px">
+      <div class="stat-label">${t('th_points')}</div>
+      <div class="stat-value c-blue">${fmtPts(pts)}</div>
+    </div>
+    ${pts > 0 ? (() => {
+      const netCost = deposit - balance - earned;
+      const perPt = netCost / pts;
+      const perPtStr = perPt <= 0
+        ? `<span class="c-green">+$${Math.abs(perPt).toFixed(4)}</span>`
+        : `<span class="c-muted">$${perPt.toFixed(4)}</span>`;
+      return `<div class="stat-card" style="min-width:130px">
+        <div class="stat-label">${t('stat_per_point')}</div>
+        <div class="stat-value" style="font-size:0.9rem">${perPtStr}</div>
+      </div>`;
+    })() : ''}
+    <div class="stat-card" style="min-width:110px">
+      <div class="stat-label">${t('th_status')}</div>
+      <div class="stat-value" style="font-size:0.85rem">${statusBadge(updated.status)}</div>
+    </div>
+  `;
+}
+
+async function editPointPrice(pid, current) {
+  const val = prompt(t('stat_per_point') + ':', current || '');
+  if (val === null) return;
+  const price = parseFloat(val) || 0;
+  await api('PATCH', `/api/protocols/${pid}`, { point_price: price });
+  await refreshProtoDetail();
+}
+
+async function loadProtocolDetailWallets(protocolName) {
+  const wallets = await api('GET', `/api/protocols/${encodeURIComponent(protocolName)}/wallets`);
+  const tbody = document.getElementById('proto-detail-tbody');
+  if (!wallets.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">${t('empty_wallets_proto')}</td></tr>`;
+    return;
+  }
+  // Refresh stats after wallet data loaded
+  refreshProtoDetail();
+
+  tbody.innerHTML = wallets.map(w => {
+    const netCost = (w.deposit || 0) - (w.wallet_balance || 0) - (w.wp_earned || 0);
+    const spentCell = netCost > 0
+      ? `<span class="c-amber">${fmt(netCost)}</span>`
+      : netCost < 0
+        ? `<span class="c-green">+${fmt(Math.abs(netCost))}</span>`
+        : '<span class="c-muted">—</span>';
+    return `<tr>
+      <td><span class="td-mono">${shortAddr(w.address)}</span>
+        <button class="copy-btn" title="Копировать" onclick="copyAddr(event,'${w.address}')">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        </button>
+      </td>
+      <td class="c-muted">${w.label ? esc(w.label) : '—'}</td>
+      <td class="amount-cell" style="text-align:right"
+          onclick="editWPField(this,${w.id},'${esc(protocolName)}','deposit',${w.deposit||0})">
+        <div class="amount-wrap" style="justify-content:flex-end">
+          <span>${w.deposit ? fmt(w.deposit) : '<span class=\'c-muted\'>—</span>'}</span>
+          <button class="amount-add-btn" onclick="addWPField(event,${w.id},'${esc(protocolName)}','deposit',${w.deposit||0})">+</button>
+        </div>
+      </td>
+      <td class="amount-cell c-green" style="text-align:right"
+          onclick="editWPField(this,${w.id},'${esc(protocolName)}','wallet_balance',${w.wallet_balance||0})">
+        <div class="amount-wrap" style="justify-content:flex-end">
+          <span>${w.wallet_balance ? fmt(w.wallet_balance) : '<span class=\'c-muted\'>—</span>'}</span>
+          <button class="amount-add-btn" onclick="addWPField(event,${w.id},'${esc(protocolName)}','wallet_balance',${w.wallet_balance||0})">+</button>
+        </div>
+      </td>
+      <td class="amount-cell c-green" style="text-align:right"
+          onclick="editWPField(this,${w.id},'${esc(protocolName)}','wp_earned',${w.wp_earned||0})">
+        <div class="amount-wrap" style="justify-content:flex-end">
+          <span>${w.wp_earned ? fmt(w.wp_earned) : '<span class=\'c-muted\'>—</span>'}</span>
+          ${w.wallet_balance > 0
+            ? `<button class="amount-add-btn" title="${t('stat_withdrawn')}" onclick="withdrawAll(event,${w.id},'${esc(protocolName)}',${w.wp_earned||0},${w.wallet_balance||0})">↑</button>`
+            : `<button class="amount-add-btn" onclick="addWPField(event,${w.id},'${esc(protocolName)}','wp_earned',${w.wp_earned||0})">+</button>`}
+        </div>
+      </td>
+      <td style="text-align:right;font-size:0.85rem">${spentCell}</td>
+      <td class="amount-cell c-blue" style="text-align:right"
+          onclick="editWPField(this,${w.id},'${esc(protocolName)}','wp_points',${w.wp_points||0})">
+        <div class="amount-wrap" style="justify-content:flex-end">
+          <span>${w.wp_points ? fmtPts(w.wp_points) : '<span class=\'c-muted\'>—</span>'}</span>
+          <button class="amount-add-btn" onclick="addWPField(event,${w.id},'${esc(protocolName)}','wp_points',${w.wp_points||0})">+</button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+async function withdrawAll(e, wid, proto, currentEarned, currentBalance) {
+  e.stopPropagation();
+  if (!confirm(`${t('stat_withdrawn')}: ${fmt(currentBalance)} → add to withdrawn & clear balance?`)) return;
+  await api('PATCH', '/api/wallet-protocols', {
+    wallet_id: wid, protocol: proto,
+    wp_earned: (currentEarned || 0) + (currentBalance || 0),
+    wallet_balance: 0
+  });
+  await loadProtocolDetailWallets(proto);
+}
+
+async function withdrawAllWallets() {
+  if (!_protoDetail) return;
+  const wallets = await api('GET', `/api/protocols/${encodeURIComponent(_protoDetail.name)}/wallets`);
+  const withBalance = wallets.filter(w => (w.wallet_balance || 0) > 0);
+  if (!withBalance.length) { toast(t('toast_no_balance'), 'error'); return; }
+  const total = withBalance.reduce((s, w) => s + (w.wallet_balance || 0), 0);
+  if (!confirm(`${t('stat_withdrawn')}: ${withBalance.length} wallets (${fmt(total)})\nBalances will be cleared.`)) return;
+  await Promise.all(withBalance.map(w =>
+    api('PATCH', '/api/wallet-protocols', {
+      wallet_id: w.id, protocol: _protoDetail.name,
+      wp_earned: (w.wp_earned || 0) + (w.wallet_balance || 0),
+      wallet_balance: 0
+    })
+  ));
+  await loadProtocolDetailWallets(_protoDetail.name);
+  toast(`${t('stat_withdrawn')}: ${withBalance.length}`);
+}
+
+function closeProtocolDetail() {
+  _protoDetail = null;
+  document.getElementById('proto-list-view').classList.remove('hidden');
+  document.getElementById('proto-detail-view').classList.add('hidden');
+}
+
+function editWPField(td, wid, proto, field, current) {
+  if (td.querySelector('.amount-input')) return;
+  const input = document.createElement('input');
+  input.type = 'number'; input.step = 'any'; input.min = '0';
+  input.className = 'amount-input'; input.value = current || 0;
+  td.innerHTML = ''; td.appendChild(input); input.focus(); input.select();
+  const save = async () => {
+    const val = parseFloat(input.value) || 0;
+    await api('PATCH', '/api/wallet-protocols', { wallet_id: wid, protocol: proto, [field]: val });
+    await loadProtocolDetailWallets(proto);
+  };
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => { if (e.key === 'Enter') save(); if (e.key === 'Escape') loadProtocolDetailWallets(proto); });
+}
+
+function addWPField(e, wid, proto, field, current) {
+  e.stopPropagation();
+  const labels = { deposit: t('add_to_deposit'), wallet_balance: t('add_to_balance'), wp_points: t('add_points_prompt'), wp_earned: t('add_to_withdrawn') };
+  const add = parseFloat(prompt(labels[field] || 'Добавить:', '0'));
+  if (isNaN(add) || add === 0) return;
+  const newVal = (current || 0) + add;
+  api('PATCH', '/api/wallet-protocols', { wallet_id: wid, protocol: proto, [field]: newVal })
+    .then(() => loadProtocolDetailWallets(proto));
+}
+
+// ── Wallets ────────────────────────────────────────────────────
+async function loadWallets() {
+  const protocols = await api('GET', '/api/protocols');
+  window._protocols = protocols;
+  window._protoColors = {};
+  protocols.forEach(p => { window._protoColors[p.name] = p.color || '#64748b'; });
+
+  const filter = document.getElementById('wallet-filter');
+  const cur = filter.value;
+
+  filter.innerHTML =
+    `<option value="">${t('all_wallets')}</option>` +
+    `<option value="__none__">${t('no_protocol_opt')}</option>` +
+    protocols.map(p => `<option value="${esc(p.name)}" ${p.name === cur ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
+  if (cur) filter.value = cur;
+
+  let url = '/api/wallets';
+  if (cur === '__none__') url = '/api/wallets?unassigned=1';
+  else if (cur)           url = `/api/wallets?protocol=${encodeURIComponent(cur)}`;
+
+  const wallets = await api('GET', url);
+  window._wallets = wallets;
+  const tbody = document.getElementById('wallets-tbody');
+  const counter = document.getElementById('wallet-counter');
+  const unassigned = wallets.filter(w => !w.protocols || w.protocols.length === 0).length;
+  counter.textContent = unassigned ? `${unassigned} ${t('wallets_no_protocol')}` : '';
+
+  // Reset header checkbox and search
+  document.getElementById('wallet-select-all').checked = false;
+  const searchEl = document.getElementById('wallet-search');
+  if (searchEl) searchEl.value = '';
+
+  if (!wallets.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">${t('empty_wallets')}</td></tr>`;
+    return;
+  }
+
+  // Show last sync time if any wallet has it
+  const synced = wallets.find(w => w.sync_at);
+  const syncEl = document.getElementById('sync-status');
+  if (syncEl) syncEl.textContent = synced ? `${t('last_import')} ${synced.sync_at.replace('T', ' ')}` : '';
+
+  tbody.innerHTML = wallets.map(w => {
+    const protos = w.protocols || [];
+    const protoBadges = protos.map(p => {
+      const c = (window._protoColors || {})[p] || '#64748b';
+      return `<span class="badge" style="background:${c}22;color:${c};border:1px solid ${c}44">${esc(p)}</span>`;
+    }).join('');
+    const assignBtn = `<button class="btn-tiny" title="${t('modal_assign')}" onclick='openAssignModal(${w.id}, ${JSON.stringify(protos)})'>✎</button>`;
+    const bal = w.balance != null ? `<span class="c-green" style="font-weight:600">${fmt(w.balance)}</span>` : '<span class="c-muted">—</span>';
+    const vol = w.volume != null ? fmt(w.volume) : '<span class="c-muted">—</span>';
+    const pts = w.points != null ? w.points : '<span class="c-muted">—</span>';
+    return `
+      <tr data-id="${w.id}">
+        <td class="cb-col"><input type="checkbox" class="wallet-cb" value="${w.id}" onchange="updateSelection()"></td>
+        <td>
+          <div class="addr-wrap">
+            <span class="td-mono" title="${esc(w.address)}">${shortAddr(w.address)}</span>
+            <button class="copy-btn" title="Копировать адрес" onclick="copyAddr(event, '${w.address}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </td>
+        <td>
+          <div class="proto-badges">
+            ${protoBadges || '<span class="c-muted" style="font-size:0.8rem">—</span>'}
+            ${assignBtn}
+          </div>
+        </td>
+        <td class="label-cell" onclick="editLabel(this, ${w.id})">${w.label ? esc(w.label) : `<span class='c-muted label-placeholder'>${t('label_placeholder')}</span>`}</td>
+        <td class="c-muted">${fmtDate(w.added_at)}</td>
+        <td><button class="btn btn-sm btn-danger btn-icon" onclick="delWallet(${w.id})">✕</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+function shortAddr(addr) {
+  if (!addr) return '—';
+  if (addr.length <= 16) return esc(addr);
+  return esc(addr.slice(0, 8) + '…' + addr.slice(-6));
+}
+
+function filterWallets() {
+  const q = (document.getElementById('wallet-search').value || '').toLowerCase().trim();
+  const rows = document.querySelectorAll('#wallets-tbody tr[data-id]');
+  let visible = 0;
+  rows.forEach(tr => {
+    const addr  = (tr.querySelector('.td-mono')?.title || '').toLowerCase();
+    const label = (tr.cells[3]?.textContent || '').toLowerCase();
+    const match = !q || addr.includes(q) || label.includes(q);
+    tr.style.display = match ? '' : 'none';
+    if (match) visible++;
+  });
+  // show empty row if nothing matches
+  let empty = document.querySelector('#wallets-tbody .search-empty');
+  if (!visible && q) {
+    if (!empty) {
+      empty = document.createElement('tr');
+      empty.className = 'search-empty empty-row';
+      empty.innerHTML = `<td colspan="6">${t('empty_search')}</td>`;
+      document.getElementById('wallets-tbody').appendChild(empty);
+    }
+    empty.style.display = '';
+  } else if (empty) {
+    empty.style.display = 'none';
+  }
+}
+
+function toggleSelectAll(cb) {
+  document.querySelectorAll('.wallet-cb').forEach(c => c.checked = cb.checked);
+  updateSelection();
+}
+
+function updateSelection() {
+  const selected = [...document.querySelectorAll('.wallet-cb:checked')];
+  const bar = document.getElementById('selection-bar');
+  document.getElementById('sel-count').textContent = `${t('selected')} ${selected.length}`;
+  document.getElementById('wallets-tbody').classList.toggle('in-selection', selected.length > 0);
+  if (selected.length) {
+    bar.classList.add('show');
+    const sel = document.getElementById('bar-protocol-select');
+    sel.innerHTML = `<option value="">${t('no_protocol_bar')}</option>` +
+      (window._protocols || []).map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('');
+  } else {
+    bar.classList.remove('show');
+  }
+}
+
+function clearSelection() {
+  document.querySelectorAll('.wallet-cb, #wallet-select-all').forEach(c => c.checked = false);
+  document.getElementById('selection-bar').classList.remove('show');
+  document.getElementById('wallets-tbody').classList.remove('in-selection');
+}
+
+async function bulkDeleteSelected() {
+  const ids = [...document.querySelectorAll('.wallet-cb:checked')].map(c => +c.value);
+  if (!ids.length) return;
+  if (!confirm(`${t('btn_delete')} ${ids.length}?`)) return;
+  await api('POST', '/api/wallets/bulk-delete', { ids });
+  toast(`${t('wallets_deleted')} ${ids.length}`, 'success');
+  clearSelection();
+  loadWallets();
+}
+
+function bulkCopySelected() {
+  const checked = [...document.querySelectorAll('.wallet-cb:checked')];
+  if (!checked.length) return;
+  const ids = checked.map(c => +c.value);
+  const wallets = window._wallets || [];
+  const addresses = ids.map(id => {
+    const w = wallets.find(w => w.id === id);
+    return w ? w.address : null;
+  }).filter(Boolean);
+  navigator.clipboard.writeText(addresses.join('\n'))
+    .then(() => toast(`Copied ${addresses.length}`))
+    .catch(() => {
+      const ta = document.createElement('textarea');
+      ta.value = addresses.join('\n');
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand('copy');
+      document.body.removeChild(ta);
+      toast(`Copied ${addresses.length}`);
+    });
+}
+
+async function bulkAssignSelected() {
+  const ids = [...document.querySelectorAll('.wallet-cb:checked')].map(c => +c.value);
+  const protocol = document.getElementById('bar-protocol-select').value || null;
+  if (!ids.length) return;
+  await api('PUT', '/api/wallets/assign', { ids, protocol });
+  toast(`${t('wallets_updated')} ${ids.length}`, 'success');
+  clearSelection();
+  loadWallets();
+}
+
+async function openAssignModal(id, currentProtocols) {
+  const protocols = window._protocols || await api('GET', '/api/protocols');
+  const current = Array.isArray(currentProtocols) ? currentProtocols : [];
+  editingId = id;
+  modalAction = 'assign';
+  document.getElementById('modal-title').textContent = t('modal_assign');
+  document.getElementById('modal-body').innerHTML = protocols.length ? `
+    <p style="font-size:0.8rem;color:var(--muted);margin-bottom:12px">${t('assign_hint')}</p>
+    <div class="proto-checkboxes">
+      ${protocols.map(p => `
+        <label class="cb-proto-item">
+          <input type="checkbox" value="${esc(p.name)}" ${current.includes(p.name) ? 'checked' : ''}>
+          ${esc(p.name)}
+        </label>
+      `).join('')}
+    </div>
+  ` : `<p class="c-muted" style="font-size:0.875rem">${t('no_protocols_yet')}</p>`;
+  openModal();
+}
+
+// ── Reminders ──────────────────────────────────────────────────
+async function loadReminders() {
+  const reminders = await api('GET', '/api/reminders?include_done=1');
+  const tbody = document.getElementById('reminders-tbody');
+  const now = new Date();
+
+  if (!reminders.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">${t('empty_reminders')}</td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = reminders.map(r => {
+    const dt = new Date(r.remind_at.replace(' ', 'T'));
+    const overdue = !r.done && dt < now;
+    const done = !!r.done;
+    let badge;
+    if (done)         badge = `<span class="badge badge-gray">${t('status_done_badge')}</span>`;
+    else if (overdue) badge = `<span class="badge badge-red">${t('status_overdue_badge')}</span>`;
+    else              badge = `<span class="badge badge-green">${t('status_active_badge')}</span>`;
+
+    return `
+      <tr class="${done ? 'done-row' : ''}">
+        <td>${esc(r.protocol)}</td>
+        <td class="${overdue ? 'overdue' : ''}">${fmtDate(r.remind_at)}</td>
+        <td>${badge}</td>
+        <td>
+          <div class="row-actions">
+            ${!done ? `<button class="btn btn-sm btn-ghost btn-icon" title="Отметить выполненным" onclick="doneReminder(${r.id})">✓</button>` : ''}
+            <button class="btn btn-sm btn-danger btn-icon" onclick="delReminder(${r.id})">✕</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  checkDueBanner(reminders.filter(r => !r.done && new Date(r.remind_at.replace(' ','T')) < now));
+}
+
+function checkDueBanner(due) {
+  const banner = document.getElementById('due-banner');
+  if (due.length && currentSection === 'reminders') {
+    document.getElementById('due-banner-text').textContent =
+      `${t('status_overdue_badge')}: ${due.length} — ${due.map(r => r.protocol).join(', ')}`;
+    banner.classList.add('show');
+  }
+}
+
+// ── Due-reminders polling ──────────────────────────────────────
+async function pollDue() {
+  const due = await api('GET', '/api/due-reminders');
+  const badge = document.getElementById('due-badge');
+  if (due.length) {
+    badge.style.display = 'inline';
+    badge.textContent = due.length;
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+// ── Color palette ────────────────────────────────────────────
+const PALETTE = [
+  '#10b981','#3b82f6','#8b5cf6','#f59e0b',
+  '#ef4444','#06b6d4','#f97316','#ec4899',
+  '#14b8a6','#84cc16','#64748b','#94a3b8',
+];
+
+function colorPicker(current) {
+  const c = current || PALETTE[0];
+  return `<div class="color-palette">${
+    PALETTE.map(col => `<button type="button" class="color-swatch${col===c?' active':''}"
+      data-color="${col}" style="background:${col}" onclick="selectColor(this)"></button>`).join('')
+  }</div><input type="hidden" id="f-color" value="${c}">`;
+}
+
+function selectColor(btn) {
+  btn.closest('.color-palette').querySelectorAll('.color-swatch').forEach(s => s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('f-color').value = btn.dataset.color;
+}
+
+// ── Protocol color dot helper ─────────────────────────────────
+function dot(color) {
+  return `<span class="proto-dot" style="background:${color||'#64748b'}"></span>`;
+}
+
+// ── Modal: Protocol ────────────────────────────────────────────
+function openProtocolModal(p = null) {
+  editingId = p ? p.id : null;
+  modalAction = 'protocol';
+  document.getElementById('modal-title').textContent = p ? t('modal_edit_protocol') : t('modal_add_protocol');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>${t('field_name')}</label>
+      <input id="f-name" placeholder="${t('field_name_ph')}" value="${p ? esc(p.name) : ''}">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>${t('field_extra_costs')} <span class="c-muted" style="font-size:0.7rem">${t('field_extra_costs_hint')}</span></label>
+        <input id="f-spent" type="number" step="0.01" min="0" placeholder="0.00" value="${p ? p.spent : ''}">
+      </div>
+    </div>
+    <div class="form-group">
+      <label>${t('field_status')}</label>
+      <select id="f-status">
+        <option value="фармлю"   ${!p || p.status === 'фармлю'   ? 'selected' : ''}>${t('status_farming')}</option>
+        <option value="жду дроп" ${p && p.status === 'жду дроп'  ? 'selected' : ''}>${t('status_awaiting')}</option>
+        <option value="закрыт"   ${p && p.status === 'закрыт'    ? 'selected' : ''}>${t('status_closed')}</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>${t('field_note')}</label>
+      <textarea id="f-note" placeholder="${t('field_note_ph')}">${p ? esc(p.note || '') : ''}</textarea>
+    </div>
+    <div class="form-group">
+      <label>${t('field_color')}</label>
+      ${colorPicker(p ? p.color : null)}
+    </div>
+  `;
+  openModal();
+}
+
+// ── Modal: Bulk wallets ────────────────────────────────────────
+async function openBulkAddModal() {
+  editingId = null;
+  modalAction = 'bulk-wallets';
+  const protocols = window._protocols || await api('GET', '/api/protocols');
+  document.getElementById('modal-title').textContent = t('modal_add_wallets');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>${t('field_addresses')} <span class="c-muted" style="font-size:0.7rem">${t('field_addresses_hint')}</span></label>
+      <textarea id="f-addresses" rows="9" placeholder="0x1234abcd...&#10;0x5678efgh...&#10;0xabcd1234..."
+        style="font-family:monospace;font-size:0.8rem;line-height:1.6"
+        oninput="updateAddrCount()"></textarea>
+      <div style="margin-top:5px;font-size:0.75rem;color:var(--muted)">
+        ${t('addr_count')} <strong id="addr-count" style="color:var(--text)">0</strong>
+      </div>
+    </div>
+    ${protocols.length ? `
+    <div class="form-group">
+      <label>${t('field_assign_protos')}</label>
+      <div class="proto-checkboxes" style="max-height:160px">
+        ${protocols.map(p => `
+          <label class="cb-proto-item">
+            <input type="checkbox" class="bulk-proto-cb" value="${esc(p.name)}">
+            ${esc(p.name)}
+          </label>
+        `).join('')}
+      </div>
+    </div>` : ''}
+    <div class="form-group">
+      <label>${t('field_label_opt')}</label>
+      <input id="f-bulk-label" placeholder="${t('field_label_ph')}">
+    </div>
+  `;
+  document.querySelector('.modal').style.width = '520px';
+  openModal();
+}
+
+function updateAddrCount() {
+  const lines = (document.getElementById('f-addresses').value || '').split('\n').filter(l => l.trim());
+  document.getElementById('addr-count').textContent = lines.length;
+}
+
+// ── Modal: Reminder ────────────────────────────────────────────
+async function openReminderModal() {
+  editingId = null;
+  modalAction = 'reminder';
+  const protocols = await api('GET', '/api/protocols');
+
+  const dt = new Date();
+  dt.setDate(dt.getDate() + 7);
+  const dtStr = dt.toISOString().slice(0, 16);
+
+  document.getElementById('modal-title').textContent = t('modal_add_reminder');
+  document.getElementById('modal-body').innerHTML = `
+    <div class="form-group">
+      <label>${t('field_protocol')}</label>
+      <select id="f-r-protocol">
+        <option value="">${t('field_protocol_ph')}</option>
+        ${protocols.map(p => `<option value="${esc(p.name)}">${esc(p.name)}</option>`).join('')}
+      </select>
+    </div>
+    <div class="form-group">
+      <label>${t('field_remind_at')}</label>
+      <input id="f-r-date" type="datetime-local" value="${dtStr}">
+    </div>
+  `;
+  openModal();
+}
+
+// ── Modal helpers ──────────────────────────────────────────────
+function openModal() {
+  document.getElementById('overlay').classList.remove('hidden');
+  setTimeout(() => {
+    const first = document.querySelector('.modal input:not([readonly]), .modal select');
+    if (first) first.focus();
+  }, 50);
+}
+
+function closeModal() {
+  document.getElementById('overlay').classList.add('hidden');
+  document.querySelector('.modal').style.width = '';
+  modalAction = null;
+  editingId = null;
+}
+
+
+async function modalConfirm() {
+  if (modalAction === 'protocol') {
+    const name = (document.getElementById('f-name').value || '').trim();
+    if (!name) { toast(t('toast_enter_name'), 'error'); return; }
+    const body = {
+      name,
+      spent:  parseFloat(document.getElementById('f-spent').value)  || 0,
+      earned: 0,
+      status: document.getElementById('f-status').value,
+      note:   document.getElementById('f-note').value,
+      color:  document.getElementById('f-color').value,
+    };
+    const res = editingId
+      ? await api('PUT',  `/api/protocols/${editingId}`, body)
+      : await api('POST', '/api/protocols', body);
+    if (res.error) { toast(res.error, 'error'); return; }
+    closeModal();
+    toast(editingId ? t('toast_proto_updated') : t('toast_proto_added'), 'success');
+    loadProtocols();
+    if (currentSection === 'overview') loadOverview();
+
+  } else if (modalAction === 'bulk-wallets') {
+    const raw = document.getElementById('f-addresses').value || '';
+    const addresses = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    if (!addresses.length) { toast(t('toast_enter_addresses'), 'error'); return; }
+    const protocols = [...document.querySelectorAll('.bulk-proto-cb:checked')].map(c => c.value);
+    const label    = document.getElementById('f-bulk-label').value;
+    const res = await api('POST', '/api/wallets/bulk', { addresses, protocols, label });
+    if (res.error) { toast(res.error, 'error'); return; }
+    document.querySelector('.modal').style.width = '';
+    closeModal();
+    toast(`${t('wallets_added')} ${res.count}`, 'success');
+    loadWallets();
+
+  } else if (modalAction === 'assign') {
+    const selected = [...document.querySelectorAll('.proto-checkboxes input:checked')].map(c => c.value);
+    await api('PUT', '/api/wallets/assign', { ids: [editingId], protocols: selected });
+    closeModal();
+    toast(t('toast_protos_updated'), 'success');
+    loadWallets();
+
+  } else if (modalAction === 'reminder') {
+    const protocol  = document.getElementById('f-r-protocol').value;
+    const remind_at = document.getElementById('f-r-date').value;
+    if (!protocol)  { toast(t('toast_select_protocol'), 'error'); return; }
+    if (!remind_at) { toast(t('toast_enter_date'), 'error'); return; }
+    const res = await api('POST', '/api/reminders', { protocol, remind_at });
+    if (res.error) { toast(res.error, 'error'); return; }
+    closeModal();
+    toast(t('toast_reminder_added'), 'success');
+    loadReminders();
+  }
+}
+
+// ── Delete ─────────────────────────────────────────────────────
+async function delProtocol(id, name) {
+  if (!confirm(`Delete protocol "${name}"?`)) return;
+  await api('DELETE', `/api/protocols/${id}`);
+  toast(t('toast_proto_deleted'), 'success');
+  loadProtocols();
+  if (currentSection === 'overview') loadOverview();
+}
+
+async function delWallet(id) {
+  if (!confirm(t('toast_wallet_deleted') + '?')) return;
+  await api('DELETE', `/api/wallets/${id}`);
+  toast(t('toast_wallet_deleted'), 'success');
+  loadWallets();
+}
+
+async function delReminder(id) {
+  if (!confirm('Delete?')) return;
+  await api('DELETE', `/api/reminders/${id}`);
+  toast(t('toast_reminder_deleted'), 'success');
+  loadReminders();
+}
+
+async function doneReminder(id) {
+  await api('POST', `/api/reminders/${id}/done`);
+  toast(t('toast_reminder_done'), 'success');
+  loadReminders();
+  pollDue();
+}
+
+// ── Export ─────────────────────────────────────────────────────
+async function exportData() {
+  const res = await api('GET', '/api/export');
+  if (res.error) { toast(res.error, 'error'); return; }
+  showExportNotice(res);
+}
+
+function showExportNotice(res) {
+  document.getElementById('export-notice')?.remove();
+  const div = document.createElement('div');
+  div.id = 'export-notice';
+  div.style.cssText = 'position:fixed;bottom:22px;left:240px;background:var(--card);' +
+    'border:1px solid var(--green);border-radius:8px;padding:12px 16px;' +
+    'display:flex;align-items:center;gap:12px;z-index:200;' +
+    'box-shadow:0 4px 20px rgba(0,0,0,0.4);font-size:0.85rem;max-width:440px;';
+  const safePath = res.path.replace(/\\/g, '\\\\');
+  div.innerHTML =
+    `<span style="color:var(--green)">✓</span>` +
+    `<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1">${res.filename}</span>` +
+    `<button onclick="openExportFolder('${safePath}')"
+      style="background:rgba(16,185,129,0.15);border:1px solid rgba(16,185,129,0.3);
+             color:var(--green);border-radius:5px;padding:4px 10px;cursor:pointer;
+             font-size:0.78rem;white-space:nowrap;flex-shrink:0">
+      ${t('open_folder')}
+    </button>` +
+    `<button onclick="this.closest('#export-notice').remove()"
+      style="background:none;border:none;color:var(--muted);cursor:pointer;
+             font-size:1rem;padding:0 2px;flex-shrink:0">✕</button>`;
+  document.body.appendChild(div);
+  setTimeout(() => div.remove(), 15000);
+}
+
+async function openExportFolder(path) {
+  await api('POST', '/api/open-folder', { path });
+}
+
+// ── Inline amount edit ───────────────────────────────────────
+function fmtPts(n) {
+  if (!n) return '—';
+  return Number(n).toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+}
+
+function editPoints(td, pid, current) {
+  if (td.querySelector('.amount-input')) return;
+  const input = document.createElement('input');
+  input.className = 'amount-input';
+  input.type = 'number';
+  input.step = '1';
+  input.min = '0';
+  input.value = current || 0;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  input.select();
+
+  async function save() {
+    const val = parseFloat(input.value) || 0;
+    await api('PATCH', `/api/protocols/${pid}`, { points: val });
+    td.className = 'amount-cell c-blue';
+    td.onclick = () => editPoints(td, pid, val);
+    td.innerHTML = `<div class="amount-wrap">
+      <span>${fmtPts(val)}</span>
+      <button class="amount-add-btn" title="Добавить поинты" onclick="addPoints(event, ${pid}, ${val})">+</button>
+    </div>`;
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') {
+      td.className = 'amount-cell c-blue';
+      td.onclick = () => editPoints(td, pid, current);
+      td.innerHTML = `<div class="amount-wrap">
+        <span>${fmtPts(current)}</span>
+        <button class="amount-add-btn" onclick="addPoints(event, ${pid}, ${current})">+</button>
+      </div>`;
+    }
+  });
+}
+
+function addPoints(e, pid, current) {
+  e.stopPropagation();
+  const delta = parseFloat(prompt(`${t('add_points_prompt')} (current: ${current}):`));
+  if (isNaN(delta)) return;
+  const newVal = Math.round((current + delta) * 100) / 100;
+  const td = e.currentTarget.closest('td');
+  api('PATCH', `/api/protocols/${pid}`, { points: newVal }).then(() => {
+    td.className = 'amount-cell c-blue';
+    td.onclick = () => editPoints(td, pid, newVal);
+    td.innerHTML = `<div class="amount-wrap">
+      <span>${fmtPts(newVal)}</span>
+      <button class="amount-add-btn" onclick="addPoints(event, ${pid}, ${newVal})">+</button>
+    </div>`;
+    toast(`${t('th_points')}: ${fmtPts(newVal)}`);
+  });
+}
+
+function editAmount(td, pid, field, current) {
+  if (td.querySelector('.amount-input')) return;
+  const input = document.createElement('input');
+  input.className = 'amount-input';
+  input.type = 'number';
+  input.step = '0.01';
+  input.min = '0';
+  input.value = current || 0;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  input.select();
+
+  async function save() {
+    const val = parseFloat(input.value) || 0;
+    const res = await api('PATCH', `/api/protocols/${pid}`, { [field]: val });
+    td.className = `amount-cell ${field === 'spent' ? 'c-amber' : 'c-green'}`;
+    td.onclick = () => editAmount(td, pid, field, val);
+    td.innerHTML = `<div class="amount-wrap">
+      <span>${fmt(val)}</span>
+      <button class="amount-add-btn" title="Добавить к сумме" onclick="addAmount(event, ${pid}, '${field}', ${val})">+</button>
+    </div>`;
+    if (res.pnl !== undefined) {
+      const pnlCell = document.getElementById(`pnl-${pid}`);
+      if (pnlCell) {
+        pnlCell.className = res.pnl > 0 ? 'c-green' : res.pnl < 0 ? 'c-red' : 'c-muted';
+        pnlCell.textContent = fmt(res.pnl);
+      }
+    }
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') {
+      td.className = `amount-cell ${field === 'spent' ? 'c-amber' : 'c-green'}`;
+      td.onclick = () => editAmount(td, pid, field, current);
+      td.innerHTML = `<div class="amount-wrap">
+        <span>${fmt(current)}</span>
+        <button class="amount-add-btn" onclick="addAmount(event, ${pid}, '${field}', ${current})">+</button>
+      </div>`;
+    }
+  });
+}
+
+function addAmount(e, pid, field, current) {
+  e.stopPropagation();
+  const delta = parseFloat(prompt(`${field === 'spent' ? t('stat_spent') : t('stat_withdrawn')} (current: ${current}):`));
+  if (isNaN(delta)) return;
+  const newVal = Math.round((current + delta) * 100) / 100;
+  const td = e.currentTarget.closest('td');
+  // Trigger save with new value
+  const fakeInput = { value: newVal };
+  api('PATCH', `/api/protocols/${pid}`, { [field]: newVal }).then(res => {
+    td.className = `amount-cell ${field === 'spent' ? 'c-amber' : 'c-green'}`;
+    td.onclick = () => editAmount(td, pid, field, newVal);
+    td.innerHTML = `<div class="amount-wrap">
+      <span>${fmt(newVal)}</span>
+      <button class="amount-add-btn" onclick="addAmount(event, ${pid}, '${field}', ${newVal})">+</button>
+    </div>`;
+    if (res.pnl !== undefined) {
+      const pnlCell = document.getElementById(`pnl-${pid}`);
+      if (pnlCell) {
+        pnlCell.className = res.pnl > 0 ? 'c-green' : res.pnl < 0 ? 'c-red' : 'c-muted';
+        pnlCell.textContent = fmt(res.pnl);
+      }
+    }
+    toast(`${field === 'spent' ? t('stat_spent') : t('stat_withdrawn')}: ${fmt(newVal)}`, 'success');
+  });
+}
+
+// ── Import balances from Excel ───────────────────────────────
+async function importBalances(input) {
+  const file = input.files[0];
+  if (!file) return;
+  input.value = '';
+  const syncEl = document.getElementById('sync-status');
+  if (syncEl) syncEl.textContent = t('sync_importing');
+  const fd = new FormData();
+  fd.append('file', file);
+  const res = await fetch('/api/wallets/import-balances', { method: 'POST', body: fd });
+  const data = await res.json();
+  if (data.ok) {
+    toast(`Обновлено ${data.matched} из ${data.total} кошельков`, 'success');
+    loadWallets();
+  } else {
+    toast(data.error || 'Ошибка импорта', 'error');
+    if (syncEl) syncEl.textContent = '';
+  }
+}
+
+// ── Copy address ─────────────────────────────────────────────
+async function copyAddr(e, addr) {
+  e.stopPropagation();
+  await navigator.clipboard.writeText(addr);
+  const btn = e.currentTarget;
+  btn.classList.add('copied');
+  btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  setTimeout(() => {
+    btn.classList.remove('copied');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+  }, 1500);
+}
+
+// ── Inline label edit ────────────────────────────────────────
+function editLabel(td, wid) {
+  if (td.querySelector('.label-input')) return; // already editing
+  const current = td.querySelector('.label-placeholder') ? '' : td.textContent.trim();
+  const input = document.createElement('input');
+  input.className = 'label-input';
+  input.value = current;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus();
+  input.select();
+
+  async function save() {
+    const val = input.value.trim();
+    await api('PATCH', `/api/wallets/${wid}`, { label: val });
+    td.textContent = val || '';
+    if (!val) td.innerHTML = `<span class="c-muted label-placeholder">${t('label_placeholder')}</span>`;
+    td.onclick = () => editLabel(td, wid);
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') {
+      td.textContent = current || '';
+      if (!current) td.innerHTML = `<span class="c-muted label-placeholder">${t('label_placeholder')}</span>`;
+      td.onclick = () => editLabel(td, wid);
+    }
+  });
+}
+
+// ── Toast ──────────────────────────────────────────────────────
+let _toastTimer;
+function toast(msg, type = 'success') {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.className = `toast ${type} show`;
+  clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => el.classList.remove('show'), 3500);
+}
+
+// ── Utils ──────────────────────────────────────────────────────
+function esc(s) {
+  if (!s) return '';
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ── Keyboard ───────────────────────────────────────────────────
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+  if (e.key === 'Enter' && !document.getElementById('overlay').classList.contains('hidden')) {
+    if (document.activeElement.tagName !== 'TEXTAREA') modalConfirm();
+  }
+});
+
+
+// ── Shared formatters ──────────────────────────────────────────
+function fmtUsd(n, decimals) {
+  if (n === null || n === undefined) return '—';
+  const v = Math.abs(Number(n));
+  if (decimals === undefined) {
+    if (v >= 1000)      decimals = 2;
+    else if (v >= 1)    decimals = 4;
+    else if (v >= 0.01) decimals = 6;
+    else                decimals = 8;
+  }
+  return '$' + Number(n).toLocaleString('ru-RU', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+}
+function fmtPct(n) {
+  if (n === null || n === undefined) return '—';
+  return (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
+}
+function hlPosRow(p, accountLabel) {
+  const dir = p.direction === 'long'
+    ? '<span class="badge badge-long">LONG</span>'
+    : '<span class="badge badge-short">SHORT</span>';
+  const lev = `${p.leverage}× <small class="c-muted">${p.leverage_type === 'cross' ? 'cross' : 'iso'}</small>`;
+  const pnl = p.unrealized_pnl;
+  let liqCell = '—', distCell = '—';
+  if (p.liq_price) {
+    liqCell = fmtUsd(p.liq_price);
+    if (p.dist_liq !== null) {
+      const cls = p.dist_liq > 20 ? 'liq-safe' : p.dist_liq > 10 ? 'liq-warn' : 'liq-danger';
+      distCell = `<span class="${cls}">${p.dist_liq.toFixed(1)}%</span>`;
+    }
+  }
+  const accCol = accountLabel !== undefined ? `<td class="c-muted" style="font-size:0.8rem">${esc(accountLabel)}</td>` : '';
+  const cols = accountLabel !== undefined ? 12 : 11;
+  return `<tr>
+    ${accCol}
+    <td><strong>${esc(p.coin)}</strong></td>
+    <td>${dir}</td>
+    <td style="text-align:right">${p.size}</td>
+    <td style="text-align:right">${fmtUsd(p.entry_price)}</td>
+    <td style="text-align:right">${p.current_price ? fmtUsd(p.current_price) : '—'}</td>
+    <td style="text-align:right">${lev}</td>
+    <td style="text-align:right">${fmtUsd(p.margin_used)}</td>
+    <td style="text-align:right"><span class="${pnl >= 0 ? 'c-green' : 'c-red'}">${fmtUsd(pnl)}</span></td>
+    <td style="text-align:right"><span class="${p.roe >= 0 ? 'c-green' : 'c-red'}">${fmtPct(p.roe)}</span></td>
+    <td style="text-align:right;color:var(--muted)">${liqCell}</td>
+    <td style="text-align:right">${distCell}</td>
+  </tr>`;
+}
+
+// ── HL Positions (multi-account) ───────────────────────────────
+let _hlPosTimer = null;
+
+async function initHLPos() {
+  await refreshHLPos();
+  clearInterval(_hlPosTimer);
+  _hlPosTimer = setInterval(refreshHLPos, 30_000);
+}
+
+async function refreshHLPos() {
+  document.getElementById('hlpos-refresh-btn').disabled = true;
+  try {
+    const data = await api('GET', '/api/hl/all-positions');
+    if (data.error) { toast('HL: ' + data.error, 'error'); return; }
+    renderHLAccounts(data.accounts);
+    renderHLAllPositions(data.accounts);
+    document.getElementById('hlpos-ts').textContent =
+      t('hl_updated') + ' ' + new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  } finally {
+    document.getElementById('hlpos-refresh-btn').disabled = false;
+  }
+}
+
+function renderHLAccounts(accounts) {
+  const el = document.getElementById('hlpos-accounts');
+  if (!accounts.length) {
+    el.innerHTML = `<span class="c-muted" style="font-size:0.85rem">${t('hl_no_accounts')}</span>`;
+    return;
+  }
+  el.innerHTML = accounts.map(a => {
+    const s = a.summary || {};
+    const pnlCls = (s.total_pnl || 0) >= 0 ? 'c-green' : 'c-red';
+    const err = a.error ? `<div class="c-red" style="font-size:0.75rem">${t('hl_error')}</div>` : '';
+    return `<div class="stat-card" style="min-width:180px;flex:1;position:relative">
+      <button onclick="deleteHLAccount(${a.id})" style="position:absolute;top:8px;right:8px;background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:2px 4px" title="Удалить">✕</button>
+      <div class="stat-label">${esc(a.label)}</div>
+      <div style="font-size:0.7rem;color:var(--muted);font-family:monospace;margin-bottom:6px">${a.address.slice(0,6)}...${a.address.slice(-4)}</div>
+      ${err}
+      <div style="font-size:0.85rem">${fmtUsd(s.account_value)} <span class="c-muted">${t('hl_account')}</span></div>
+      <div style="font-size:0.85rem"><span class="${pnlCls}">${fmtUsd(s.total_pnl)}</span> <span class="c-muted">P&L</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderHLAllPositions(accounts) {
+  const tbody = document.getElementById('hlpos-tbody');
+  const rows = accounts.flatMap(a =>
+    (a.positions || []).map(p => hlPosRow(p, a.label))
+  );
+  tbody.innerHTML = rows.length
+    ? rows.join('')
+    : `<tr class="empty-row"><td colspan="12">${t('empty_positions')}</td></tr>`;
+}
+
+function openHLAddAccount() {
+  const label = prompt('Account name (e.g. "Main"):');
+  if (!label) return;
+  const address = prompt('Wallet address (0x...):');
+  if (!address) return;
+  api('POST', '/api/hl/accounts', { label: label.trim(), address: address.trim() })
+    .then(() => refreshHLPos());
+}
+
+async function deleteHLAccount(id) {
+  await api('DELETE', `/api/hl/accounts/${id}`);
+  refreshHLPos();
+}
+
+// ── Calculator (manual, prices from HL) ───────────────────────
+let _calcDir = 'long';
+let _calcUnit = 'usd'; // 'usd' | 'token'
+let _calcMids = {};
+let _calcSearchTimer = null;
+let _calcSearchResults = [];
+let _calcEditingId = null;
+let _calcPositions = [];
+let _calcGroups = [];
+
+async function initCalc() {
+  [_calcGroups, _calcMids] = await Promise.all([
+    api('GET', '/api/position-groups'),
+    api('GET', '/api/hl/mids').catch(() => ({})),
+  ]);
+  const positions = await api('GET', '/api/positions');
+  renderCalcGroupSelect();
+  renderCalc(positions);
+}
+
+function openCalcForm() {
+  document.getElementById('calc-add-wrap').classList.remove('hidden');
+  document.getElementById('calc-symbol').focus();
+}
+
+function closeCalcForm() {
+  _calcEditingId = null;
+  document.getElementById('calc-add-wrap').classList.add('hidden');
+  document.getElementById('calc-symbol').value = '';
+  document.getElementById('calc-entry').value = '';
+  document.getElementById('calc-size').value = '';
+  document.getElementById('calc-margin-display').value = '';
+  document.getElementById('calc-note').value = '';
+  document.getElementById('calc-leverage').value = '5';
+  document.getElementById('calc-group-select').value = '';
+  document.getElementById('calc-token-dropdown').classList.add('hidden');
+  document.getElementById('calc-save-btn').textContent = t('btn_add_pos');
+  document.querySelector('.calc-size-btn[data-unit="token"]').textContent = 'токен';
+}
+
+function setCalcUnit(unit) {
+  _calcUnit = unit;
+  document.querySelectorAll('.calc-size-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.calc-size-btn[data-unit="${unit}"]`).classList.add('active');
+  const sym = document.getElementById('calc-symbol').value.trim().toUpperCase();
+  document.getElementById('calc-size-unit').textContent = unit === 'usd' ? 'USD' : (sym || 'токенов');
+  updateCalcMargin();
+}
+
+function updateCalcMargin() {
+  const size = parseFloat(document.getElementById('calc-size').value) || 0;
+  const leverage = parseFloat(document.getElementById('calc-leverage').value) || 1;
+  const entry = parseFloat(document.getElementById('calc-entry').value) || 0;
+  if (!size || !leverage) { document.getElementById('calc-margin-display').value = ''; return; }
+  const sizeUsd = _calcUnit === 'token' ? size * entry : size;
+  const margin = sizeUsd / leverage;
+  document.getElementById('calc-margin-display').value = '$' + margin.toLocaleString('ru-RU', { maximumFractionDigits: 2 });
+}
+
+function setCalcDir(dir) {
+  _calcDir = dir;
+  document.querySelectorAll('.calc-dir-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector(`.calc-dir-btn[data-dir="${dir}"]`).classList.add('active');
+}
+
+function searchCalcToken(q) {
+  clearTimeout(_calcSearchTimer);
+  const dd = document.getElementById('calc-token-dropdown');
+  if (q.length < 1) { dd.classList.add('hidden'); return; }
+  _calcSearchTimer = setTimeout(async () => {
+    const results = await api('GET', `/api/hl/search?q=${encodeURIComponent(q)}`);
+    if (!results.length) { dd.classList.add('hidden'); return; }
+    _calcSearchResults = results;
+    dd.innerHTML = results.map((r, i) => `
+      <div class="token-dropdown-item" onclick="selectCalcToken(${i})">
+        <span class="token-sym">${esc(r.symbol)}</span>
+        <span class="token-name">$${Number(r.price).toLocaleString('ru-RU', {maximumFractionDigits: 4})}</span>
+      </div>`).join('');
+    dd.classList.remove('hidden');
+  }, 250);
+}
+
+function selectCalcToken(i) {
+  const r = _calcSearchResults[i];
+  if (!r) return;
+  document.getElementById('calc-symbol').value = r.symbol;
+  document.getElementById('calc-token-dropdown').classList.add('hidden');
+  if (!document.getElementById('calc-entry').value) {
+    const p = parseFloat(r.price);
+    const dec = p >= 1000 ? 2 : p >= 1 ? 4 : p >= 0.01 ? 6 : 8;
+    document.getElementById('calc-entry').value = p.toFixed(dec);
+  }
+  _calcMids[r.symbol] = String(r.price);
+  document.querySelector('.calc-size-btn[data-unit="token"]').textContent = r.symbol;
+  document.getElementById('calc-size-unit').textContent = _calcUnit === 'token' ? r.symbol : 'USD';
+  updateCalcMargin();
+}
+
+document.addEventListener('click', e => {
+  if (!e.target.closest('#calc-symbol') && !e.target.closest('#calc-token-dropdown')) {
+    document.getElementById('calc-token-dropdown')?.classList.add('hidden');
+  }
+});
+
+async function saveCalcPosition() {
+  const symbol = document.getElementById('calc-symbol').value.trim().toUpperCase();
+  const entry = parseFloat(document.getElementById('calc-entry').value);
+  const size = parseFloat(document.getElementById('calc-size').value);
+  const leverage = parseFloat(document.getElementById('calc-leverage').value);
+  if (!symbol || !entry || !size || !leverage) { toast(t('toast_fill_all'), 'error'); return; }
+  const sizeUsd = _calcUnit === 'token' ? size * entry : size;
+  const collateral = sizeUsd / leverage;
+  const groupVal = document.getElementById('calc-group-select').value;
+  const payload = {
+    symbol, direction: _calcDir, collateral, leverage, entry_price: entry,
+    note: document.getElementById('calc-note').value.trim(),
+    group_id: groupVal ? parseInt(groupVal) : null,
+  };
+  if (_calcEditingId !== null) {
+    await api('PATCH', `/api/positions/${_calcEditingId}`, payload);
+    toast(t('pos_updated'));
+  } else {
+    await api('POST', '/api/positions', payload);
+    toast(t('pos_added'));
+  }
+  closeCalcForm();
+  await _refreshCalc();
+}
+
+async function delCalcPosition(id) {
+  await api('DELETE', `/api/positions/${id}`);
+  await _refreshCalc();
+}
+
+async function _refreshCalc() {
+  [_calcGroups, _calcMids] = await Promise.all([
+    api('GET', '/api/position-groups'),
+    api('GET', '/api/hl/mids').catch(() => ({})),
+  ]);
+  const positions = await api('GET', '/api/positions');
+  renderCalcGroupSelect();
+  renderCalc(positions);
+}
+
+function editCalcPosition(id) {
+  const p = _calcPositions.find(x => x.id === id);
+  if (!p) return;
+  _calcEditingId = id;
+  openCalcForm();
+  document.getElementById('calc-symbol').value = p.symbol;
+  document.getElementById('calc-entry').value = p.entry_price;
+  const notional = p.collateral * p.leverage;
+  document.getElementById('calc-size').value = notional.toFixed(2);
+  document.getElementById('calc-leverage').value = p.leverage;
+  document.getElementById('calc-note').value = p.note || '';
+  document.getElementById('calc-group-select').value = p.group_id || '';
+  document.querySelector('.calc-size-btn[data-unit="token"]').textContent = p.symbol;
+  setCalcDir(p.direction);
+  setCalcUnit('usd');
+  updateCalcMargin();
+  document.getElementById('calc-save-btn').textContent = t('btn_save_pos');
+}
+
+let _calcDraggingId = null;
+
+function calcDragStart(e, pid) {
+  _calcDraggingId = pid;
+  e.dataTransfer.effectAllowed = 'move';
+  // mark the row as dragging after a tick (otherwise ghost image looks faded)
+  setTimeout(() => e.target.closest('tr')?.classList.add('calc-dragging'), 0);
+}
+
+async function calcDrop(e, groupId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('calc-drop-active');
+  if (_calcDraggingId === null) return;
+  const p = _calcPositions.find(x => x.id === _calcDraggingId);
+  _calcDraggingId = null;
+  if (!p) return;
+  const newGroup = groupId ?? null;
+  if (p.group_id === newGroup) return; // nothing changed
+  await api('PATCH', `/api/positions/${p.id}`, {
+    symbol: p.symbol, direction: p.direction,
+    collateral: p.collateral, leverage: p.leverage,
+    entry_price: p.entry_price, note: p.note || '',
+    group_id: newGroup,
+  });
+  await _refreshCalc();
+}
+
+function renderCalcGroupSelect() {
+  const sel = document.getElementById('calc-group-select');
+  const cur = sel.value;
+  sel.innerHTML = `<option value="">${t('calc_no_group')}</option>` +
+    _calcGroups.map(g => `<option value="${g.id}">${esc(g.name)}</option>`).join('');
+  sel.value = cur;
+}
+
+async function createCalcGroup() {
+  const name = prompt(t('calc_group') + ':');
+  if (!name || !name.trim()) return;
+  await api('POST', '/api/position-groups', { name: name.trim() });
+  await _refreshCalc();
+}
+
+async function renameCalcGroup(gid) {
+  const g = _calcGroups.find(x => x.id === gid);
+  if (!g) return;
+  const name = prompt('Rename:', g.name);
+  if (!name || !name.trim() || name.trim() === g.name) return;
+  await api('PATCH', `/api/position-groups/${gid}`, { name: name.trim() });
+  await _refreshCalc();
+}
+
+async function deleteCalcGroup(gid) {
+  if (!confirm('Delete group?')) return;
+  await api('DELETE', `/api/position-groups/${gid}`);
+  await _refreshCalc();
+}
+
+function calcNetDelta(positions) {
+  // Returns {SYMBOL: netUsd, ...} where netUsd = sum of (long - short) notionals
+  const delta = {};
+  for (const p of positions) {
+    const notional = p.collateral * p.leverage;
+    const signed = p.direction === 'long' ? notional : -notional;
+    delta[p.symbol] = (delta[p.symbol] || 0) + signed;
+  }
+  return delta;
+}
+
+function renderDeltaBadges(delta) {
+  return Object.entries(delta).map(([sym, val]) => {
+    const cls = Math.abs(val) < 500 ? 'c-green' : val > 0 ? 'c-green' : 'c-red';
+    const sign = val >= 0 ? '+' : '';
+    return `<span style="font-size:0.75rem;margin-right:8px"><span class="c-muted">${esc(sym)}</span> <span class="${cls}">${sign}${fmtUsd(val, 0)}</span></span>`;
+  }).join('');
+}
+
+function calcPositionRow(p) {
+  const cur = _calcMids[p.symbol] ? parseFloat(_calcMids[p.symbol]) : null;
+  const size = p.collateral * p.leverage;
+  const liq = p.direction === 'long'
+    ? p.entry_price * (1 - 1 / p.leverage)
+    : p.entry_price * (1 + 1 / p.leverage);
+  let pnl = null, pnlPct = null, dist = null;
+  if (cur) {
+    pnl = p.direction === 'long'
+      ? (cur - p.entry_price) / p.entry_price * size
+      : (p.entry_price - cur) / p.entry_price * size;
+    pnlPct = pnl / p.collateral * 100;
+    dist = p.direction === 'long'
+      ? (cur - liq) / cur * 100
+      : (liq - cur) / cur * 100;
+  }
+  const dir = p.direction === 'long'
+    ? '<span class="badge badge-long">LONG</span>'
+    : '<span class="badge badge-short">SHORT</span>';
+  const distCls = dist === null ? '' : dist > 20 ? 'liq-safe' : dist > 10 ? 'liq-warn' : 'liq-danger';
+  return `<tr class="calc-draggable" draggable="true"
+    ondragstart="calcDragStart(event,${p.id})"
+    ondragend="this.classList.remove('calc-dragging')">
+    <td><strong>${esc(p.symbol)}</strong>${p.note ? `<br><small class="c-muted">${esc(p.note)}</small>` : ''}</td>
+    <td>${dir}</td>
+    <td style="text-align:right">${fmtUsd(p.entry_price)}</td>
+    <td style="text-align:right">${cur ? fmtUsd(cur) : '<span class="c-muted">—</span>'}</td>
+    <td style="text-align:right">${p.leverage}×</td>
+    <td style="text-align:right"><span class="c-muted" style="font-size:0.78rem">${fmtUsd(p.collateral * p.leverage, 0)}</span><br><span class="c-amber">${fmtUsd(p.collateral)}</span></td>
+    <td style="text-align:right">${pnl !== null ? `<span class="${pnl >= 0 ? 'c-green' : 'c-red'}">${fmtUsd(pnl)} <small>${fmtPct(pnlPct)}</small></span>` : '—'}</td>
+    <td style="text-align:right;color:var(--muted)">${fmtUsd(liq)}</td>
+    <td style="text-align:right">${dist !== null ? `<span class="${distCls}">${dist.toFixed(1)}%</span>` : '—'}</td>
+    <td style="white-space:nowrap"><button class="btn btn-sm btn-ghost btn-icon" onclick="editCalcPosition(${p.id})" style="margin-right:4px" title="Редактировать">✎</button><button class="btn btn-sm btn-danger btn-icon" onclick="delCalcPosition(${p.id})">✕</button></td>
+  </tr>`;
+}
+
+function renderCalc(positions) {
+  _calcPositions = positions;
+  const tbody = document.getElementById('calc-tbody');
+  if (!positions.length && !_calcGroups.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="10">${t('empty_positions')}</td></tr>`;
+    return;
+  }
+
+  const rows = [];
+  const COLS = 10;
+
+  // Render a group section
+  function renderGroup(g, groupPositions) {
+    const delta = calcNetDelta(groupPositions);
+    const totalPnl = groupPositions.reduce((sum, p) => {
+      const cur = _calcMids[p.symbol] ? parseFloat(_calcMids[p.symbol]) : null;
+      if (!cur) return sum;
+      const size = p.collateral * p.leverage;
+      const pnl = p.direction === 'long'
+        ? (cur - p.entry_price) / p.entry_price * size
+        : (p.entry_price - cur) / p.entry_price * size;
+      return sum + pnl;
+    }, 0);
+    const totalMargin = groupPositions.reduce((s, p) => s + p.collateral, 0);
+    const pnlCls = totalPnl >= 0 ? 'c-green' : 'c-red';
+    rows.push(`<tr style="background:rgba(255,255,255,0.04);border-top:2px solid var(--border)"
+      ondragover="event.preventDefault();this.classList.add('calc-drop-active')"
+      ondragleave="this.classList.remove('calc-drop-active')"
+      ondrop="calcDrop(event,${g.id})">
+      <td colspan="${COLS - 1}" style="padding:8px 12px">
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <strong style="font-size:0.9rem;cursor:pointer" onclick="renameCalcGroup(${g.id})" title="Переименовать">${esc(g.name)}</strong>
+          <span style="color:var(--muted);font-size:0.75rem">▸</span>
+          ${renderDeltaBadges(delta)}
+          ${totalPnl !== 0 ? `<span style="font-size:0.78rem">PnL: <span class="${pnlCls}">${fmtUsd(totalPnl)}</span></span>` : ''}
+          <span style="font-size:0.78rem;color:var(--muted)">${t('group_margin')}: ${fmtUsd(totalMargin, 0)}</span>
+        </div>
+      </td>
+      <td style="text-align:right;padding:8px 12px">
+        <button class="btn btn-sm btn-ghost btn-icon" onclick="deleteCalcGroup(${g.id})" title="Удалить группу" style="color:var(--muted)">✕</button>
+      </td>
+    </tr>`);
+    groupPositions.forEach(p => rows.push(calcPositionRow(p)));
+  }
+
+  // Groups with positions
+  const groupedIds = new Set(positions.filter(p => p.group_id).map(p => p.group_id));
+
+  // Show groups that have positions first
+  for (const g of _calcGroups) {
+    const gp = positions.filter(p => p.group_id === g.id);
+    if (gp.length) renderGroup(g, gp);
+  }
+
+  // Show empty groups (no positions yet) as a placeholder row
+  for (const g of _calcGroups) {
+    if (!groupedIds.has(g.id)) {
+      rows.push(`<tr style="background:rgba(255,255,255,0.02);border-top:2px solid var(--border)"
+        ondragover="event.preventDefault();this.classList.add('calc-drop-active')"
+        ondragleave="this.classList.remove('calc-drop-active')"
+        ondrop="calcDrop(event,${g.id})">
+        <td colspan="${COLS}" style="padding:8px 12px;color:var(--muted);font-size:0.85rem">
+          <strong style="cursor:pointer" onclick="renameCalcGroup(${g.id})">${esc(g.name)}</strong>
+          <span style="margin-left:10px;font-size:0.75rem">${t('empty_no_positions')}</span>
+          <button class="btn btn-sm btn-ghost btn-icon" onclick="deleteCalcGroup(${g.id})" title="Удалить группу" style="margin-left:8px;color:var(--muted)">✕</button>
+        </td>
+      </tr>`);
+    }
+  }
+
+  // Ungrouped positions
+  const ungrouped = positions.filter(p => !p.group_id);
+  if (ungrouped.length) {
+    if (_calcGroups.length) {
+      rows.push(`<tr style="border-top:2px solid var(--border)"
+        ondragover="event.preventDefault();this.classList.add('calc-drop-active')"
+        ondragleave="this.classList.remove('calc-drop-active')"
+        ondrop="calcDrop(event,null)">
+        <td colspan="${COLS}" style="padding:6px 12px;color:var(--muted);font-size:0.78rem">${t('group_ungrouped')}</td>
+      </tr>`);
+    }
+    ungrouped.forEach(p => rows.push(calcPositionRow(p)));
+  }
+
+  tbody.innerHTML = rows.join('') || `<tr class="empty-row"><td colspan="10">${t('empty_positions')}</td></tr>`;
+}
+
+// ── Protocol import from spreadsheet ──────────────────────────
+let _importRows = [];      // parsed TSV rows (arrays)
+let _importColRoles = [];  // assigned role per column index
+
+const COL_ROLES = null; // use getColRoles() instead
+const COL_FIELDS = [null, 'address', 'deposit', 'wallet_balance', 'wp_points', 'wp_earned'];
+
+function openProtoImport() {
+  _importRows = [];
+  _importColRoles = [];
+  document.getElementById('import-paste-area').value = '';
+  document.getElementById('import-col-map').style.display = 'none';
+  document.getElementById('import-run-btn').disabled = true;
+  document.getElementById('import-status').textContent = '';
+  ['import-add-points', 'import-add-deposit'].forEach(id => {
+    const cb = document.getElementById(id); if (cb) cb.checked = false;
+  });
+  document.getElementById('import-overlay').classList.remove('hidden');
+  document.getElementById('import-overlay').style.display = 'flex';
+  setTimeout(() => document.getElementById('import-paste-area').focus(), 50);
+}
+
+function closeProtoImport() {
+  document.getElementById('import-overlay').classList.add('hidden');
+  document.getElementById('import-overlay').style.display = 'none';
+}
+
+function parseImportData() {
+  const raw = document.getElementById('import-paste-area').value.trim();
+  if (!raw) {
+    document.getElementById('import-col-map').style.display = 'none';
+    document.getElementById('import-run-btn').disabled = true;
+    return;
+  }
+
+  // Parse TSV
+  const lines = raw.split('\n').filter(l => l.trim());
+  _importRows = lines.map(l => l.split('\t').map(c => c.trim()));
+  if (!_importRows.length || !_importRows[0].length) return;
+
+  const colCount = Math.max(..._importRows.map(r => r.length));
+
+  // Auto-detect roles: column containing 0x... or long alphanumeric → address
+  _importColRoles = Array(colCount).fill(0);
+  for (let ci = 0; ci < colCount; ci++) {
+    const sample = (_importRows[0]?.[ci] || '').toLowerCase();
+    const looksLikeAddr = sample.startsWith('0x') || sample.includes('..') || /^[a-z0-9]{20,}$/i.test(sample);
+    if (looksLikeAddr) {
+      _importColRoles[ci] = 1; // address
+    } else if (/^[\d.,]+$/.test(sample) && parseFloat(sample) > 100) {
+      // large number → likely deposit or balance
+      if (!_importColRoles.includes(2)) _importColRoles[ci] = 2; // deposit
+      else if (!_importColRoles.includes(3)) _importColRoles[ci] = 3; // balance
+    }
+  }
+
+  renderImportColMap(colCount);
+  renderImportPreview();
+  document.getElementById('import-col-map').style.display = 'block';
+  document.getElementById('import-run-btn').disabled = !_importColRoles.includes(1);
+}
+
+function renderImportColMap(colCount) {
+  const el = document.getElementById('import-col-selects');
+  const colRoles = getColRoles();
+  el.innerHTML = Array.from({length: colCount}, (_, ci) => `
+    <div style="display:flex;flex-direction:column;gap:4px;min-width:110px">
+      <span class="c-muted" style="font-size:0.72rem">${t('import_col_label')} ${ci + 1}</span>
+      <select style="font-size:0.78rem" onchange="_importColRoles[${ci}]=parseInt(this.value);renderImportPreview();document.getElementById('import-run-btn').disabled=!_importColRoles.includes(1)">
+        ${colRoles.map((r, ri) => `<option value="${ri}" ${_importColRoles[ci] === ri ? 'selected' : ''}>${r}</option>`).join('')}
+      </select>
+    </div>
+  `).join('');
+}
+
+function renderImportPreview() {
+  const head = document.getElementById('import-preview-head');
+  const body = document.getElementById('import-preview-body');
+  const preview = _importRows.slice(0, 5);
+  const colRolesPreview = getColRoles();
+  const cols = _importColRoles.map((r, i) => `<th style="text-align:left;padding:3px 8px;color:${r ? 'var(--fg)' : 'var(--muted)'};font-size:0.75rem">${colRolesPreview[r]}</th>`).join('');
+  head.innerHTML = `<tr>${cols}</tr>`;
+  body.innerHTML = preview.map(row =>
+    `<tr>${_importColRoles.map((r, ci) => {
+      const val = row[ci] || '';
+      const cls = r === 1 ? 'td-mono' : '';
+      return `<td class="${cls}" style="padding:3px 8px;font-size:0.75rem;color:${r ? 'var(--fg)' : 'var(--muted)'}">${esc(val)}</td>`;
+    }).join('')}</tr>`
+  ).join('');
+}
+
+async function runProtoImport() {
+  if (!_protoDetail) return;
+  const addrCol = _importColRoles.indexOf(1);
+  if (addrCol === -1) { toast(t('import_no_addr_col'), 'error'); return; }
+
+  // Skip header row if first address cell doesn't look like any address
+  const firstAddr = (_importRows[0]?.[addrCol] || '').toLowerCase();
+  const looksLikeAddr = firstAddr.startsWith('0x') || firstAddr.includes('..') || /^[a-z0-9]{20,}$/i.test(firstAddr);
+  const skipHeader = !looksLikeAddr;
+  const dataRows = skipHeader ? _importRows.slice(1) : _importRows;
+
+  const rows = dataRows.map(row => {
+    const obj = { address: row[addrCol] || '' };
+    _importColRoles.forEach((role, ci) => {
+      const field = COL_FIELDS[role];
+      if (field && field !== 'address') {
+        const raw = (row[ci] || '').replace(/\s/g, '').replace(',', '.');
+        const val = parseFloat(raw);
+        if (!isNaN(val)) obj[field] = val;
+      }
+    });
+    return obj;
+  }).filter(r => r.address);
+
+  document.getElementById('import-run-btn').disabled = true;
+  document.getElementById('import-status').textContent = t('import_importing');
+
+  const addPoints  = document.getElementById('import-add-points')?.checked || false;
+  const addDeposit = document.getElementById('import-add-deposit')?.checked || false;
+  const res = await api('POST', `/api/protocols/${encodeURIComponent(_protoDetail.name)}/import`, { rows, add_points: addPoints, add_deposit: addDeposit });
+  const unmatchedInfo = res.unmatched?.length
+    ? `, not found: ${res.unmatched.length} (${res.unmatched.slice(0,2).join(', ')}${res.unmatched.length > 2 ? '…' : ''})`
+    : '';
+  document.getElementById('import-status').textContent =
+    `${t('import_importing').replace('...','')}: ${res.matched}${unmatchedInfo}`;
+  document.getElementById('import-run-btn').disabled = false;
+
+  if (res.matched > 0) {
+    await loadProtocolDetailWallets(_protoDetail.name);
+    toast(`Imported: ${res.matched}`);
+  }
+}
+
+// ── Init ───────────────────────────────────────────────────────
+document.getElementById('lang-toggle-btn').textContent = t('lang_btn');
+applyLang();
+loadOverview();
+pollDue();
+setInterval(pollDue, 60_000);
+
+fetch('/api/profiles/current').then(r => r.json()).then(d => {
+  const el = document.getElementById('active-profile');
+  if (el) el.textContent = '📂 ' + d.name;
+});
+</script>
+
+<!-- Import modal -->
+<div id="import-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center" class="hidden">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:12px;width:min(720px,95vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-weight:600" data-i18n="import_title">Import from Table</span>
+      <button onclick="closeProtoImport()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem">✕</button>
+    </div>
+    <div style="padding:16px 20px;overflow-y:auto;flex:1">
+      <p style="font-size:0.82rem;color:var(--muted);margin-bottom:12px" data-i18n="import_hint">
+        Copy data from Google Sheets and paste below. Each row is one wallet, columns are tab-separated. Assign a role to each column.
+      </p>
+      <textarea id="import-paste-area" data-i18n-ph="import_paste_ph" placeholder="Paste data (Ctrl+V)..." rows="6"
+        style="width:100%;font-family:monospace;font-size:0.78rem;resize:vertical;background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:10px;color:var(--fg)"
+        oninput="parseImportData()"></textarea>
+
+      <div id="import-col-map" style="display:none;margin-top:14px">
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:8px" data-i18n="import_assign_cols">Assign columns:</div>
+        <div id="import-col-selects" style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px"></div>
+        <div style="font-size:0.78rem;color:var(--muted);margin-bottom:6px" data-i18n="import_preview">Preview (first 5 rows):</div>
+        <div style="overflow-x:auto">
+          <table id="import-preview-table" style="font-size:0.78rem;width:100%">
+            <thead id="import-preview-head"></thead>
+            <tbody id="import-preview-body"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <button class="btn btn-primary" onclick="runProtoImport()" id="import-run-btn" disabled data-i18n="btn_import_run">Import</button>
+      <button class="btn btn-ghost" onclick="closeProtoImport()" data-i18n="btn_cancel">Cancel</button>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--muted);cursor:pointer;margin-left:8px">
+        <input type="checkbox" id="import-add-deposit" style="width:14px;height:14px">
+        <span data-i18n="import_add_deposit">Add deposit to existing</span>
+      </label>
+      <label style="display:flex;align-items:center;gap:6px;font-size:0.82rem;color:var(--muted);cursor:pointer">
+        <input type="checkbox" id="import-add-points" style="width:14px;height:14px">
+        <span data-i18n="import_add_points">Add points to existing</span>
+      </label>
+      <span id="import-status" class="c-muted" style="font-size:0.82rem;margin-left:auto"></span>
+    </div>
+  </div>
+</div>
+</body>
+</html>

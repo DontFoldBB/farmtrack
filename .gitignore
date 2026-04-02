@@ -1,0 +1,26 @@
+# Database & user data
+data/
+*.db
+
+# Backups
+backups/
+
+# Unrelated files
+tg_bot.py
+*.xlsx
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+env/
+
+# Claude internal
+.claude/
+
+# OS
+.DS_Store
+Thumbs.db
