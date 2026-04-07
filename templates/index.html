@@ -5,33 +5,32 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Project632</title>
 <style>
-/* ── Apple System Font ── */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+/* ── Revolut Design System ── */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
 
 :root {
-  --bg:      #161618;
-  --sidebar: #1c1c1e;
-  --card:    #242426;
-  --card2:   #2c2c2e;
-  --border:  rgba(255,255,255,0.08);
-  --border2: rgba(255,255,255,0.05);
-  --text:    #f5f5f7;
-  --text2:   #d1d1d6;
-  --muted:   #8e8e93;
-  --muted2:  #636366;
-  --green:   #30d158;
-  --red:     #ff453a;
-  --amber:   #ff9f0a;
-  --blue:    #0a84ff;
-  --purple:  #bf5af2;
-  --teal:    #5ac8fa;
-  --sep:     rgba(255,255,255,0.06);
+  --bg:      #0d0e10;
+  --sidebar: #111315;
+  --card:    #181b1e;
+  --card2:   #1e2226;
+  --border:  #2e3236;
+  --sep:     #252a2e;
+  --text:    #f4f4f4;
+  --text2:   #c8cdd2;
+  --muted:   #a0a8b0;
+  --muted2:  #6a7078;
+  --blue:    #494fdf;
+  --green:   #00a87e;
+  --red:     #e23b4a;
+  --amber:   #ec7e00;
+  --teal:    #00a87e;
+  --purple:  #7c3aed;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Helvetica Neue', sans-serif;
+  font-family: 'Inter', system-ui, sans-serif;
   background: var(--bg);
   color: var(--text);
   display: flex;
@@ -39,8 +38,7 @@ body {
   overflow: hidden;
   font-size: 13px;
   -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.16px;
 }
 
 /* ── Sidebar ── */
@@ -55,10 +53,12 @@ body {
 
 .logo {
   padding: 20px 16px 16px;
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.1rem;
+  font-weight: 500;
+  letter-spacing: -0.3px;
   border-bottom: 1px solid var(--border);
+  color: var(--text);
 }
 .logo span { color: var(--blue); }
 
@@ -68,22 +68,19 @@ nav a {
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   color: var(--muted);
   text-decoration: none;
-  border-radius: 8px;
-  transition: background 0.12s, color 0.12s;
-  font-size: 0.82rem;
+  border-radius: 9999px;
+  transition: background 0.15s, color 0.15s;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.84rem;
   font-weight: 500;
-  position: relative;
-  margin-bottom: 1px;
+  margin-bottom: 2px;
+  letter-spacing: 0.1px;
 }
 nav a:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
-nav a.active {
-  color: var(--text);
-  background: rgba(10,132,255,0.15);
-  color: var(--blue);
-}
+nav a.active { background: var(--blue); color: #fff; }
 nav a svg {
   width: 15px; height: 15px;
   stroke: currentColor; fill: none;
@@ -99,8 +96,8 @@ nav a svg {
   color: #fff;
   font-size: 0.6rem;
   font-weight: 700;
-  border-radius: 8px;
-  padding: 1px 5px;
+  border-radius: 9999px;
+  padding: 1px 6px;
   display: none;
 }
 
@@ -108,23 +105,23 @@ nav a svg {
 
 .btn-export {
   width: 100%;
-  padding: 8px 10px;
-  background: rgba(255,255,255,0.06);
+  padding: 9px 12px;
+  background: transparent;
   border: 1px solid var(--border);
-  color: var(--text2);
-  border-radius: 8px;
+  color: var(--muted);
+  border-radius: 9999px;
   cursor: pointer;
-  font-size: 0.75rem;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.78rem;
   font-weight: 500;
-  transition: background 0.12s;
+  transition: background 0.15s, color 0.15s;
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  font-family: inherit;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.1px;
 }
-.btn-export:hover { background: rgba(255,255,255,0.1); }
+.btn-export:hover { background: rgba(255,255,255,0.06); color: var(--text2); }
 
 /* ── Main ── */
 .main {
@@ -139,17 +136,16 @@ nav a svg {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 16px 24px;
+  padding: 14px 24px;
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
-  background: rgba(22,22,24,0.8);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  background: var(--bg);
 }
 .topbar h1 {
-  font-size: 1.05rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.2px;
   color: var(--text);
 }
 
@@ -158,10 +154,10 @@ nav a svg {
   overflow-y: auto;
   padding: 20px 24px;
   scrollbar-width: thin;
-  scrollbar-color: rgba(255,255,255,0.1) transparent;
+  scrollbar-color: var(--border) transparent;
 }
-.content::-webkit-scrollbar { width: 5px; }
-.content::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 3px; }
+.content::-webkit-scrollbar { width: 4px; }
+.content::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
 /* ── Sections ── */
 section { display: none; }
@@ -178,49 +174,32 @@ section.active { display: block; }
 .stat-card {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 16px 15px;
-  position: relative;
-  overflow: hidden;
+  border-radius: 20px;
+  padding: 16px 18px;
   flex: 1 1 140px;
-  transition: background 0.12s;
-}
-.stat-card::before {
-  content: '';
-  position: absolute;
-  top: 0; left: 0; right: 0;
-  height: 1px;
-  background: linear-gradient(90deg, transparent, var(--stat-accent, transparent) 40%, transparent);
-  opacity: 0.6;
-}
-.stat-card::after {
-  content: '';
-  position: absolute;
-  top: 0; left: 0;
-  width: 3px; bottom: 0;
-  background: var(--stat-accent, transparent);
-  border-radius: 14px 0 0 14px;
-  opacity: 0.7;
+  transition: background 0.15s;
+  position: relative;
 }
 .stat-card:hover { background: var(--card2); }
 .stat-label {
-  font-size: 0.64rem;
-  color: var(--muted);
+  font-size: 0.63rem;
+  color: var(--muted2);
   text-transform: uppercase;
   letter-spacing: 0.7px;
-  margin-bottom: 8px;
+  margin-bottom: 10px;
   display: flex;
   align-items: center;
   gap: 5px;
   white-space: nowrap;
-  font-weight: 500;
+  font-weight: 600;
 }
 .stat-label .si { font-size: 0.75rem; opacity: 0.5; flex-shrink: 0; }
 .stat-value {
-  font-size: 1.35rem;
-  font-weight: 700;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1.45rem;
+  font-weight: 500;
   line-height: 1.1;
-  letter-spacing: -0.03em;
+  letter-spacing: -0.3px;
   white-space: nowrap;
 }
 
@@ -232,18 +211,19 @@ section.active { display: block; }
   margin-bottom: 14px;
 }
 .sec-title {
-  font-size: 0.72rem;
-  font-weight: 600;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.78rem;
+  font-weight: 500;
   color: var(--muted);
   text-transform: uppercase;
-  letter-spacing: 0.6px;
+  letter-spacing: 0.5px;
 }
 
 /* ── Table ── */
 .table-wrap {
   background: var(--card);
   border: 1px solid var(--border);
-  border-radius: 12px;
+  border-radius: 20px;
   overflow: hidden;
   margin-bottom: 20px;
 }
@@ -252,13 +232,13 @@ table { width: 100%; border-collapse: collapse; }
 
 th {
   text-align: left;
-  padding: 9px 14px;
-  font-size: 0.65rem;
+  padding: 10px 14px;
+  font-size: 0.63rem;
   text-transform: uppercase;
   letter-spacing: 0.7px;
   color: var(--muted2);
   border-bottom: 1px solid var(--sep);
-  background: rgba(255,255,255,0.015);
+  background: var(--card);
   white-space: nowrap;
   font-weight: 600;
 }
@@ -268,12 +248,13 @@ td {
   border-bottom: 1px solid var(--sep);
   vertical-align: middle;
   font-size: 0.83rem;
+  letter-spacing: 0.1px;
 }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(255,255,255,0.03); }
+tr:hover td { background: rgba(255,255,255,0.025); }
 
 .td-mono {
-  font-family: 'SF Mono', 'Fira Code', 'Fira Mono', monospace;
+  font-family: 'Fira Code', 'Fira Mono', monospace;
   font-size: 0.75rem;
   color: var(--muted);
   max-width: 300px;
@@ -307,57 +288,56 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 /* ── Badge ── */
 .badge {
   display: inline-block;
-  padding: 2px 7px;
-  border-radius: 6px;
+  padding: 3px 10px;
+  border-radius: 9999px;
   font-size: 0.68rem;
   font-weight: 600;
   white-space: nowrap;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.2px;
 }
-.badge-green  { background: rgba(48,209,88,0.12);  color: var(--green); }
-.badge-amber  { background: rgba(255,159,10,0.12); color: var(--amber); }
-.badge-gray   { background: rgba(142,142,147,0.14); color: var(--muted); }
-.badge-red    { background: rgba(255,69,58,0.12);   color: var(--red); }
+.badge-green  { background: rgba(0,168,126,0.14);  color: var(--green); }
+.badge-amber  { background: rgba(236,126,0,0.14);  color: var(--amber); }
+.badge-gray   { background: rgba(160,168,176,0.12); color: var(--muted); }
+.badge-red    { background: rgba(226,59,74,0.14);   color: var(--red); }
 
 /* ── Buttons ── */
 .btn {
-  padding: 7px 14px;
-  border-radius: 8px;
+  padding: 8px 16px;
+  border-radius: 9999px;
   border: none;
   cursor: pointer;
-  font-size: 0.78rem;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.8rem;
   font-weight: 500;
-  transition: all 0.12s;
+  transition: opacity 0.15s;
   line-height: 1;
-  font-family: inherit;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.1px;
 }
+.btn:hover { opacity: 0.85; }
 .btn-primary {
   background: var(--blue);
   color: #fff;
-  box-shadow: 0 1px 3px rgba(10,132,255,0.3);
 }
-.btn-primary:hover { background: #1a8fff; }
 .btn-ghost {
-  background: rgba(255,255,255,0.07);
+  background: transparent;
   border: 1px solid var(--border);
   color: var(--text2);
 }
-.btn-ghost:hover { background: rgba(255,255,255,0.12); color: var(--text); }
+.btn-ghost:hover { background: rgba(255,255,255,0.05); opacity: 1; }
 .btn-secondary {
-  background: rgba(255,255,255,0.08);
+  background: var(--card2);
   border: 1px solid var(--border);
   color: var(--text2);
 }
-.btn-secondary:hover { background: rgba(255,255,255,0.13); }
+.btn-secondary:hover { background: var(--card2); opacity: 0.85; }
 .btn-danger {
-  background: rgba(255,69,58,0.1);
-  border: 1px solid rgba(255,69,58,0.25);
+  background: transparent;
+  border: 1px solid rgba(226,59,74,0.3);
   color: var(--red);
 }
-.btn-danger:hover { background: rgba(255,69,58,0.18); }
-.btn-sm { padding: 4px 8px; font-size: 0.72rem; border-radius: 6px; }
-.btn-icon { padding: 4px 7px; }
+.btn-danger:hover { background: rgba(226,59,74,0.1); opacity: 1; }
+.btn-sm { padding: 4px 10px; font-size: 0.72rem; }
+.btn-icon { padding: 4px 8px; }
 
 .row-actions { display: flex; gap: 4px; }
 
@@ -371,28 +351,28 @@ tr:hover td { background: rgba(255,255,255,0.03); }
 .filter-row select { max-width: 220px; }
 
 /* ── Forms ── */
-.form-group { margin-bottom: 13px; }
-label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 4px; font-weight: 500; letter-spacing: 0.01em; }
+.form-group { margin-bottom: 14px; }
+label { display: block; font-size: 0.72rem; color: var(--muted); margin-bottom: 5px; font-weight: 500; letter-spacing: 0.1px; }
 
 input, select, textarea {
   width: 100%;
-  background: rgba(255,255,255,0.06);
+  background: var(--card2);
   border: 1px solid var(--border);
   color: var(--text);
-  padding: 8px 10px;
-  border-radius: 8px;
-  font-size: 0.83rem;
+  padding: 9px 12px;
+  border-radius: 12px;
+  font-size: 0.84rem;
   outline: none;
-  font-family: inherit;
-  transition: border-color 0.12s, background 0.12s;
-  letter-spacing: -0.01em;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: border-color 0.15s;
+  letter-spacing: 0.16px;
 }
 input:focus, select:focus, textarea:focus {
   border-color: var(--blue);
-  background: rgba(10,132,255,0.06);
+  box-shadow: 0 0 0 2px rgba(73,79,223,0.2);
 }
-select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238e8e93' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-select option { background: #2c2c2e; color: var(--text); }
+select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236a7078' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
+select option { background: #1e2226; color: var(--text); }
 textarea { resize: vertical; min-height: 72px; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -400,34 +380,32 @@ textarea { resize: vertical; min-height: 72px; }
 /* ── Modal ── */
 .overlay {
   position: fixed; inset: 0;
-  background: rgba(0,0,0,0.55);
+  background: rgba(0,0,0,0.65);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 100;
-  backdrop-filter: blur(6px);
-  -webkit-backdrop-filter: blur(6px);
 }
 .hidden { display: none !important; }
 .overlay.hidden { display: none; }
 
 .modal {
-  background: #2c2c2e;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 14px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 20px;
   width: 440px;
   max-width: 95vw;
-  box-shadow: 0 24px 80px rgba(0,0,0,0.6), 0 0 0 0.5px rgba(255,255,255,0.06);
 }
 .modal-header {
-  padding: 18px 20px 0;
-  font-size: 0.95rem;
-  font-weight: 600;
-  letter-spacing: -0.02em;
+  padding: 20px 22px 0;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.2px;
 }
-.modal-body { padding: 16px 20px; }
+.modal-body { padding: 16px 22px; }
 .modal-footer {
-  padding: 0 20px 16px;
+  padding: 0 22px 18px;
   display: flex;
   gap: 8px;
   justify-content: flex-end;
@@ -438,32 +416,31 @@ textarea { resize: vertical; min-height: 72px; }
   position: fixed;
   bottom: 20px;
   right: 20px;
-  background: rgba(44,44,46,0.95);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 0.8rem;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 9999px;
+  padding: 10px 18px;
+  font-size: 0.82rem;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-weight: 500;
   z-index: 200;
   transform: translateY(70px);
   opacity: 0;
   transition: all 0.22s cubic-bezier(0.34,1.56,0.64,1);
-  max-width: 300px;
+  max-width: 320px;
   pointer-events: none;
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
 }
 .toast.show { transform: translateY(0); opacity: 1; }
-.toast.success { border-left: 2px solid var(--green); }
-.toast.error   { border-left: 2px solid var(--red); }
-.toast.info    { border-left: 2px solid var(--amber); }
+.toast.success { border-color: var(--green); color: var(--green); }
+.toast.error   { border-color: var(--red);   color: var(--red); }
+.toast.info    { border-color: var(--amber);  color: var(--amber); }
 
 /* ── Due-reminder banner ── */
 .due-banner {
-  background: rgba(255,159,10,0.08);
-  border: 1px solid rgba(255,159,10,0.2);
-  border-radius: 10px;
-  padding: 10px 14px;
+  background: rgba(236,126,0,0.08);
+  border: 1px solid rgba(236,126,0,0.25);
+  border-radius: 12px;
+  padding: 10px 16px;
   margin-bottom: 16px;
   display: none;
   align-items: center;
@@ -500,33 +477,33 @@ textarea { resize: vertical; min-height: 72px; }
   outline: none;
 }
 .color-swatch:hover { transform: scale(1.2); }
-.color-swatch.active { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 0 2px rgba(255,255,255,0.2); }
+.color-swatch.active { border-color: rgba(255,255,255,0.8); box-shadow: 0 0 0 2px rgba(255,255,255,0.15); }
 
 /* ── Inline amount edit ── */
 .amount-cell { cursor: text; white-space: nowrap; }
-.amount-cell:hover::after { content: ' ✎'; font-size: 0.65rem; opacity: 0.4; }
+.amount-cell:hover::after { content: ' ✎'; font-size: 0.65rem; opacity: 0.35; }
 .amount-wrap { display: inline-flex; align-items: center; gap: 4px; }
 .amount-add-btn {
   opacity: 0;
   background: transparent;
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
   color: var(--muted2);
   cursor: pointer;
-  padding: 1px 5px;
-  border-radius: 4px;
+  padding: 1px 6px;
+  border-radius: 9999px;
   font-size: 0.65rem;
   line-height: 1.4;
   transition: opacity 0.12s, color 0.12s;
   font-family: inherit;
 }
 tr:hover .amount-add-btn { opacity: 1; }
-.amount-add-btn:hover { color: var(--blue); border-color: rgba(10,132,255,0.4); }
+.amount-add-btn:hover { color: var(--blue); border-color: rgba(73,79,223,0.4); }
 .amount-input {
-  background: rgba(10,132,255,0.08);
+  background: rgba(73,79,223,0.08);
   border: 1px solid var(--blue);
   color: var(--text);
-  padding: 2px 6px;
-  border-radius: 5px;
+  padding: 2px 8px;
+  border-radius: 9999px;
   font-size: 0.83rem;
   font-family: inherit;
   outline: none;
@@ -539,11 +516,11 @@ tr:hover .amount-add-btn { opacity: 1; }
 .label-cell:hover { color: var(--text2); }
 .label-placeholder { font-style: italic; font-size: 0.75rem; color: var(--muted2); }
 .label-input {
-  background: rgba(10,132,255,0.08);
+  background: rgba(73,79,223,0.08);
   border: 1px solid var(--blue);
   color: var(--text);
-  padding: 3px 8px;
-  border-radius: 5px;
+  padding: 3px 10px;
+  border-radius: 9999px;
   font-size: 0.83rem;
   font-family: inherit;
   outline: none;
@@ -567,7 +544,7 @@ th.cb-col, td.cb-col { width: 34px; padding-right: 0; }
 .wallet-cb { opacity: 0; transition: opacity 0.12s; }
 tr:hover .wallet-cb, .wallet-cb:checked { opacity: 1; }
 .in-selection .wallet-cb { opacity: 1; }
-tr:has(.wallet-cb:checked) td { background: rgba(10,132,255,0.05) !important; }
+tr:has(.wallet-cb:checked) td { background: rgba(73,79,223,0.06) !important; }
 
 /* ── Copy address button ── */
 .addr-wrap { display: flex; align-items: center; gap: 6px; }
@@ -578,7 +555,7 @@ tr:has(.wallet-cb:checked) td { background: rgba(10,132,255,0.05) !important; }
   color: var(--muted2);
   cursor: pointer;
   padding: 2px 4px;
-  border-radius: 4px;
+  border-radius: 6px;
   font-size: 0.75rem;
   line-height: 1;
   transition: opacity 0.12s, color 0.12s;
@@ -592,15 +569,15 @@ tr:hover .copy-btn { opacity: 1; }
 .btn-assign {
   font-size: 0.68rem;
   color: var(--blue);
-  background: rgba(10,132,255,0.1);
-  border: 1px solid rgba(10,132,255,0.2);
-  border-radius: 5px;
-  padding: 2px 8px;
+  background: rgba(73,79,223,0.1);
+  border: 1px solid rgba(73,79,223,0.25);
+  border-radius: 9999px;
+  padding: 2px 10px;
   cursor: pointer;
   white-space: nowrap;
   transition: background 0.12s;
 }
-.btn-assign:hover { background: rgba(10,132,255,0.18); }
+.btn-assign:hover { background: rgba(73,79,223,0.18); }
 
 .proto-badges { display: flex; flex-wrap: wrap; gap: 4px; align-items: center; }
 .btn-tiny {
@@ -623,73 +600,70 @@ tr:hover .copy-btn { opacity: 1; }
   display: flex;
   align-items: center;
   gap: 9px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: 12px;
   cursor: pointer;
   transition: background 0.1s;
   font-size: 0.82rem;
   user-select: none;
 }
-.cb-proto-item:hover { background: rgba(255,255,255,0.05); }
+.cb-proto-item:hover { background: rgba(255,255,255,0.04); }
 .cb-proto-item input { cursor: pointer; flex-shrink: 0; }
 
 /* ── Selection bar ── */
 .selection-bar {
   position: fixed;
   bottom: 0; left: 216px; right: 0;
-  background: rgba(36,36,38,0.95);
-  border-top: 1px solid rgba(10,132,255,0.3);
+  background: var(--card2);
+  border-top: 1px solid var(--border);
   padding: 10px 24px;
   display: flex;
   align-items: center;
   gap: 10px;
   z-index: 50;
   transform: translateY(100%);
-  transition: transform 0.2s cubic-bezier(0.34,1.2,0.64,1);
-  box-shadow: 0 -8px 32px rgba(0,0,0,0.4);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  transition: transform 0.2s ease;
 }
 .selection-bar.show { transform: translateY(0); }
-.sel-count { font-size: 0.82rem; font-weight: 600; color: var(--blue); white-space: nowrap; }
+.sel-count { font-family: 'DM Sans', system-ui, sans-serif; font-size: 0.84rem; font-weight: 500; color: var(--blue); white-space: nowrap; }
 .sel-sep { width: 1px; height: 18px; background: var(--border); }
 .selection-bar select { max-width: 200px; }
 .sel-clear {
   margin-left: auto;
   background: transparent; border: none;
   color: var(--muted); cursor: pointer;
-  font-size: 0.75rem; padding: 4px 8px;
+  font-size: 0.75rem; padding: 4px 10px;
   font-family: inherit;
+  border-radius: 9999px;
 }
-.sel-clear:hover { color: var(--text2); }
+.sel-clear:hover { color: var(--text2); background: rgba(255,255,255,0.05); }
 
 /* ── Calculator ── */
 .token-dropdown {
   position: absolute; top: 100%; left: 0; right: 0;
-  background: #2c2c2e;
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 10px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
   z-index: 100;
   max-height: 220px;
   overflow-y: auto;
-  margin-top: 3px;
-  box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+  margin-top: 4px;
 }
 .token-dropdown-item {
-  padding: 8px 12px;
+  padding: 8px 14px;
   cursor: pointer;
   font-size: 0.82rem;
   display: flex;
   align-items: center;
   gap: 8px;
 }
-.token-dropdown-item:hover { background: rgba(255,255,255,0.07); }
+.token-dropdown-item:hover { background: rgba(255,255,255,0.05); }
 .token-sym { font-weight: 600; color: var(--text); }
 .token-name { color: var(--muted); font-size: 0.75rem; }
 
-.badge-long  { background: rgba(48,209,88,0.12);  color: var(--green); }
-.badge-short { background: rgba(255,69,58,0.12);   color: var(--red); }
+.badge-long  { background: rgba(0,168,126,0.14);  color: var(--green); }
+.badge-short { background: rgba(226,59,74,0.14);   color: var(--red); }
 .liq-safe    { color: var(--green); }
 .liq-warn    { color: var(--amber); }
 .liq-danger  { color: var(--red); font-weight: 600; }
@@ -697,36 +671,37 @@ tr:hover .copy-btn { opacity: 1; }
 .calc-draggable { cursor: grab; }
 .calc-draggable:active { cursor: grabbing; }
 .calc-dragging { opacity: 0.3; }
-.calc-drop-active td { background: rgba(10,132,255,0.08) !important; outline: 2px dashed rgba(10,132,255,0.4); outline-offset: -2px; }
+.calc-drop-active td { background: rgba(73,79,223,0.08) !important; outline: 2px dashed rgba(73,79,223,0.4); outline-offset: -2px; }
 
 /* ── Perp tabs ── */
 .perp-tabs {
-  display: flex; gap: 2px;
-  background: rgba(255,255,255,0.06);
-  border-radius: 8px; padding: 2px;
+  display: flex; gap: 4px;
+  background: var(--card2);
+  border: 1px solid var(--border);
+  border-radius: 9999px; padding: 3px;
 }
 .perp-tab {
   background: none; border: none;
   color: var(--muted); cursor: pointer;
-  padding: 4px 14px; border-radius: 7px;
-  font-size: 0.78rem; font-weight: 500;
-  transition: background 0.12s, color 0.12s;
-  font-family: inherit;
+  padding: 5px 16px; border-radius: 9999px;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  font-size: 0.8rem; font-weight: 500;
+  transition: background 0.15s, color 0.15s;
 }
 .perp-tab:hover { color: var(--text2); }
-.perp-tab.active { background: rgba(255,255,255,0.1); color: var(--text); }
+.perp-tab.active { background: var(--blue); color: #fff; }
 
-.calc-dir-btn.active { border-color: var(--green); color: var(--green); background: rgba(48,209,88,0.1); }
-.calc-dir-btn[data-dir="short"].active { border-color: var(--red); color: var(--red); background: rgba(255,69,58,0.1); }
+.calc-dir-btn.active { border-color: var(--green); color: var(--green); background: rgba(0,168,126,0.1); }
+.calc-dir-btn[data-dir="short"].active { border-color: var(--red); color: var(--red); background: rgba(226,59,74,0.1); }
 .calc-size-btn {
   background: transparent;
   border: 1px solid var(--border);
-  border-radius: 5px;
+  border-radius: 9999px;
   color: var(--muted);
   cursor: pointer;
   font-family: inherit;
 }
-.calc-size-btn.active { border-color: rgba(10,132,255,0.5); color: var(--blue); background: rgba(10,132,255,0.1); }
+.calc-size-btn.active { border-color: rgba(73,79,223,0.5); color: var(--blue); background: rgba(73,79,223,0.1); }
 .form-label {
   display: block;
   font-size: 0.67rem;
@@ -734,15 +709,39 @@ tr:hover .copy-btn { opacity: 1; }
   text-transform: uppercase;
   letter-spacing: 0.6px;
   margin-bottom: 5px;
-  font-weight: 500;
+  font-weight: 600;
 }
+
+/* ── Chain badges ── */
+.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+.sortable-th:hover { color: var(--text); }
+.sort-ind { color: var(--blue); font-size: 0.7rem; margin-left: 3px; }
+.chain-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 9999px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: 'DM Sans', system-ui, sans-serif;
+}
+.chain-evm   { background: rgba(73,79,223,0.15);  color: #7b80f0; border: 1px solid rgba(73,79,223,0.3); }
+.chain-sol   { background: rgba(153,69,255,0.15); color: #b57bff; border: 1px solid rgba(153,69,255,0.3); }
+.chain-btc   { background: rgba(236,126,0,0.15);  color: #ec7e00; border: 1px solid rgba(236,126,0,0.3); }
+.chain-trx   { background: rgba(226,59,74,0.15);  color: #e85566; border: 1px solid rgba(226,59,74,0.3); }
+.chain-apt   { background: rgba(0,168,126,0.15);  color: #00c896; border: 1px solid rgba(0,168,126,0.3); }
+.chain-stark { background: rgba(0,180,200,0.15);  color: #00bcd4; border: 1px solid rgba(0,180,200,0.3); }
+.chain-cosmos{ background: rgba(100,140,255,0.15);color: #7b9fff; border: 1px solid rgba(100,140,255,0.3); }
+.chain-null  { background: rgba(160,168,176,0.1); color: var(--muted2); border: 1px solid rgba(160,168,176,0.15); }
 </style>
 </head>
 <body>
 
 <!-- Sidebar -->
 <aside class="sidebar">
-  <div class="logo">Project<span>632</span><span style="display:block;font-size:0.6rem;font-weight:400;color:var(--muted);letter-spacing:0.05em;margin-top:2px">alpha v0.2</span></div>
+  <div class="logo">Project<span>632</span><span style="display:block;font-size:0.6rem;font-weight:400;color:var(--muted);letter-spacing:0.05em;margin-top:2px">alpha v0.3</span></div>
   <nav>
     <a href="#" class="active" data-section="overview" onclick="navigate(this)">
       <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
@@ -755,6 +754,10 @@ tr:hover .copy-btn { opacity: 1; }
     <a href="#" data-section="wallets" onclick="navigate(this)">
       <svg viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor" stroke="none"/></svg>
       <span data-i18n="nav_wallets">Wallets</span>
+    </a>
+    <a href="#" data-section="proxies" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+      <span data-i18n="nav_proxies">Proxies</span>
     </a>
     <a href="#" data-section="perp" onclick="navigate(this)">
       <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
@@ -859,11 +862,22 @@ tr:hover .copy-btn { opacity: 1; }
           <select id="wallet-filter" onchange="loadWallets()">
             <option value="" data-i18n="all_wallets">All wallets</option>
           </select>
+          <select id="chain-filter" onchange="loadWallets()" style="max-width:130px">
+            <option value="" data-i18n="chain_all">All chains</option>
+            <option value="evm">EVM</option>
+            <option value="sol">SOL</option>
+            <option value="btc">BTC</option>
+            <option value="apt">APT</option>
+            <option value="stark">STARK</option>
+            <option value="trx">TRX</option>
+            <option value="cosmos">COSMOS</option>
+          </select>
           <input id="wallet-search" type="search" data-i18n-ph="wallet_search_ph" placeholder="Search by address / label..."
-            oninput="filterWallets()" style="max-width:260px">
+            oninput="filterWallets()" style="max-width:240px">
           <span id="wallet-counter" class="c-muted" style="font-size:0.8rem;white-space:nowrap"></span>
         </div>
         <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost" onclick="openProxyImportModal()" data-i18n="btn_import_proxy">↧ Proxies</button>
           <button class="btn btn-primary" onclick="openBulkAddModal()" data-i18n="btn_add">+ Add</button>
         </div>
       </div>
@@ -874,13 +888,43 @@ tr:hover .copy-btn { opacity: 1; }
         <table>
           <thead><tr>
             <th class="cb-col"><input type="checkbox" id="wallet-select-all" onchange="toggleSelectAll(this)"></th>
-            <th data-i18n="th_address">Address</th>
+            <th style="width:32px;text-align:center;color:var(--muted);font-size:0.72rem">#</th>
+            <th class="sortable-th" data-sort-col="chain" data-i18n="th_chain" onclick="sortWallets('chain')">Chain</th>
+            <th class="sortable-th" data-sort-col="address" data-i18n="th_address" onclick="sortWallets('address')">Address</th>
             <th data-i18n="nav_protocols">Protocols</th>
-            <th data-i18n="th_label">Label</th>
-            <th data-i18n="th_added">Added</th>
+            <th class="sortable-th" data-sort-col="label" data-i18n="th_label" onclick="sortWallets('label')">Label</th>
+            <th data-i18n="th_proxy">Proxy</th>
+            <th class="sortable-th" data-sort-col="added" data-i18n="th_added" onclick="sortWallets('added')">Added</th>
             <th></th>
           </tr></thead>
           <tbody id="wallets-tbody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- Proxies -->
+    <section id="s-proxies">
+      <div class="sec-header">
+        <span class="sec-title" data-i18n="nav_proxies">Proxies</span>
+        <span id="proxy-counter" class="c-muted" style="font-size:0.8rem"></span>
+      </div>
+      <!-- Add proxies textarea -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;align-items:flex-start">
+        <textarea id="proxy-add-textarea" rows="3"
+          style="flex:1;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:9px 12px;font-family:monospace;font-size:0.82rem;resize:vertical;outline:none;transition:border-color 0.15s"
+          onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--border)'"></textarea>
+        <button class="btn btn-primary" onclick="addProxies()" data-i18n="btn_add_proxies" style="white-space:nowrap">Add</button>
+      </div>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr>
+            <th style="width:32px;text-align:center;color:var(--muted);font-size:0.72rem">#</th>
+            <th data-i18n="th_proxy_val">Proxy</th>
+            <th data-i18n="th_label">Label</th>
+            <th data-i18n="th_wallet_assign">Wallet</th>
+            <th></th>
+          </tr></thead>
+          <tbody id="proxies-tbody"></tbody>
         </table>
       </div>
     </section>
@@ -1084,10 +1128,16 @@ const T = {
     stat_per_point:'$/point',
     btn_back:'Back', btn_import:'↧ Import', btn_edit_proto:'✎ Edit',
     all_wallets:'All wallets', no_protocol_opt:'— No protocol',
-    th_added:'Added',
+    th_added:'Added', th_proxy:'Proxy', th_chain:'Chain',
     wallet_search_ph:'Search by address / label...',
+    chain_all:'All chains', chain_unknown:'unknown',
     wallets_no_protocol:'without protocol',
     label_placeholder:'— add label',
+    proxy_placeholder:'— add proxy',
+    btn_import_proxy:'↧ Proxies',
+    proxy_import_title:'Import Proxies',
+    proxy_import_hint:'One line per proxy. Format: address|proxy or just proxy (assigned by order)',
+    proxy_import_ph:'0x1234...|http://user:pass@ip:port\nor just:\nhttp://user:pass@ip:port',
     last_import:'Last import:', sync_importing:'Importing...',
     th_date:'Date',
     status_done_badge:'done', status_overdue_badge:'overdue', status_active_badge:'active',
@@ -1159,7 +1209,14 @@ const T = {
     import_importing:'Importing...',
     import_no_addr_col:'Address column not assigned',
     col_skip:'(skip)', col_address:'Address', col_deposit:'Deposit',
-    col_balance:'Balance', col_points:'Points', col_withdrawn:'Withdrawn',
+    col_balance:'Balance', col_points:'Points', col_withdrawn:'Withdrawn', col_proxy:'Proxy',
+    nav_proxies:'Proxies',
+    proxies_add_hint:'Paste proxies — one per line',
+    proxies_empty:'No proxies yet',
+    th_proxy_val:'Proxy', th_wallet_assign:'Wallet',
+    btn_add_proxies:'Add',
+    proxy_unassign:'Unassign',
+    proxies_free:'free',
     pos_added:'Position added', pos_updated:'Position updated',
     open_folder:'Open folder',
     coin_search_ph:'Search: ETH, BTC...',
@@ -1181,10 +1238,16 @@ const T = {
     stat_per_point:'$ за поинт',
     btn_back:'Назад', btn_import:'↧ Импорт', btn_edit_proto:'✎ Редактировать',
     all_wallets:'Все кошельки', no_protocol_opt:'— Без протокола',
-    th_added:'Добавлен',
+    th_added:'Добавлен', th_proxy:'Прокси', th_chain:'Сеть',
+    chain_all:'Все сети', chain_unknown:'неизвестно',
     wallet_search_ph:'Поиск по адресу / метке...',
     wallets_no_protocol:'без протокола',
     label_placeholder:'— добавить метку',
+    proxy_placeholder:'— добавить прокси',
+    btn_import_proxy:'↧ Прокси',
+    proxy_import_title:'Импорт прокси',
+    proxy_import_hint:'По одному на строку. Формат: адрес|прокси или просто прокси (по порядку)',
+    proxy_import_ph:'0x1234...|http://user:pass@ip:port\nили просто:\nhttp://user:pass@ip:port',
     last_import:'Последний импорт:', sync_importing:'Импортирую...',
     th_date:'Дата',
     status_done_badge:'выполнено', status_overdue_badge:'просрочено', status_active_badge:'активно',
@@ -1256,7 +1319,14 @@ const T = {
     import_importing:'Импортирую...',
     import_no_addr_col:'Не назначена колонка "Адрес"',
     col_skip:'(пропустить)', col_address:'Адрес', col_deposit:'Депозит',
-    col_balance:'Баланс', col_points:'Поинты', col_withdrawn:'Выведено',
+    col_balance:'Баланс', col_points:'Поинты', col_withdrawn:'Выведено', col_proxy:'Прокси',
+    nav_proxies:'Прокси',
+    proxies_add_hint:'Вставьте прокси — по одному на строку',
+    proxies_empty:'Прокси не добавлены',
+    th_proxy_val:'Прокси', th_wallet_assign:'Кошелёк',
+    btn_add_proxies:'Добавить',
+    proxy_unassign:'Снять',
+    proxies_free:'свободен',
     pos_added:'Позиция добавлена', pos_updated:'Позиция обновлена',
     open_folder:'Открыть папку',
     coin_search_ph:'Поиск: ETH, BTC...',
@@ -1282,10 +1352,12 @@ function applyLang() {
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-ph]').forEach(el => { el.placeholder = t(el.dataset.i18nPh); });
   document.getElementById('page-title').textContent = t('page_' + currentSection) || currentSection;
+  const ta = document.getElementById('proxy-add-textarea');
+  if (ta) ta.placeholder = t('proxies_add_hint');
 }
 
 function getColRoles() {
-  return [t('col_skip'), t('col_address'), t('col_deposit'), t('col_balance'), t('col_points'), t('col_withdrawn')];
+  return [t('col_skip'), t('col_address'), t('col_deposit'), t('col_balance'), t('col_points'), t('col_withdrawn'), t('col_proxy')];
 }
 
 // ── State ──────────────────────────────────────────────────────
@@ -1313,6 +1385,7 @@ function navigate(el) {
   if (section === 'protocols')  loadProtocols();
   if (section === 'wallets')    loadWallets();
   if (section === 'reminders')  loadReminders();
+  if (section === 'proxies')    loadProxies();
   if (section === 'perp')       initPerp();
 }
 
@@ -1732,9 +1805,13 @@ async function loadWallets() {
     protocols.map(p => `<option value="${esc(p.name)}" ${p.name === cur ? 'selected' : ''}>${esc(p.name)}</option>`).join('');
   if (cur) filter.value = cur;
 
+  const chainFilter = document.getElementById('chain-filter')?.value || '';
   let url = '/api/wallets';
-  if (cur === '__none__') url = '/api/wallets?unassigned=1';
-  else if (cur)           url = `/api/wallets?protocol=${encodeURIComponent(cur)}`;
+  const params = new URLSearchParams();
+  if (cur === '__none__') params.set('unassigned', '1');
+  else if (cur) params.set('protocol', cur);
+  if (chainFilter) params.set('chain', chainFilter);
+  if (params.toString()) url += '?' + params.toString();
 
   const wallets = await api('GET', url);
   window._wallets = wallets;
@@ -1749,7 +1826,7 @@ async function loadWallets() {
   if (searchEl) searchEl.value = '';
 
   if (!wallets.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">${t('empty_wallets')}</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="12">${t('empty_wallets')}</td></tr>`;
     return;
   }
 
@@ -1758,19 +1835,53 @@ async function loadWallets() {
   const syncEl = document.getElementById('sync-status');
   if (syncEl) syncEl.textContent = synced ? `${t('last_import')} ${synced.sync_at.replace('T', ' ')}` : '';
 
-  tbody.innerHTML = wallets.map(w => {
+  renderWallets(wallets);
+}
+
+let _walletSortCol = null, _walletSortDir = 1;
+
+function sortWallets(col) {
+  if (_walletSortCol === col) _walletSortDir *= -1;
+  else { _walletSortCol = col; _walletSortDir = 1; }
+  // update header indicators
+  document.querySelectorAll('.sortable-th').forEach(th => {
+    const ind = th.querySelector('.sort-ind');
+    if (ind) ind.remove();
+    if (th.dataset.sortCol === col) {
+      const s = document.createElement('span');
+      s.className = 'sort-ind';
+      s.textContent = _walletSortDir === 1 ? ' ▲' : ' ▼';
+      th.appendChild(s);
+    }
+  });
+  renderWallets(window._wallets);
+}
+
+function renderWallets(wallets) {
+  const tbody = document.getElementById('wallets-tbody');
+  if (!wallets || !wallets.length) return;
+  let data = [...wallets];
+  if (_walletSortCol) {
+    const fieldMap = { chain: 'chain', address: 'address', label: 'label', added: 'added_at' };
+    const field = fieldMap[_walletSortCol];
+    data.sort((a, b) => {
+      const av = (a[field] || '').toString().toLowerCase();
+      const bv = (b[field] || '').toString().toLowerCase();
+      return av < bv ? -_walletSortDir : av > bv ? _walletSortDir : 0;
+    });
+  }
+  tbody.innerHTML = data.map((w, idx) => {
     const protos = w.protocols || [];
     const protoBadges = protos.map(p => {
       const c = (window._protoColors || {})[p] || '#64748b';
       return `<span class="badge" style="background:${c}22;color:${c};border:1px solid ${c}44">${esc(p)}</span>`;
     }).join('');
     const assignBtn = `<button class="btn-tiny" title="${t('modal_assign')}" onclick='openAssignModal(${w.id}, ${JSON.stringify(protos)})'>✎</button>`;
-    const bal = w.balance != null ? `<span class="c-green" style="font-weight:600">${fmt(w.balance)}</span>` : '<span class="c-muted">—</span>';
-    const vol = w.volume != null ? fmt(w.volume) : '<span class="c-muted">—</span>';
-    const pts = w.points != null ? w.points : '<span class="c-muted">—</span>';
     return `
       <tr data-id="${w.id}">
         <td class="cb-col"><input type="checkbox" class="wallet-cb" value="${w.id}" onchange="updateSelection()"></td>
+        <td style="text-align:center;color:var(--muted);font-size:0.75rem;font-variant-numeric:tabular-nums">${idx + 1}</td>
+        <td>${chainBadge(w.chain, w.id)}</td>
         <td>
           <div class="addr-wrap">
             <span class="td-mono" title="${esc(w.address)}">${shortAddr(w.address)}</span>
@@ -1786,11 +1897,37 @@ async function loadWallets() {
           </div>
         </td>
         <td class="label-cell" onclick="editLabel(this, ${w.id})">${w.label ? esc(w.label) : `<span class='c-muted label-placeholder'>${t('label_placeholder')}</span>`}</td>
+        <td class="label-cell" onclick="editProxy(this, ${w.id}, ${JSON.stringify(w.proxy || '')})">
+          ${w.proxy
+            ? `<div class="addr-wrap"><span class="c-muted td-mono" style="font-size:0.78rem">${shortProxy(w.proxy)}</span><button class="copy-btn" title="Copy proxy" onclick="copyAddr(event,'${w.proxy.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`
+            : `<span class='c-muted label-placeholder'>${t('proxy_placeholder')}</span>`}
+        </td>
         <td class="c-muted">${fmtDate(w.added_at)}</td>
         <td><button class="btn btn-sm btn-danger btn-icon" onclick="delWallet(${w.id})">✕</button></td>
       </tr>
     `;
   }).join('');
+}
+
+const CHAIN_LABELS = { evm:'EVM', sol:'SOL', btc:'BTC', apt:'APT', stark:'STARK', trx:'TRX', cosmos:'COSMOS' };
+function chainBadge(chain, wid) {
+  const label = chain ? (CHAIN_LABELS[chain] || chain.toUpperCase()) : '?';
+  const cls   = chain ? `chain-${chain}` : 'chain-null';
+  return `<span class="chain-badge ${cls}" title="Click to change" onclick="cycleChain(event,${wid},'${chain||''}')">${label}</span>`;
+}
+function cycleChain(e, wid, current) {
+  e.stopPropagation();
+  const chains = ['evm','sol','btc','apt','stark','trx','cosmos'];
+  const idx = chains.indexOf(current);
+  const next = chains[(idx + 1) % chains.length];
+  api('PATCH', `/api/wallets/${wid}`, { chain: next }).then(() => loadWallets());
+}
+
+function shortProxy(proxy) {
+  if (!proxy) return '—';
+  // show only ip:port part — hide credentials
+  const m = proxy.match(/@([^@]+)$/) || proxy.match(/\/\/([^@]+)$/);
+  return esc(m ? m[1] : proxy);
 }
 
 function shortAddr(addr) {
@@ -2032,6 +2169,154 @@ function openProtocolModal(p = null) {
     </div>
   `;
   openModal();
+}
+
+// ── Proxies section ───────────────────────────────────────────
+async function loadProxies() {
+  const [proxies, wallets] = await Promise.all([
+    api('GET', '/api/proxies'),
+    api('GET', '/api/wallets'),
+  ]);
+  window._allWallets = wallets;
+  const tbody = document.getElementById('proxies-tbody');
+  const counter = document.getElementById('proxy-counter');
+  const free = proxies.filter(p => !p.wallet_id).length;
+  counter.textContent = proxies.length
+    ? `${proxies.length} total · ${free} ${t('proxies_free')}`
+    : '';
+
+  if (!proxies.length) {
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5">${t('proxies_empty')}</td></tr>`;
+    return;
+  }
+
+  const walletOpts = wallets.map(w =>
+    `<option value="${w.id}">${shortAddr(w.address)}${w.label ? ' · ' + esc(w.label) : ''}</option>`
+  ).join('');
+
+  tbody.innerHTML = proxies.map((p, idx) => {
+    const m = p.proxy.match(/@([^@]+)$/) || p.proxy.match(/\/\/([^@]+)$/);
+    const display = esc(m ? m[1] : p.proxy);
+    const assignSel = `
+      <select class="proxy-assign-sel" onchange="assignProxy(${p.id}, this.value)" style="font-size:0.78rem;background:var(--card2);border:1px solid var(--border);color:var(--text);border-radius:6px;padding:3px 6px;max-width:160px">
+        <option value="">— ${t('proxies_free')} —</option>
+        ${wallets.map(w =>
+          `<option value="${w.id}" ${p.wallet_id === w.id ? 'selected' : ''}>${shortAddr(w.address)}${w.label ? ' · ' + esc(w.label) : ''}</option>`
+        ).join('')}
+      </select>`;
+    return `
+      <tr data-proxy-id="${p.id}">
+        <td style="text-align:center;color:var(--muted);font-size:0.75rem;font-variant-numeric:tabular-nums">${idx + 1}</td>
+        <td>
+          <div class="addr-wrap">
+            <span class="td-mono" style="font-size:0.8rem;color:var(--text2)">${display}</span>
+            <button class="copy-btn" title="Copy" onclick="copyAddr(event, '${p.proxy.replace(/\\/g,'\\\\').replace(/'/g,"\\'")}')">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            </button>
+          </div>
+        </td>
+        <td class="label-cell" onclick="editProxyLabel(this, ${p.id})">${p.label ? esc(p.label) : `<span class='c-muted label-placeholder'>${t('label_placeholder')}</span>`}</td>
+        <td>${assignSel}</td>
+        <td><button class="btn btn-sm btn-danger btn-icon" onclick="deleteProxy(${p.id})">✕</button></td>
+      </tr>
+    `;
+  }).join('');
+}
+
+async function addProxies() {
+  const ta = document.getElementById('proxy-add-textarea');
+  const lines = ta.value.split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return;
+  const res = await api('POST', '/api/proxies/bulk', { proxies: lines });
+  ta.value = '';
+  toast(`Added: ${res.added}`);
+  loadProxies();
+}
+
+async function assignProxy(proxyId, walletId) {
+  await api('PATCH', `/api/proxies/${proxyId}`, { wallet_id: walletId ? parseInt(walletId) : null });
+  // Refresh wallet proxy column if wallets section visible
+  if (currentSection === 'wallets') loadWallets();
+}
+
+async function deleteProxy(proxyId) {
+  await api('DELETE', `/api/proxies/${proxyId}`);
+  loadProxies();
+  if (currentSection === 'wallets') loadWallets();
+}
+
+function editProxyLabel(td, proxyId) {
+  if (td.querySelector('.label-input')) return;
+  const current = td.querySelector('.label-placeholder') ? '' : td.textContent.trim();
+  const input = document.createElement('input');
+  input.className = 'label-input';
+  input.value = current;
+  td.innerHTML = '';
+  td.appendChild(input);
+  input.focus(); input.select();
+  async function save() {
+    const val = input.value.trim();
+    await api('PATCH', `/api/proxies/${proxyId}`, { label: val });
+    td.textContent = val || '';
+    if (!val) td.innerHTML = `<span class="c-muted label-placeholder">${t('label_placeholder')}</span>`;
+    td.onclick = () => editProxyLabel(td, proxyId);
+  }
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') { td.textContent = current || ''; if (!current) td.innerHTML = `<span class="c-muted label-placeholder">${t('label_placeholder')}</span>`; td.onclick = () => editProxyLabel(td, proxyId); }
+  });
+}
+
+// ── Modal: Proxy import ───────────────────────────────────────
+function openProxyImportModal() {
+  document.getElementById('proxy-import-title').textContent = t('proxy_import_title');
+  document.getElementById('proxy-import-hint').textContent  = t('proxy_import_hint');
+  document.getElementById('proxy-import-text').placeholder  = t('proxy_import_ph');
+  document.getElementById('proxy-import-text').value        = '';
+  document.getElementById('proxy-import-result').textContent = '';
+  document.getElementById('proxy-import-overlay').classList.remove('hidden');
+}
+
+function closeProxyImportModal() {
+  document.getElementById('proxy-import-overlay').classList.add('hidden');
+}
+
+async function doProxyImport() {
+  const lines = document.getElementById('proxy-import-text').value
+    .split('\n').map(l => l.trim()).filter(Boolean);
+  if (!lines.length) return;
+
+  const wallets = window._wallets || [];
+  let matched = 0, skipped = 0;
+
+  for (const line of lines) {
+    const sep = line.indexOf('|');
+    if (sep !== -1) {
+      // format: address|proxy
+      const addr  = line.slice(0, sep).trim();
+      const proxy = line.slice(sep + 1).trim();
+      const w = wallets.find(w =>
+        w.address.toLowerCase() === addr.toLowerCase() ||
+        w.address.toLowerCase().startsWith(addr.toLowerCase().replace(/…|\.\.\./, ''))
+      );
+      if (w && proxy) {
+        await api('PATCH', `/api/wallets/${w.id}`, { proxy });
+        matched++;
+      } else {
+        skipped++;
+      }
+    } else {
+      skipped++;
+    }
+  }
+
+  const resultEl = document.getElementById('proxy-import-result');
+  resultEl.textContent = `Matched: ${matched}, skipped: ${skipped}`;
+  if (matched > 0) {
+    loadWallets();
+    toast(`Proxies imported: ${matched}`);
+  }
 }
 
 // ── Modal: Bulk wallets ────────────────────────────────────────
@@ -2432,6 +2717,40 @@ function editLabel(td, wid) {
       td.textContent = current || '';
       if (!current) td.innerHTML = `<span class="c-muted label-placeholder">${t('label_placeholder')}</span>`;
       td.onclick = () => editLabel(td, wid);
+    }
+  });
+}
+
+function editProxy(cell, wid, currentProxy) {
+  if (cell.querySelector('.label-input')) return;
+  const input = document.createElement('input');
+  input.className = 'label-input';
+  input.value = currentProxy || '';
+  input.placeholder = 'http://user:pass@ip:port';
+  input.style.width = '100%';
+  cell.innerHTML = '';
+  cell.appendChild(input);
+  input.focus();
+  input.select();
+
+  async function save() {
+    const val = input.value.trim();
+    await api('PATCH', `/api/wallets/${wid}`, { proxy: val });
+    if (val) {
+      const m = val.match(/@([^@]+)$/) || val.match(/\/\/([^@]+)$/);
+      const display = esc(m ? m[1] : val);
+      cell.innerHTML = `<div class="addr-wrap"><span class="c-muted td-mono" style="font-size:0.78rem">${display}</span><button class="copy-btn" title="Copy proxy" onclick="copyAddr(event,'${val.replace(/'/g,"\\'")}')"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg></button></div>`;
+    } else {
+      cell.innerHTML = `<span class="c-muted">${t('proxy_placeholder')}</span>`;
+    }
+    cell.onclick = () => editProxy(cell, wid, val);
+  }
+
+  input.addEventListener('blur', save);
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { e.preventDefault(); input.blur(); }
+    if (e.key === 'Escape') {
+      save();
     }
   });
 }
@@ -2944,7 +3263,7 @@ let _importRows = [];      // parsed TSV rows (arrays)
 let _importColRoles = [];  // assigned role per column index
 
 const COL_ROLES = null; // use getColRoles() instead
-const COL_FIELDS = [null, 'address', 'deposit', 'wallet_balance', 'wp_points', 'wp_earned'];
+const COL_FIELDS = [null, 'address', 'deposit', 'wallet_balance', 'wp_points', 'wp_earned', 'proxy'];
 
 function openProtoImport() {
   _importRows = [];
@@ -3046,9 +3365,14 @@ async function runProtoImport() {
     _importColRoles.forEach((role, ci) => {
       const field = COL_FIELDS[role];
       if (field && field !== 'address') {
-        const raw = (row[ci] || '').replace(/\s/g, '').replace(',', '.');
-        const val = parseFloat(raw);
-        if (!isNaN(val)) obj[field] = val;
+        if (field === 'proxy') {
+          const val = (row[ci] || '').trim();
+          if (val) obj[field] = val;
+        } else {
+          const raw = (row[ci] || '').replace(/\s/g, '').replace(',', '.');
+          const val = parseFloat(raw);
+          if (!isNaN(val)) obj[field] = val;
+        }
       }
     });
     return obj;
@@ -3085,6 +3409,27 @@ fetch('/api/profiles/current').then(r => r.json()).then(d => {
   if (el) el.textContent = '📂 ' + d.name;
 });
 </script>
+
+<!-- Proxy import modal -->
+<div id="proxy-import-overlay" class="hidden" style="position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center">
+  <div style="background:var(--card);border:1px solid var(--border);border-radius:14px;width:min(560px,95vw);max-height:90vh;display:flex;flex-direction:column;overflow:hidden">
+    <div style="padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between">
+      <span style="font-weight:600" id="proxy-import-title">Import Proxies</span>
+      <button onclick="closeProxyImportModal()" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:1.1rem">✕</button>
+    </div>
+    <div style="padding:16px 20px;overflow-y:auto;flex:1;display:flex;flex-direction:column;gap:12px">
+      <p id="proxy-import-hint" style="font-size:0.8rem;color:var(--muted);line-height:1.5"></p>
+      <textarea id="proxy-import-text" rows="12"
+        style="width:100%;background:var(--card2);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:10px 12px;font-family:monospace;font-size:0.82rem;resize:vertical;outline:none"
+        id="proxy-import-text"></textarea>
+      <div id="proxy-import-result" style="font-size:0.8rem;color:var(--muted)"></div>
+    </div>
+    <div style="padding:14px 20px;border-top:1px solid var(--border);display:flex;justify-content:flex-end;gap:8px">
+      <button class="btn btn-ghost" onclick="closeProxyImportModal()" data-i18n="btn_cancel">Cancel</button>
+      <button class="btn btn-primary" onclick="doProxyImport()" data-i18n="btn_import">Import</button>
+    </div>
+  </div>
+</div>
 
 <!-- Import modal -->
 <div id="import-overlay" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:1000;display:flex;align-items:center;justify-content:center" class="hidden">

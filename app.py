@@ -214,7 +214,8 @@ def update_wallet_protocol():
 def get_wallets():
     protocol = request.args.get('protocol')
     unassigned = request.args.get('unassigned') == '1'
-    return jsonify(db.get_wallets(protocol=protocol or None, unassigned_only=unassigned))
+    chain = request.args.get('chain') or None
+    return jsonify(db.get_wallets(protocol=protocol or None, unassigned_only=unassigned, chain=chain))
 
 
 @app.route('/api/wallets', methods=['POST'])
@@ -261,7 +262,15 @@ def assign_wallets():
 
 @app.route('/api/wallets/<int:wid>', methods=['PATCH'])
 def update_wallet(wid):
-    db.update_wallet_label(wid, request.json.get('label', ''))
+    data = request.json or {}
+    if 'label' in data:
+        db.update_wallet_label(wid, data.get('label', ''))
+    if 'proxy' in data:
+        db.update_wallet_proxy(wid, data.get('proxy', ''))
+    if 'chain' in data:
+        import sqlite3 as _sq
+        with db._conn() as c:
+            c.execute('UPDATE wallets SET chain=? WHERE id=?', (data.get('chain') or None, wid))
     return jsonify({'ok': True})
 
 
@@ -559,6 +568,39 @@ def hl_search():
 
 
 # --- Export ---
+
+@app.route('/api/proxies', methods=['GET'])
+def get_proxies():
+    db.sync_proxies()
+    return jsonify(db.get_proxies())
+
+
+@app.route('/api/proxies/bulk', methods=['POST'])
+def bulk_add_proxies():
+    lines = (request.json.get('proxies') or [])
+    added = db.bulk_add_proxies(lines)
+    return jsonify({'ok': True, 'added': added})
+
+
+@app.route('/api/proxies/<int:pid>', methods=['PATCH'])
+def update_proxy(pid):
+    data = request.json or {}
+    if 'label' in data:
+        db.update_proxy_label(pid, data['label'])
+    if 'wallet_id' in data:
+        wid = data['wallet_id']
+        if wid:
+            db.assign_proxy(pid, wid)
+        else:
+            db.unassign_proxy(pid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/proxies/<int:pid>', methods=['DELETE'])
+def delete_proxy(pid):
+    db.delete_proxy(pid)
+    return jsonify({'ok': True})
+
 
 @app.route('/api/open-folder', methods=['POST'])
 def open_folder():

@@ -1,7 +1,28 @@
 import sqlite3
 import os
+import re
 from contextlib import contextmanager
 from datetime import datetime
+
+
+def _detect_chain(address):
+    """Detect blockchain network from address format."""
+    a = (address or '').strip()
+    if re.match(r'^0x[0-9a-fA-F]{64}$', a):
+        return 'apt'      # Aptos: 0x + 64 hex
+    if re.match(r'^0x[0-9a-fA-F]{62,63}$', a):
+        return 'stark'    # Starknet: 0x + 62-63 hex
+    if re.match(r'^0x[0-9a-fA-F]{40}$', a, re.IGNORECASE):
+        return 'evm'      # EVM: 0x + 40 hex
+    if re.match(r'^T[1-9A-HJ-NP-Za-km-z]{33}$', a):
+        return 'trx'      # Tron
+    if re.match(r'^(bc1|[13])[a-zA-HJ-NP-Z0-9]{25,62}$', a):
+        return 'btc'      # Bitcoin
+    if re.match(r'^cosmos1[a-z0-9]{38}$', a):
+        return 'cosmos'   # Cosmos
+    if re.match(r'^[1-9A-HJ-NP-Za-km-z]{32,44}$', a):
+        return 'sol'      # Solana (base58 fallback)
+    return None
 
 _DATA_DIR = os.path.join(os.path.dirname(__file__), 'data')
 DB_PATH = os.environ.get('DB_PATH', os.path.join(_DATA_DIR, 'farmtrack.db'))
@@ -55,7 +76,17 @@ def init():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 address TEXT NOT NULL UNIQUE,
                 label TEXT DEFAULT '',
+                proxy TEXT DEFAULT NULL,
+                chain TEXT DEFAULT NULL,
                 added_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS proxies (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                proxy TEXT NOT NULL UNIQUE,
+                label TEXT DEFAULT '',
+                wallet_id INTEGER DEFAULT NULL,
+                added_at TEXT DEFAULT (datetime('now')),
+                FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE SET NULL
             );
             CREATE TABLE IF NOT EXISTS wallet_protocols (
                 wallet_id INTEGER NOT NULL,
@@ -142,6 +173,28 @@ def _migrate(c):
             );
         ''')
 
+    # Add chain column to wallets if missing
+    w_cols = {r[1] for r in c.execute("PRAGMA table_info(wallets)").fetchall()}
+    if 'chain' not in w_cols:
+        c.execute("ALTER TABLE wallets ADD COLUMN chain TEXT DEFAULT NULL")
+        # Auto-detect chain for existing wallets
+        for row in c.execute("SELECT id, address FROM wallets").fetchall():
+            ch = _detect_chain(row['address'])
+            if ch:
+                c.execute("UPDATE wallets SET chain=? WHERE id=?", (ch, row['id']))
+
+    # Create proxies table if missing (migration for existing DBs)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS proxies (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            proxy TEXT NOT NULL UNIQUE,
+            label TEXT DEFAULT '',
+            wallet_id INTEGER DEFAULT NULL,
+            added_at TEXT DEFAULT (datetime('now')),
+            FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE SET NULL
+        )
+    ''')
+
     # Add group_id to positions if missing
     pos_cols2 = {r[1] for r in c.execute("PRAGMA table_info(positions)").fetchall()}
     if 'group_id' not in pos_cols2:
@@ -171,6 +224,7 @@ def _migrate(c):
             ('points',   'REAL DEFAULT NULL'),
             ('p_price',  'REAL DEFAULT NULL'),
             ('sync_at',  'TEXT DEFAULT NULL'),
+            ('proxy',    'TEXT DEFAULT NULL'),
         ]:
             if col not in cols:
                 c.execute(f'ALTER TABLE wallets ADD COLUMN {col} {typedef}')
@@ -370,7 +424,7 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
                     if existing:
                         found_id = existing['id']
                     else:
-                        c.execute('INSERT OR IGNORE INTO wallets (address) VALUES (?)', (raw_addr,))
+                        c.execute('INSERT OR IGNORE INTO wallets (address, chain) VALUES (?,?)', (raw_addr, _detect_chain(raw_addr)))
                         found_id = c.execute(
                             'SELECT id FROM wallets WHERE LOWER(address)=?', (addr,)
                         ).fetchone()['id']
@@ -403,6 +457,11 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
                 if sets:
                     vals += [found_id, protocol]
                     c.execute(f"UPDATE wallet_protocols SET {','.join(sets)} WHERE wallet_id=? AND protocol=?", vals)
+                # Handle proxy (string field on wallets table)
+                if row.get('proxy'):
+                    proxy_val = str(row['proxy']).strip()
+                    c.execute('UPDATE wallets SET proxy=? WHERE id=?', (proxy_val, found_id))
+                    _sync_proxy_link(c, found_id, proxy_val)
                 matched += 1
             else:
                 unmatched.append(row.get('address', ''))
@@ -443,23 +502,29 @@ def _attach_protocols(c, wallets):
     return wallets
 
 
-def get_wallets(protocol=None, unassigned_only=False):
+def get_wallets(protocol=None, unassigned_only=False, chain=None):
     with _conn() as c:
+        chain_clause = ' AND w.chain=?' if chain else ''
+        chain_args   = (chain,) if chain else ()
         if unassigned_only:
-            rows = c.execute('''
+            rows = c.execute(f'''
                 SELECT w.* FROM wallets w
                 LEFT JOIN wallet_protocols wp ON w.id = wp.wallet_id
-                WHERE wp.wallet_id IS NULL
+                WHERE wp.wallet_id IS NULL {chain_clause}
                 ORDER BY w.added_at DESC
-            ''').fetchall()
+            ''', chain_args).fetchall()
         elif protocol:
-            rows = c.execute('''
+            rows = c.execute(f'''
                 SELECT w.* FROM wallets w
                 JOIN wallet_protocols wp ON w.id = wp.wallet_id AND wp.protocol = ?
+                WHERE 1=1 {chain_clause}
                 ORDER BY w.added_at DESC
-            ''', (protocol,)).fetchall()
+            ''', (protocol,) + chain_args).fetchall()
         else:
-            rows = c.execute('SELECT * FROM wallets ORDER BY added_at DESC').fetchall()
+            if chain:
+                rows = c.execute('SELECT * FROM wallets WHERE chain=? ORDER BY added_at DESC', (chain,)).fetchall()
+            else:
+                rows = c.execute('SELECT * FROM wallets ORDER BY added_at DESC').fetchall()
 
         wallets = [dict(r) for r in rows]
         return _attach_protocols(c, wallets)
@@ -473,7 +538,8 @@ def bulk_add_wallets(addresses, protocols=None, label=''):
             addr = addr.strip()
             if not addr:
                 continue
-            c.execute('INSERT OR IGNORE INTO wallets (address, label) VALUES (?,?)', (addr, label))
+            chain = _detect_chain(addr)
+            c.execute('INSERT OR IGNORE INTO wallets (address, label, chain) VALUES (?,?,?)', (addr, label, chain))
             if c.execute('SELECT changes()').fetchone()[0]:
                 added += 1
             if protocols:
@@ -543,6 +609,115 @@ def import_balances(rows):
 def update_wallet_label(wid, label):
     with _conn() as c:
         c.execute('UPDATE wallets SET label=? WHERE id=?', (label, wid))
+
+
+def _sync_proxy_link(c, wallet_id, proxy_val):
+    """Keep proxies.wallet_id in sync when wallets.proxy changes."""
+    # Clear any existing proxies row pointing to this wallet
+    c.execute('UPDATE proxies SET wallet_id=NULL WHERE wallet_id=?', (wallet_id,))
+    if proxy_val:
+        # If this proxy string exists in proxies table, link it
+        c.execute('UPDATE proxies SET wallet_id=? WHERE proxy=?', (wallet_id, proxy_val))
+
+
+def update_wallet_proxy(wid, proxy):
+    with _conn() as c:
+        proxy_val = proxy or None
+        c.execute('UPDATE wallets SET proxy=? WHERE id=?', (proxy_val, wid))
+        _sync_proxy_link(c, wid, proxy_val)
+
+
+# ── Proxies ───────────────────────────────────────────────────────────────────
+
+def get_proxies():
+    with _conn() as c:
+        rows = c.execute('''
+            SELECT p.*, w.address AS wallet_address
+            FROM proxies p
+            LEFT JOIN wallets w ON w.id = p.wallet_id
+            ORDER BY p.added_at DESC
+        ''').fetchall()
+        return [dict(r) for r in rows]
+
+
+def bulk_add_proxies(proxy_list):
+    added = 0
+    with _conn() as c:
+        for proxy in proxy_list:
+            proxy = proxy.strip()
+            if not proxy:
+                continue
+            try:
+                c.execute('INSERT OR IGNORE INTO proxies (proxy) VALUES (?)', (proxy,))
+                if c.rowcount:
+                    added += 1
+            except Exception:
+                pass
+        # Sync: if any wallet already has this proxy string, link it
+        c.execute('''
+            UPDATE proxies SET wallet_id = (
+                SELECT id FROM wallets WHERE wallets.proxy = proxies.proxy LIMIT 1
+            )
+            WHERE wallet_id IS NULL
+        ''')
+    return added
+
+
+def assign_proxy(proxy_id, wallet_id):
+    """Assign proxy to wallet — updates both proxies.wallet_id and wallets.proxy."""
+    with _conn() as c:
+        proxy_row = c.execute('SELECT proxy FROM proxies WHERE id=?', (proxy_id,)).fetchone()
+        if not proxy_row:
+            return
+        proxy_val = proxy_row['proxy']
+        # Unassign from previous wallet if any
+        old = c.execute('SELECT wallet_id FROM proxies WHERE id=?', (proxy_id,)).fetchone()
+        if old and old['wallet_id']:
+            c.execute('UPDATE wallets SET proxy=NULL WHERE id=? AND proxy=?', (old['wallet_id'], proxy_val))
+        c.execute('UPDATE proxies SET wallet_id=? WHERE id=?', (wallet_id, proxy_id))
+        if wallet_id:
+            c.execute('UPDATE wallets SET proxy=? WHERE id=?', (proxy_val, wallet_id))
+
+
+def unassign_proxy(proxy_id):
+    with _conn() as c:
+        row = c.execute('SELECT proxy, wallet_id FROM proxies WHERE id=?', (proxy_id,)).fetchone()
+        if not row:
+            return
+        if row['wallet_id']:
+            c.execute('UPDATE wallets SET proxy=NULL WHERE id=? AND proxy=?', (row['wallet_id'], row['proxy']))
+        c.execute('UPDATE proxies SET wallet_id=NULL WHERE id=?', (proxy_id,))
+
+
+def delete_proxy(proxy_id):
+    with _conn() as c:
+        row = c.execute('SELECT proxy, wallet_id FROM proxies WHERE id=?', (proxy_id,)).fetchone()
+        if row and row['wallet_id']:
+            c.execute('UPDATE wallets SET proxy=NULL WHERE id=? AND proxy=?', (row['wallet_id'], row['proxy']))
+        c.execute('DELETE FROM proxies WHERE id=?', (proxy_id,))
+
+
+def update_proxy_label(proxy_id, label):
+    with _conn() as c:
+        c.execute('UPDATE proxies SET label=? WHERE id=?', (label or '', proxy_id))
+
+
+def sync_proxies():
+    """Sync proxies.wallet_id with wallets.proxy in both directions."""
+    with _conn() as c:
+        # 1. Link proxies to wallets that already have matching proxy string
+        c.execute('''
+            UPDATE proxies SET wallet_id = (
+                SELECT id FROM wallets WHERE wallets.proxy = proxies.proxy LIMIT 1
+            )
+            WHERE wallet_id IS NULL
+        ''')
+        # 2. Clear proxy links where wallet no longer has that proxy string
+        c.execute('''
+            UPDATE proxies SET wallet_id = NULL
+            WHERE wallet_id IS NOT NULL
+              AND (SELECT proxy FROM wallets WHERE id = proxies.wallet_id) != proxies.proxy
+        ''')
 
 
 def delete_wallet(wid):

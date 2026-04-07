@@ -5,91 +5,95 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FarmTrack — Profile</title>
 <style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg: #161618;
-    --card: #242426;
-    --card2: #2c2c2e;
-    --border: rgba(255,255,255,0.08);
-    --text: #f5f5f7;
-    --text2: #d1d1d6;
-    --muted: #8e8e93;
-    --green: #30d158;
-    --red: #ff453a;
-    --blue: #0a84ff;
-    --sep: rgba(255,255,255,0.06);
+    --bg:     #0d0e10;
+    --card:   #181b1e;
+    --card2:  #1e2226;
+    --border: #2e3236;
+    --text:   #f4f4f4;
+    --text2:  #c8cdd2;
+    --muted:  #a0a8b0;
+    --muted2: #6a7078;
+    --blue:   #494fdf;
+    --green:  #00a87e;
+    --red:    #e23b4a;
   }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'SF Pro Display', 'Inter', 'Helvetica Neue', sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-size: 13px;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.16px;
     min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    -webkit-font-smoothing: antialiased;
   }
 
-  /* lang toggle — top right corner */
   .lang-btn {
     position: fixed;
     top: 16px;
     right: 16px;
-    background: rgba(10,132,255,0.12);
-    border: 1px solid rgba(10,132,255,0.28);
-    color: var(--blue);
-    font-family: inherit;
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 0.72rem;
-    font-weight: 600;
-    letter-spacing: 0.5px;
-    padding: 5px 12px;
-    border-radius: 6px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    padding: 6px 14px;
+    border-radius: 9999px;
     cursor: pointer;
-    transition: background 0.15s;
+    transition: background 0.15s, color 0.15s;
   }
-  .lang-btn:hover { background: rgba(10,132,255,0.22); }
+  .lang-btn:hover { background: rgba(255,255,255,0.06); color: var(--text2); }
 
   .box {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 18px;
+    border-radius: 20px;
     padding: 36px 36px 32px;
     width: 420px;
     max-height: 90vh;
     display: flex;
     flex-direction: column;
     gap: 22px;
-    box-shadow: 0 32px 80px rgba(0,0,0,0.6);
   }
 
   .logo { text-align: center; }
   .logo h1 {
+    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 1.5rem;
-    font-weight: 700;
+    font-weight: 500;
     color: var(--text);
-    letter-spacing: -0.5px;
+    letter-spacing: -0.3px;
   }
-  .logo h1 span { color: var(--green); }
+  .logo h1 span { color: var(--blue); }
   .logo .version {
-    font-size: 0.68rem;
-    color: var(--muted);
-    margin-top: 3px;
-    letter-spacing: 0.06em;
+    font-size: 0.65rem;
+    color: var(--muted2);
+    margin-top: 4px;
+    letter-spacing: 0.08em;
     text-transform: uppercase;
   }
   .logo .sub {
-    font-size: 0.82rem;
+    font-size: 0.84rem;
     color: var(--muted);
-    margin-top: 8px;
+    margin-top: 10px;
+    letter-spacing: 0.1px;
   }
 
   .section-label {
-    font-size: 0.68rem;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
-    color: var(--muted);
+    color: var(--muted2);
     margin-bottom: 8px;
+    font-weight: 600;
   }
 
   .profiles-list {
@@ -101,7 +105,7 @@
   }
   .profiles-list::-webkit-scrollbar { width: 4px; }
   .profiles-list::-webkit-scrollbar-track { background: transparent; }
-  .profiles-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 2px; }
+  .profiles-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
 
   .profile-row { display: flex; align-items: center; gap: 6px; }
 
@@ -110,19 +114,19 @@
     background: var(--card2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 11px 14px;
-    border-radius: 10px;
+    padding: 12px 16px;
+    border-radius: 12px;
     cursor: pointer;
     text-align: left;
     font-size: 0.88rem;
-    font-family: inherit;
+    font-family: 'Inter', system-ui, sans-serif;
     display: flex;
     align-items: center;
     gap: 10px;
     transition: border-color 0.15s, background 0.15s;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.1px;
   }
-  .profile-btn:hover { border-color: var(--green); background: rgba(48,209,88,0.06); }
+  .profile-btn:hover { border-color: var(--blue); background: rgba(73,79,223,0.06); }
   .profile-btn .icon { font-size: 1rem; }
   .profile-btn .name { flex: 1; font-weight: 500; }
   .profile-btn .open-lbl { font-size: 0.72rem; color: var(--muted); }
@@ -131,11 +135,11 @@
     background: transparent;
     border: 1px solid var(--border);
     color: var(--muted);
-    padding: 9px 10px;
-    border-radius: 8px;
+    padding: 9px 12px;
+    border-radius: 9999px;
     cursor: pointer;
     font-size: 0.8rem;
-    font-family: inherit;
+    font-family: 'DM Sans', system-ui, sans-serif;
     white-space: nowrap;
     transition: border-color 0.15s, color 0.15s;
     flex-shrink: 0;
@@ -145,7 +149,7 @@
 
   .empty { color: var(--muted); font-size: 0.85rem; text-align: center; padding: 14px 0; }
 
-  .divider { border: none; border-top: 1px solid var(--sep); }
+  .divider { border: none; border-top: 1px solid var(--border); }
 
   .new-section { display: flex; flex-direction: column; gap: 10px; }
   .input-row { display: flex; gap: 8px; }
@@ -155,30 +159,30 @@
     background: var(--card2);
     border: 1px solid var(--border);
     color: var(--text);
-    padding: 9px 13px;
-    border-radius: 8px;
+    padding: 10px 14px;
+    border-radius: 12px;
     font-size: 0.88rem;
-    font-family: inherit;
+    font-family: 'Inter', system-ui, sans-serif;
     outline: none;
     transition: border-color 0.15s;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.16px;
   }
-  input[type="text"]:focus { border-color: var(--blue); }
-  input[type="text"]::placeholder { color: var(--muted); }
+  input[type="text"]:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(73,79,223,0.2); }
+  input[type="text"]::placeholder { color: var(--muted2); }
 
   .btn-create {
     background: var(--blue);
     color: #fff;
     border: none;
-    padding: 9px 18px;
-    border-radius: 8px;
+    padding: 10px 20px;
+    border-radius: 9999px;
+    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 0.88rem;
-    font-family: inherit;
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     white-space: nowrap;
     transition: opacity 0.15s;
-    letter-spacing: -0.01em;
+    letter-spacing: 0.1px;
   }
   .btn-create:hover { opacity: 0.85; }
 
@@ -192,7 +196,7 @@
 <div class="box">
   <div class="logo">
     <h1>Farm<span>Track</span></h1>
-    <div class="version">alpha v0.2</div>
+    <div class="version">alpha v0.3</div>
     <p class="sub" id="sub-text">Select a profile to continue</p>
   </div>
 
