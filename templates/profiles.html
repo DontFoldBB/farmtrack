@@ -5,27 +5,26 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FarmTrack — Profile</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=Inter:wght@400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   :root {
-    --bg:     #0d0e10;
-    --card:   #181b1e;
-    --card2:  #1e2226;
-    --border: #2e3236;
-    --text:   #f4f4f4;
-    --text2:  #c8cdd2;
-    --muted:  #a0a8b0;
-    --muted2: #6a7078;
-    --blue:   #494fdf;
-    --green:  #00a87e;
-    --red:    #e23b4a;
+    --bg:     #201d1d;
+    --card:   #302c2c;
+    --card2:  #383333;
+    --border: #3d3838;
+    --text:   #fdfcfc;
+    --text2:  #d4d0d0;
+    --muted:  #9a9898;
+    --muted2: #6e6e73;
+    --blue:   #007aff;
+    --green:  #30d158;
+    --red:    #ff3b30;
   }
   body {
     background: var(--bg);
     color: var(--text);
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'IBM Plex Mono', ui-monospace, 'Menlo', 'Monaco', monospace;
     font-size: 13px;
-    letter-spacing: 0.16px;
     min-height: 100vh;
     display: flex;
     align-items: center;
@@ -33,28 +32,10 @@
     -webkit-font-smoothing: antialiased;
   }
 
-  .lang-btn {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    background: transparent;
-    border: 1px solid var(--border);
-    color: var(--muted);
-    font-family: 'DM Sans', system-ui, sans-serif;
-    font-size: 0.72rem;
-    font-weight: 500;
-    letter-spacing: 0.3px;
-    padding: 6px 14px;
-    border-radius: 9999px;
-    cursor: pointer;
-    transition: background 0.15s, color 0.15s;
-  }
-  .lang-btn:hover { background: rgba(255,255,255,0.06); color: var(--text2); }
-
   .box {
     background: var(--card);
     border: 1px solid var(--border);
-    border-radius: 20px;
+    border-radius: 4px;
     padding: 36px 36px 32px;
     width: 420px;
     max-height: 90vh;
@@ -65,11 +46,10 @@
 
   .logo { text-align: center; }
   .logo h1 {
-    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 1.5rem;
-    font-weight: 500;
+    font-weight: 700;
     color: var(--text);
-    letter-spacing: -0.3px;
+    letter-spacing: -0.5px;
   }
   .logo h1 span { color: var(--blue); }
   .logo .version {
@@ -83,11 +63,9 @@
     font-size: 0.84rem;
     color: var(--muted);
     margin-top: 10px;
-    letter-spacing: 0.1px;
   }
 
   .section-label {
-    font-family: 'DM Sans', system-ui, sans-serif;
     font-size: 0.65rem;
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -115,18 +93,17 @@
     border: 1px solid var(--border);
     color: var(--text);
     padding: 12px 16px;
-    border-radius: 12px;
+    border-radius: 4px;
     cursor: pointer;
     text-align: left;
     font-size: 0.88rem;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: inherit;
     display: flex;
     align-items: center;
     gap: 10px;
     transition: border-color 0.15s, background 0.15s;
-    letter-spacing: 0.1px;
   }
-  .profile-btn:hover { border-color: var(--blue); background: rgba(73,79,223,0.06); }
+  .profile-btn:hover { border-color: var(--blue); background: rgba(0,122,255,0.06); }
   .profile-btn .icon { font-size: 1rem; }
   .profile-btn .name { flex: 1; font-weight: 500; }
   .profile-btn .open-lbl { font-size: 0.72rem; color: var(--muted); }
@@ -136,10 +113,10 @@
     border: 1px solid var(--border);
     color: var(--muted);
     padding: 9px 12px;
-    border-radius: 9999px;
+    border-radius: 4px;
     cursor: pointer;
     font-size: 0.8rem;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    font-family: inherit;
     white-space: nowrap;
     transition: border-color 0.15s, color 0.15s;
     flex-shrink: 0;
@@ -160,134 +137,196 @@
     border: 1px solid var(--border);
     color: var(--text);
     padding: 10px 14px;
-    border-radius: 12px;
+    border-radius: 4px;
     font-size: 0.88rem;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: inherit;
     outline: none;
     transition: border-color 0.15s;
-    letter-spacing: 0.16px;
   }
-  input[type="text"]:focus { border-color: var(--blue); box-shadow: 0 0 0 2px rgba(73,79,223,0.2); }
+  input[type="text"]:focus { border-color: var(--blue); }
   input[type="text"]::placeholder { color: var(--muted2); }
 
   .btn-create {
-    background: var(--blue);
-    color: #fff;
+    background: var(--text);
+    color: var(--bg);
     border: none;
     padding: 10px 20px;
-    border-radius: 9999px;
-    font-family: 'DM Sans', system-ui, sans-serif;
+    border-radius: 4px;
+    font-family: inherit;
     font-size: 0.88rem;
-    font-weight: 500;
+    font-weight: 600;
     cursor: pointer;
     white-space: nowrap;
     transition: opacity 0.15s;
-    letter-spacing: 0.1px;
   }
   .btn-create:hover { opacity: 0.85; }
 
   .err { color: var(--red); font-size: 0.78rem; min-height: 1em; }
+
+  /* ── Modal ── */
+  .modal-overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  .modal-overlay.hidden { display: none; }
+  @keyframes modalIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .modal-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 24px;
+    width: 340px;
+    max-width: calc(100vw - 32px);
+    display: flex; flex-direction: column; gap: 14px;
+    animation: modalIn 0.15s ease;
+    text-align: center;
+  }
+  .modal-title { font-size: 0.92rem; font-weight: 600; color: var(--text); }
+  .modal-msg   { font-size: 0.82rem; color: var(--text2); line-height: 1.55; white-space: pre-wrap; }
+  .modal-input {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 9px 12px;
+    border-radius: 4px;
+    font-size: 0.88rem;
+    font-family: inherit;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.15s;
+  }
+  .modal-input:focus { border-color: var(--blue); }
+  .modal-input.hidden { display: none; }
+  .modal-btns { display: flex; gap: 8px; justify-content: center; margin-top: 2px; }
+  .modal-btn {
+    background: var(--card2);
+    border: 1px solid var(--border);
+    color: var(--text2);
+    padding: 8px 18px;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.84rem;
+    cursor: pointer;
+    transition: border-color 0.15s, color 0.15s;
+  }
+  .modal-btn:hover { border-color: var(--text2); color: var(--text); }
+  .modal-btn-primary {
+    background: var(--text);
+    color: var(--bg) !important;
+    border: none;
+    font-weight: 600;
+  }
+  .modal-btn-primary:hover { opacity: 0.85; }
+  .modal-btn-danger { border-color: var(--red); color: var(--red) !important; }
+  .modal-btn-danger:hover { background: rgba(255,59,48,0.08); }
 </style>
 </head>
 <body>
 
-<button class="lang-btn" id="lang-btn" onclick="toggleLang()">RU</button>
-
 <div class="box">
   <div class="logo">
     <h1>Farm<span>Track</span></h1>
-    <div class="version">alpha v0.3</div>
-    <p class="sub" id="sub-text">Select a profile to continue</p>
+    <div class="version">alpha v0.7</div>
+    <p class="sub">Select a profile to continue</p>
   </div>
 
   <div id="existing-section">
-    <div class="section-label" id="label-existing">Existing profiles</div>
+    <div class="section-label">Existing profiles</div>
     <div class="profiles-list" id="list">
-      <div class="empty" id="loading-text">Loading...</div>
+      <div class="empty">Loading...</div>
     </div>
   </div>
 
   <hr class="divider">
 
   <div class="new-section">
-    <div class="section-label" id="label-new">Create new profile</div>
+    <div class="section-label">Create new profile</div>
     <div class="input-row">
       <input type="text" id="new-name" placeholder="Profile name" maxlength="64">
-      <button class="btn-create" id="btn-create" onclick="createAndOpen()">Create</button>
+      <button class="btn-create" onclick="createAndOpen()">Create</button>
     </div>
     <div class="err" id="err"></div>
   </div>
 </div>
 
+<div id="modal-overlay" class="modal-overlay hidden" aria-modal="true" role="dialog">
+  <div class="modal-box">
+    <div class="modal-title" id="modal-title"></div>
+    <div class="modal-msg"   id="modal-msg"></div>
+    <input type="text" class="modal-input hidden" id="modal-input" autocomplete="off">
+    <div class="modal-btns"  id="modal-btns"></div>
+  </div>
+</div>
+
 <script>
-// ── i18n ──────────────────────────────────────────────────────────────────
-let lang = localStorage.getItem('farmtrack_lang') || 'en';
-
-const T = {
-  en: {
-    sub:          'Select a profile to continue',
-    label_existing: 'Existing profiles',
-    label_new:    'Create new profile',
-    loading:      'Loading...',
-    no_profiles:  'No profiles — create your first one',
-    open_lbl:     'Open →',
-    placeholder:  'Profile name',
-    btn_create:   'Create',
-    lang_btn:     'RU',
-    err_empty:    'Enter a name',
-    err_chars:    'Invalid characters',
-    err_generic:  'Error',
-    rename_prompt: 'New name for profile',
-    delete_confirm: 'Delete profile',
-    delete_msg: 'This will permanently delete the profile and all its data. Are you sure?',
-    err_active: 'Cannot delete the active profile',
-  },
-  ru: {
-    sub:          'Выберите профиль для работы',
-    label_existing: 'Существующие профили',
-    label_new:    'Создать новый профиль',
-    loading:      'Загрузка...',
-    no_profiles:  'Нет профилей — создайте первый',
-    open_lbl:     'Открыть →',
-    placeholder:  'Название профиля',
-    btn_create:   'Создать',
-    lang_btn:     'EN',
-    err_empty:    'Введите название',
-    err_chars:    'Недопустимые символы',
-    err_generic:  'Ошибка',
-    rename_prompt: 'Новое название для профиля',
-    delete_confirm: 'Удалить профиль',
-    delete_msg: 'Это безвозвратно удалит профиль и все его данные. Вы уверены?',
-    err_active: 'Нельзя удалить активный профиль',
-  }
-};
-
-function t(k) { return (T[lang] || T.en)[k] || k; }
-
-function applyLang() {
-  document.getElementById('lang-btn').textContent   = t('lang_btn');
-  document.getElementById('sub-text').textContent   = t('sub');
-  document.getElementById('label-existing').textContent = t('label_existing');
-  document.getElementById('label-new').textContent  = t('label_new');
-  document.getElementById('btn-create').textContent = t('btn_create');
-  document.getElementById('new-name').placeholder   = t('placeholder');
-  // re-render list to update labels
-  loadProfiles();
+function _modal(title, msg, buttons, withInput, inputDefault) {
+  return new Promise(resolve => {
+    const overlay = document.getElementById('modal-overlay');
+    const titleEl = document.getElementById('modal-title');
+    const msgEl   = document.getElementById('modal-msg');
+    const inputEl = document.getElementById('modal-input');
+    const btnsEl  = document.getElementById('modal-btns');
+    titleEl.textContent = title || '';
+    msgEl.textContent   = msg   || '';
+    if (withInput) {
+      inputEl.value = inputDefault != null ? String(inputDefault) : '';
+      inputEl.classList.remove('hidden');
+    } else {
+      inputEl.classList.add('hidden');
+    }
+    btnsEl.innerHTML = '';
+    const close = val => { overlay.classList.add('hidden'); resolve(val); };
+    buttons.forEach(({ label, value, cls }) => {
+      const btn = document.createElement('button');
+      btn.className = 'modal-btn ' + (cls || '');
+      btn.textContent = label;
+      btn.onclick = () => {
+        if (withInput) close(value === null ? null : inputEl.value.trim());
+        else            close(value);
+      };
+      btnsEl.appendChild(btn);
+    });
+    overlay.classList.remove('hidden');
+    if (withInput) {
+      setTimeout(() => { inputEl.focus(); inputEl.select(); }, 30);
+      inputEl.onkeydown = e => {
+        if (e.key === 'Enter')  btnsEl.querySelector('.modal-btn-primary')?.click();
+        if (e.key === 'Escape') close(null);
+      };
+    }
+    overlay.onkeydown = e => { if (!withInput && e.key === 'Escape') close(false); };
+    overlay.onclick = e => { if (e.target === overlay) close(withInput ? null : false); };
+  });
+}
+function showConfirm(title, msg, danger) {
+  return _modal(title, msg, [
+    { label: 'Cancel',  value: false, cls: '' },
+    { label: 'Confirm', value: true,  cls: danger ? 'modal-btn-danger' : 'modal-btn-primary' }
+  ], false);
+}
+function showAlert(msg, title) {
+  return _modal(title || 'Notice', msg, [
+    { label: 'OK', value: true, cls: 'modal-btn-primary' }
+  ], false);
+}
+function showPrompt(title, label, defaultVal) {
+  return _modal(title, label, [
+    { label: 'Cancel', value: null, cls: '' },
+    { label: 'OK',     value: true, cls: 'modal-btn-primary' }
+  ], true, defaultVal);
 }
 
-function toggleLang() {
-  lang = lang === 'en' ? 'ru' : 'en';
-  localStorage.setItem('farmtrack_lang', lang);
-  applyLang();
-}
-
-// ── Profiles ──────────────────────────────────────────────────────────────
 async function loadProfiles() {
   const res = await fetch('/api/profiles');
   const profiles = await res.json();
   const list = document.getElementById('list');
   if (!profiles.length) {
-    list.innerHTML = `<div class="empty">${t('no_profiles')}</div>`;
+    list.innerHTML = '<div class="empty">No profiles — create your first one</div>';
     return;
   }
   list.innerHTML = profiles.map(name => `
@@ -295,7 +334,7 @@ async function loadProfiles() {
       <button class="profile-btn" onclick="openProfile('${name}')">
         <span class="icon">🗂</span>
         <span class="name">${name}</span>
-        <span class="open-lbl">${t('open_lbl')}</span>
+        <span class="open-lbl">Open →</span>
       </button>
       <button class="btn-rename" title="Rename" onclick="renameProfile('${name}')">✎</button>
       <button class="btn-delete" title="Delete" onclick="deleteProfile('${name}')">✕</button>
@@ -313,7 +352,7 @@ async function openProfile(name) {
 }
 
 async function renameProfile(oldName) {
-  const newName = prompt(`${t('rename_prompt')} "${oldName}":`, oldName);
+  const newName = await showPrompt(`Rename profile`, 'New name:', oldName);
   if (!newName || newName.trim() === oldName) return;
   const res = await fetch('/api/profiles/rename', {
     method: 'POST',
@@ -322,11 +361,11 @@ async function renameProfile(oldName) {
   });
   const data = await res.json();
   if (data.ok) loadProfiles();
-  else alert(data.error || t('err_generic'));
+  else await showAlert(data.error || 'Error');
 }
 
 async function deleteProfile(name) {
-  if (!confirm(`${t('delete_confirm')} "${name}"\n\n${t('delete_msg')}`)) return;
+  if (!await showConfirm('Delete profile', `Delete profile "${name}"?\n\nThis will permanently delete the profile and all its data.`, true)) return;
   const res = await fetch('/api/profiles/delete', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -334,15 +373,15 @@ async function deleteProfile(name) {
   });
   const data = await res.json();
   if (data.ok) loadProfiles();
-  else alert(data.error || t('err_generic'));
+  else await showAlert(data.error || 'Error');
 }
 
 async function createAndOpen() {
   const name = document.getElementById('new-name').value.trim();
   const err = document.getElementById('err');
   err.textContent = '';
-  if (!name) { err.textContent = t('err_empty'); return; }
-  if (/[\/\\\.]{2,}/.test(name)) { err.textContent = t('err_chars'); return; }
+  if (!name) { err.textContent = 'Enter a name'; return; }
+  if (/[\/\\\.]{2,}/.test(name)) { err.textContent = 'Invalid characters'; return; }
   const res = await fetch('/api/profiles/select', {
     method: 'POST',
     headers: {'Content-Type': 'application/json'},
@@ -350,15 +389,14 @@ async function createAndOpen() {
   });
   const data = await res.json();
   if (data.ok) location.href = '/';
-  else err.textContent = data.error || t('err_generic');
+  else err.textContent = data.error || 'Error';
 }
 
 document.getElementById('new-name').addEventListener('keydown', e => {
   if (e.key === 'Enter') createAndOpen();
 });
 
-// ── Init ──────────────────────────────────────────────────────────────────
-applyLang();
+loadProfiles();
 </script>
 </body>
 </html>

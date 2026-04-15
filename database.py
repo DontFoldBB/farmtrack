@@ -123,6 +123,27 @@ def init():
                 address TEXT NOT NULL UNIQUE,
                 created_at TEXT DEFAULT (datetime('now'))
             );
+            CREATE TABLE IF NOT EXISTS nado_accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                address TEXT NOT NULL UNIQUE,
+                group_name TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS extended_accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                api_key TEXT NOT NULL UNIQUE,
+                group_name TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
+            CREATE TABLE IF NOT EXISTS pacifica_accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                address TEXT NOT NULL UNIQUE,
+                group_name TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
             CREATE TABLE IF NOT EXISTS weekly_points (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 wallet_id INTEGER NOT NULL,
@@ -213,6 +234,27 @@ def _migrate(c):
     if 'wp_earned' not in wp_cols:
         c.execute("ALTER TABLE wallet_protocols ADD COLUMN wp_earned REAL DEFAULT 0")
 
+    # Create protocol_weeks table (week containers)
+    c.executescript('''
+        CREATE TABLE IF NOT EXISTS protocol_weeks (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            protocol TEXT NOT NULL,
+            week_start TEXT NOT NULL,
+            week_end TEXT NOT NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+        DROP TABLE IF EXISTS protocol_weekly;
+    ''')
+
+    # Extend weekly_points with balance/earned/start_balance columns if missing
+    wp2_cols = {r[1] for r in c.execute("PRAGMA table_info(weekly_points)").fetchall()}
+    if 'wallet_balance' not in wp2_cols:
+        c.execute("ALTER TABLE weekly_points ADD COLUMN wallet_balance REAL DEFAULT 0")
+    if 'wp_earned' not in wp2_cols:
+        c.execute("ALTER TABLE weekly_points ADD COLUMN wp_earned REAL DEFAULT 0")
+    if 'start_balance' not in wp2_cols:
+        c.execute("ALTER TABLE weekly_points ADD COLUMN start_balance REAL DEFAULT NULL")
+
     # Migrate old wallets table (with protocol column) to new many-to-many schema
     cols = {r[1] for r in c.execute("PRAGMA table_info(wallets)").fetchall()}
     if 'protocol' not in cols:
@@ -228,6 +270,35 @@ def _migrate(c):
         ]:
             if col not in cols:
                 c.execute(f'ALTER TABLE wallets ADD COLUMN {col} {typedef}')
+
+    # Add group_name to nado_accounts if missing (must run for all DB versions)
+    nado_cols = {r[1] for r in c.execute("PRAGMA table_info(nado_accounts)").fetchall()}
+    if 'group_name' not in nado_cols:
+        c.execute("ALTER TABLE nado_accounts ADD COLUMN group_name TEXT DEFAULT NULL")
+
+    # Create extended_accounts if missing (migration for older DBs)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS extended_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            label TEXT NOT NULL,
+            api_key TEXT NOT NULL UNIQUE,
+            group_name TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    ''')
+
+    # Create pacifica_accounts if missing (migration for older DBs)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS pacifica_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            label TEXT NOT NULL,
+            address TEXT NOT NULL UNIQUE,
+            group_name TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    ''')
+
+    if 'protocol' not in cols:
         return  # already on new schema
 
     # Recreate wallets without protocol column, preserve data
@@ -366,7 +437,7 @@ def get_protocol_wallets_detail(protocol):
         return [dict(r) for r in rows]
 
 
-def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=False):
+def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=False, week=None):
     """Match wallets in protocol by address and bulk-update their data.
     rows: list of dicts with optional keys: address, deposit, wallet_balance, wp_points, wp_earned.
     Address may be full or shortened (0x1234..5678).
@@ -438,12 +509,41 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
 
             if found_id:
                 sets, vals = [], []
+                # Check if this week's snapshot already exists (re-import case)
+                existing_week_row = None
+                if week:
+                    existing_week_row = c.execute(
+                        'SELECT 1 FROM weekly_points WHERE wallet_id=? AND protocol=? AND week=?',
+                        (found_id, protocol, week)
+                    ).fetchone()
                 if row.get('deposit') is not None:
-                    if add_deposit:
+                    if week:
+                        if existing_week_row:
+                            # Re-import: skip deposit delta, only update start_balance in weekly_points
+                            pass
+                        else:
+                            # First time importing this week
+                            # First weekly import → SET deposit directly
+                            # Subsequent weeks → add delta vs previous week's balance
+                            prev = c.execute(
+                                'SELECT wallet_balance FROM weekly_points WHERE wallet_id=? AND protocol=? AND week<? ORDER BY week DESC LIMIT 1',
+                                (found_id, protocol, week)
+                            ).fetchone()
+                            if prev:
+                                diff = float(row['deposit']) - prev['wallet_balance']
+                                if diff != 0:
+                                    sets.append('deposit=deposit+?')
+                                    vals.append(diff)
+                            else:
+                                # First week: set deposit to explicitly provided value
+                                sets.append('deposit=?')
+                                vals.append(float(row['deposit']))
+                    elif add_deposit:
                         sets.append('deposit=deposit+?')
+                        vals.append(float(row['deposit']))
                     else:
                         sets.append('deposit=?')
-                    vals.append(float(row['deposit']))
+                        vals.append(float(row['deposit']))
                 for col in ('wallet_balance', 'wp_earned'):
                     if row.get(col) is not None:
                         sets.append(f'{col}=?')
@@ -462,6 +562,48 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
                     proxy_val = str(row['proxy']).strip()
                     c.execute('UPDATE wallets SET proxy=? WHERE id=?', (proxy_val, found_id))
                     _sync_proxy_link(c, found_id, proxy_val)
+                # Auto-set deposit from first week's balance if deposit never set
+                if week and row.get('deposit') is None and row.get('wallet_balance') is not None:
+                    has_prior = c.execute(
+                        'SELECT 1 FROM weekly_points WHERE wallet_id=? AND protocol=? LIMIT 1',
+                        (found_id, protocol)
+                    ).fetchone()
+                    if not has_prior:
+                        cur_dep = c.execute(
+                            'SELECT deposit FROM wallet_protocols WHERE wallet_id=? AND protocol=?',
+                            (found_id, protocol)
+                        ).fetchone()
+                        if not cur_dep or (cur_dep['deposit'] or 0) == 0:
+                            sets2 = ['deposit=?']
+                            vals2 = [float(row['wallet_balance']), found_id, protocol]
+                            c.execute(f"UPDATE wallet_protocols SET deposit=? WHERE wallet_id=? AND protocol=?", vals2)
+
+                # Save weekly snapshot if week provided
+                if week and found_id:
+                    wk_points  = float(row.get('wp_points') or 0)
+                    wk_balance = float(row.get('wallet_balance') or 0)
+                    wk_earned  = float(row.get('wp_earned') or 0)
+                    # start_balance: use explicitly provided deposit (the actual week start)
+                    wk_start = float(row['deposit']) if row.get('deposit') is not None else None
+                    c.execute('''
+                        INSERT INTO weekly_points (wallet_id, protocol, week, points, wallet_balance, wp_earned, start_balance)
+                        VALUES (?,?,?,?,?,?,?)
+                        ON CONFLICT(wallet_id, protocol, week) DO UPDATE SET
+                            points=excluded.points,
+                            wallet_balance=excluded.wallet_balance,
+                            wp_earned=excluded.wp_earned,
+                            start_balance=COALESCE(excluded.start_balance, weekly_points.start_balance)
+                    ''', (found_id, protocol, week, wk_points, wk_balance, wk_earned, wk_start))
+                    # Recalculate total wp_points in wallet_protocols as SUM across all weeks
+                    c.execute('''
+                        UPDATE wallet_protocols
+                        SET wp_points = (
+                            SELECT COALESCE(SUM(points), 0)
+                            FROM weekly_points
+                            WHERE wallet_id=? AND protocol=?
+                        )
+                        WHERE wallet_id=? AND protocol=?
+                    ''', (found_id, protocol, found_id, protocol))
                 matched += 1
             else:
                 unmatched.append(row.get('address', ''))
@@ -829,6 +971,95 @@ def delete_hl_account(aid):
         c.execute('DELETE FROM hl_accounts WHERE id=?', (aid,))
 
 
+def update_hl_account_group(aid, group_name):
+    with _conn() as c:
+        c.execute('UPDATE hl_accounts SET group_name=? WHERE id=?',
+                  (group_name or None, aid))
+
+
+def get_nado_accounts():
+    with _conn() as c:
+        return [dict(r) for r in c.execute('SELECT * FROM nado_accounts ORDER BY created_at ASC').fetchall()]
+
+def add_nado_account(label, address):
+    with _conn() as c:
+        c.execute('INSERT OR IGNORE INTO nado_accounts (label, address) VALUES (?,?)', (label, address))
+
+def delete_nado_account(aid):
+    with _conn() as c:
+        c.execute('DELETE FROM nado_accounts WHERE id=?', (aid,))
+
+def update_nado_account_group(aid, group_name):
+    with _conn() as c:
+        c.execute('UPDATE nado_accounts SET group_name=? WHERE id=?',
+                  (group_name or None, aid))
+
+
+def get_extended_accounts():
+    with _conn() as c:
+        return [dict(r) for r in c.execute('SELECT * FROM extended_accounts ORDER BY created_at ASC').fetchall()]
+
+def add_extended_account(label, api_key):
+    with _conn() as c:
+        c.execute('INSERT OR IGNORE INTO extended_accounts (label, api_key) VALUES (?,?)', (label, api_key))
+
+def delete_extended_account(aid):
+    with _conn() as c:
+        c.execute('DELETE FROM extended_accounts WHERE id=?', (aid,))
+
+def update_extended_account_group(aid, group_name):
+    with _conn() as c:
+        c.execute('UPDATE extended_accounts SET group_name=? WHERE id=?', (group_name or None, aid))
+
+
+def get_pacifica_accounts():
+    with _conn() as c:
+        return [dict(r) for r in c.execute('SELECT * FROM pacifica_accounts ORDER BY created_at ASC').fetchall()]
+
+def add_pacifica_account(label, address):
+    with _conn() as c:
+        c.execute('INSERT OR IGNORE INTO pacifica_accounts (label, address) VALUES (?,?)', (label, address))
+
+def delete_pacifica_account(aid):
+    with _conn() as c:
+        c.execute('DELETE FROM pacifica_accounts WHERE id=?', (aid,))
+
+def update_pacifica_account_group(aid, group_name):
+    with _conn() as c:
+        c.execute('UPDATE pacifica_accounts SET group_name=? WHERE id=?', (group_name or None, aid))
+
+
+def get_hl_accounts_from_profile(profile_name):
+    """Read HL accounts from another profile's DB (read-only)."""
+    path = os.path.join(_DATA_DIR, f'{profile_name}.db')
+    if not os.path.exists(path):
+        return []
+    conn = sqlite3.connect(path)
+    conn.row_factory = sqlite3.Row
+    try:
+        rows = conn.execute('SELECT label, address FROM hl_accounts ORDER BY created_at ASC').fetchall()
+        return [dict(r) for r in rows]
+    except Exception:
+        return []
+    finally:
+        conn.close()
+
+
+def bulk_add_hl_accounts(accounts):
+    """accounts: list of {label, address}. Returns count added."""
+    added = 0
+    with _conn() as c:
+        for acc in accounts:
+            try:
+                c.execute('INSERT OR IGNORE INTO hl_accounts (label, address) VALUES (?,?)',
+                          (acc['label'], acc['address']))
+                if c.rowcount:
+                    added += 1
+            except Exception:
+                pass
+    return added
+
+
 # ── Weekly points ──────────────────────────────────────────────────────────────
 
 def get_weekly_points(protocol, week):
@@ -889,3 +1120,162 @@ def get_weekly_points_prev(protocol, week):
             WHERE protocol = ? AND week = ?
         ''', (protocol, prev['week'])).fetchall()
         return {r['wallet_id']: r['points'] for r in rows}
+
+
+# ── Protocol weeks ─────────────────────────────────────────────────────────────
+
+def get_protocol_weeks(protocol):
+    with _conn() as c:
+        weeks = c.execute(
+            'SELECT * FROM protocol_weeks WHERE protocol=? ORDER BY week_start DESC',
+            (protocol,)
+        ).fetchall()
+        result = []
+        for w in weeks:
+            ws = w['week_start']
+            stats = c.execute('''
+                SELECT
+                    COALESCE(SUM(wp.points), 0)         AS total_points,
+                    COALESCE(SUM(wp.wallet_balance), 0) AS total_balance,
+                    COUNT(DISTINCT wp.wallet_id)         AS wallet_count,
+                    COALESCE(SUM(
+                        COALESCE(
+                            wp.start_balance,
+                            (SELECT p2.wallet_balance FROM weekly_points p2
+                             WHERE p2.wallet_id=wp.wallet_id AND p2.protocol=wp.protocol
+                               AND p2.week < ?
+                             ORDER BY p2.week DESC LIMIT 1),
+                            wpr.deposit, 0
+                        )
+                    ), 0) AS total_start_balance
+                FROM weekly_points wp
+                JOIN wallet_protocols wpr
+                  ON wpr.wallet_id=wp.wallet_id AND wpr.protocol=wp.protocol
+                WHERE wp.protocol=? AND wp.week=?
+            ''', (ws, protocol, ws)).fetchone()
+            row = dict(w)
+            pts   = stats['total_points'] or 0
+            bal   = stats['total_balance'] or 0
+            start = stats['total_start_balance'] or 0
+            spent = max(0, start - bal)
+            row['total_points']        = pts
+            row['total_balance']       = bal
+            row['total_start_balance'] = start
+            row['wallet_count']        = stats['wallet_count'] or 0
+            row['total_spent']         = spent
+            row['price_per_point']     = round(spent / pts, 6) if pts > 0 else 0
+            result.append(row)
+        return result
+
+
+def update_protocol_week(wid, week_start, week_end):
+    with _conn() as c:
+        c.execute(
+            'UPDATE protocol_weeks SET week_start=?, week_end=? WHERE id=?',
+            (week_start, week_end, wid)
+        )
+
+
+def add_protocol_week(protocol, week_start, week_end):
+    with _conn() as c:
+        c.execute(
+            'INSERT INTO protocol_weeks (protocol, week_start, week_end) VALUES (?,?,?)',
+            (protocol, week_start, week_end)
+        )
+        return c.execute('SELECT last_insert_rowid()').fetchone()[0]
+
+
+def delete_protocol_week(wid):
+    with _conn() as c:
+        row = c.execute('SELECT protocol, week_start FROM protocol_weeks WHERE id=?', (wid,)).fetchone()
+        if row:
+            protocol = row['protocol']
+            week = row['week_start']
+
+            # Collect wallets that have data in this week
+            affected = [r['wallet_id'] for r in c.execute(
+                'SELECT DISTINCT wallet_id FROM weekly_points WHERE protocol=? AND week=?',
+                (protocol, week)
+            ).fetchall()]
+
+            c.execute('DELETE FROM weekly_points WHERE protocol=? AND week=?', (protocol, week))
+            c.execute('DELETE FROM protocol_weeks WHERE id=?', (wid,))
+
+            # Recalculate wallet_protocols from remaining weekly_points for affected wallets only.
+            # Wallets imported directly (not via weekly_points) are not in affected → untouched.
+            if affected:
+                for wallet_id in affected:
+                    latest = c.execute('''
+                        SELECT wallet_balance, wp_earned, points
+                        FROM weekly_points
+                        WHERE wallet_id=? AND protocol=?
+                        ORDER BY week DESC LIMIT 1
+                    ''', (wallet_id, protocol)).fetchone()
+
+                    first = c.execute('''
+                        SELECT start_balance
+                        FROM weekly_points
+                        WHERE wallet_id=? AND protocol=?
+                        ORDER BY week ASC LIMIT 1
+                    ''', (wallet_id, protocol)).fetchone()
+
+                    if latest:
+                        deposit = (first['start_balance'] or 0) if first else 0
+                        total_points = c.execute(
+                            'SELECT COALESCE(SUM(points), 0) AS s FROM weekly_points WHERE wallet_id=? AND protocol=?',
+                            (wallet_id, protocol)
+                        ).fetchone()['s']
+                        c.execute('''
+                            UPDATE wallet_protocols
+                            SET wallet_balance=?, wp_earned=?, wp_points=?, deposit=?
+                            WHERE wallet_id=? AND protocol=?
+                        ''', (latest['wallet_balance'], latest['wp_earned'], total_points,
+                              deposit, wallet_id, protocol))
+                    else:
+                        c.execute('''
+                            UPDATE wallet_protocols
+                            SET wallet_balance=0, wp_earned=0, wp_points=0, deposit=0
+                            WHERE wallet_id=? AND protocol=?
+                        ''', (wallet_id, protocol))
+        else:
+            c.execute('DELETE FROM protocol_weeks WHERE id=?', (wid,))
+
+
+def clear_protocol_wallet_data(protocol):
+    """Zero out all wallet_protocols financial data for a protocol."""
+    with _conn() as c:
+        c.execute('''
+            UPDATE wallet_protocols
+            SET wallet_balance=0, wp_earned=0, wp_points=0, deposit=0
+            WHERE protocol=?
+        ''', (protocol,))
+
+
+def get_week_wallets(protocol, week_start):
+    """Return wallets with their weekly snapshot data for the given week.
+    deposit_this_week = previous week's balance_end (or original deposit for first week).
+    """
+    with _conn() as c:
+        rows = c.execute('''
+            SELECT w.id, w.address, w.label,
+                   COALESCE(wp.points, 0)         AS points,
+                   COALESCE(wp.wallet_balance, 0) AS wallet_balance,
+                   COALESCE(wp.wp_earned, 0)      AS wp_earned,
+                   COALESCE(
+                       wp.start_balance,
+                       (SELECT prev.wallet_balance
+                        FROM weekly_points prev
+                        WHERE prev.wallet_id = w.id
+                          AND prev.protocol = ?
+                          AND prev.week < ?
+                        ORDER BY prev.week DESC LIMIT 1),
+                       wpr.deposit,
+                       0
+                   ) AS deposit_this_week
+            FROM wallets w
+            JOIN wallet_protocols wpr ON wpr.wallet_id = w.id AND wpr.protocol = ?
+            LEFT JOIN weekly_points wp ON wp.wallet_id = w.id
+                AND wp.protocol = ? AND wp.week = ?
+            ORDER BY w.label ASC, w.address ASC
+        ''', (protocol, week_start, protocol, protocol, week_start)).fetchall()
+        return [dict(r) for r in rows]

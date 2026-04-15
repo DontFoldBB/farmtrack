@@ -190,8 +190,49 @@ def import_protocol_wallets(name):
     rows = request.json.get('rows', [])
     add_points = bool(request.json.get('add_points', False))
     add_deposit = bool(request.json.get('add_deposit', False))
-    result = db.import_protocol_wallet_data(name, rows, add_points=add_points, add_deposit=add_deposit)
+    week = request.json.get('week') or None
+    result = db.import_protocol_wallet_data(name, rows, add_points=add_points, add_deposit=add_deposit, week=week)
     return jsonify({'ok': True, **result})
+
+
+@app.route('/api/protocols/<path:name>/weeks', methods=['GET'])
+def get_protocol_weeks(name):
+    return jsonify(db.get_protocol_weeks(name))
+
+
+@app.route('/api/protocols/<path:name>/weeks', methods=['POST'])
+def add_protocol_week(name):
+    data = request.json
+    wid = db.add_protocol_week(name, data['week_start'], data['week_end'])
+    return jsonify({'ok': True, 'id': wid})
+
+
+@app.route('/api/protocols/<path:name>/weeks/<int:wid>', methods=['DELETE'])
+def delete_protocol_week(name, wid):
+    db.delete_protocol_week(wid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/protocols/<path:name>/clear-data', methods=['POST'])
+def clear_protocol_data(name):
+    db.clear_protocol_wallet_data(name)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/protocols/<path:name>/weeks/<int:wid>', methods=['PATCH'])
+def patch_protocol_week(name, wid):
+    data = request.json
+    week_start = data.get('week_start', '').strip()
+    week_end = data.get('week_end', '').strip()
+    if not week_start or not week_end:
+        return jsonify({'error': 'Укажите даты'}), 400
+    db.update_protocol_week(wid, week_start, week_end)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/protocols/<path:name>/weeks/<week_start>/wallets', methods=['GET'])
+def get_week_wallets(name, week_start):
+    return jsonify(db.get_week_wallets(name, week_start))
 
 
 @app.route('/api/wallet-protocols', methods=['PATCH'])
@@ -349,6 +390,480 @@ def due_reminders():
     return jsonify(db.get_due_reminders())
 
 
+# --- Extended ---
+
+EXTENDED_API = 'https://api.starknet.extended.exchange'
+
+
+def _fetch_extended_account(api_key: str) -> dict:
+    headers = {'X-Api-Key': api_key}
+
+    bal_resp = requests.get(f'{EXTENDED_API}/api/v1/user/balance', headers=headers, timeout=10).json()
+    pos_resp = requests.get(f'{EXTENDED_API}/api/v1/user/positions', headers=headers, timeout=10).json()
+
+    balance = bal_resp.get('data', {}) if isinstance(bal_resp.get('data'), dict) else {}
+    positions_raw = pos_resp.get('data', []) if isinstance(pos_resp.get('data'), list) else []
+
+    equity = float(balance.get('equity', 0) or 0)
+    available = float(balance.get('availableForTrade', 0) or 0)
+    unrealised_pnl = float(balance.get('unrealisedPnl', 0) or 0)
+
+    positions = []
+    for p in positions_raw:
+        size = float(p.get('size', 0) or 0)
+        if size == 0:
+            continue
+        entry = float(p.get('openPrice', 0) or 0)
+        mark = float(p.get('markPrice', 0) or 0)
+        liq = p.get('liquidationPrice')
+        upnl = float(p.get('unrealisedPnl', 0) or 0)
+        margin = float(p.get('margin', 0) or 0)
+        lev = p.get('leverage', {})
+        lev_val = float(lev.get('value', 0) or 0) if isinstance(lev, dict) else 0
+        direction = 'long' if (p.get('side', '') or '').upper() == 'LONG' else 'short'
+        dist_liq = None
+        if liq and mark:
+            liq_f = float(liq)
+            if direction == 'long':
+                dist_liq = round((mark - liq_f) / mark * 100, 2) if mark else None
+            else:
+                dist_liq = round((liq_f - mark) / mark * 100, 2) if mark else None
+        positions.append({
+            'market': p.get('market', ''),
+            'direction': direction,
+            'size': round(size, 6),
+            'entry_price': round(entry, 6),
+            'mark_price': round(mark, 6),
+            'liq_price': round(float(liq), 6) if liq else None,
+            'unrealised_pnl': round(upnl, 4),
+            'margin': round(margin, 4),
+            'leverage': round(lev_val, 1),
+            'dist_liq': dist_liq,
+        })
+
+    return {
+        'positions': positions,
+        'equity': round(equity, 2),
+        'available': round(available, 2),
+        'unrealised_pnl': round(unrealised_pnl, 4),
+    }
+
+
+@app.route('/api/extended/accounts', methods=['GET'])
+def get_extended_accounts():
+    return jsonify(db.get_extended_accounts())
+
+
+@app.route('/api/extended/accounts', methods=['POST'])
+def add_extended_account():
+    data = request.json
+    label = (data.get('label') or '').strip()
+    api_key = (data.get('api_key') or '').strip()
+    if not label or not api_key:
+        return jsonify({'error': 'label and api_key required'}), 400
+    db.add_extended_account(label, api_key)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/extended/accounts/<int:aid>', methods=['DELETE'])
+def delete_extended_account(aid):
+    db.delete_extended_account(aid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/extended/accounts/<int:aid>', methods=['PATCH'])
+def patch_extended_account(aid):
+    data = request.json or {}
+    if 'group_name' in data:
+        db.update_extended_account_group(aid, data.get('group_name'))
+    return jsonify({'ok': True})
+
+
+@app.route('/api/extended/all-positions')
+def extended_all_positions():
+    accounts = db.get_extended_accounts()
+    if not accounts:
+        return jsonify({'accounts': []})
+    result = []
+    for acc in accounts:
+        try:
+            data = _fetch_extended_account(acc['api_key'])
+            data['id'] = acc['id']
+            data['label'] = acc['label']
+            data['group_name'] = acc.get('group_name')
+            result.append(data)
+        except Exception as e:
+            result.append({'id': acc['id'], 'label': acc['label'],
+                           'error': str(e), 'positions': []})
+    return jsonify({'accounts': result})
+
+
+# --- Pacifica ---
+
+PACIFICA_API = 'https://api.pacifica.fi/api/v1'
+_pacifica_prices: dict = {}
+_pacifica_prices_ts: float = 0
+
+def _pacifica_get_prices() -> dict:
+    """Returns {symbol: mark_price}, cached for 10 seconds."""
+    global _pacifica_prices, _pacifica_prices_ts
+    now = time.time()
+    if _pacifica_prices and (now - _pacifica_prices_ts) < 10:
+        return _pacifica_prices
+    resp = requests.get(f'{PACIFICA_API}/info/prices', timeout=10).json()
+    prices = {}
+    for item in (resp.get('data') or []):
+        sym = item.get('symbol', '')
+        try:
+            prices[sym] = float(item.get('mark', 0) or 0)
+        except Exception:
+            prices[sym] = 0
+    _pacifica_prices = prices
+    _pacifica_prices_ts = now
+    return prices
+
+
+def _fetch_pacifica_account(address: str) -> dict:
+    prices = _pacifica_get_prices()
+
+    pos_resp = requests.get(f'{PACIFICA_API}/positions', params={'account': address}, timeout=10).json()
+    acc_resp = requests.get(f'{PACIFICA_API}/account', params={'account': address}, timeout=10).json()
+
+    positions_raw = pos_resp.get('data') or []
+    account_data = acc_resp.get('data') or {}
+
+    margin_used = float(account_data.get('total_margin_used', 0) or 0)
+    equity = float(account_data.get('account_equity', 0) or 0)
+    # Use API-provided maintenance_margin if available, otherwise derive from cross_margin_ratio
+    maint_margin = float(account_data.get('maintenance_margin', 0) or 0)
+    if not maint_margin:
+        cross_margin_ratio = float(account_data.get('cross_margin_ratio', 0) or 0)
+        if cross_margin_ratio and equity:
+            # Handle both decimal (0.1707) and percentage (17.07) formats
+            ratio = cross_margin_ratio / 100 if cross_margin_ratio > 1 else cross_margin_ratio
+            maint_margin = ratio * equity
+
+    positions = []
+    for p in positions_raw:
+        sym = p.get('symbol', '')
+        side_raw = p.get('side', '')
+        side = 'Long' if side_raw == 'bid' else 'Short'
+        amount = float(p.get('amount', 0) or 0)
+        entry = float(p.get('entry_price', 0) or 0)
+        mark = prices.get(sym, 0)
+        funding = float(p.get('funding', 0) or 0)
+        isolated = p.get('isolated', False)
+        # Use API liq_price if provided
+        api_liq = p.get('liq_price') or p.get('liquidation_price')
+
+        if mark and amount:
+            raw_pnl = (mark - entry) * amount if side == 'Long' else (entry - mark) * amount
+            pnl = raw_pnl + funding
+        else:
+            pnl = funding
+
+        mark_val = amount * (mark if mark else entry)
+        positions.append({
+            'market': sym,
+            'side': side,
+            'size': amount,
+            'entry_price': entry,
+            'mark_price': mark,
+            'unrealised_pnl': pnl,
+            'funding': funding,
+            'isolated': isolated,
+            'mark_value': mark_val,   # used for margin/liq allocation below
+            'api_liq': float(api_liq) if api_liq else None,
+        })
+
+    # Per-position margin, leverage, and liq price
+    # Margin is allocated proportional to mark value (verified against Pacifica UI)
+    # Liq price uses cross-margin formula: mark ± (equity - pos_maint_margin) / size
+    # where pos_maint_margin is proportionally allocated from account maintenance_margin
+    total_mark_value = sum(p['mark_value'] for p in positions)
+    for p in positions:
+        mv = p['mark_value']
+        if margin_used > 0 and total_mark_value > 0 and mv > 0:
+            weight = mv / total_mark_value
+            pos_margin = margin_used * weight
+            leverage = round(mv / pos_margin, 1)
+            # Use API liq_price if available, otherwise calculate cross-margin liq
+            if p['api_liq'] is not None:
+                liq = p['api_liq']
+            elif p['size'] > 0:
+                pos_maint = maint_margin * weight if maint_margin else 0
+                effective_equity = equity - pos_maint
+                if p['side'] == 'Long':
+                    liq = round((p['mark_price'] or p['entry_price']) - effective_equity / p['size'], 4)
+                else:
+                    liq = round((p['mark_price'] or p['entry_price']) + effective_equity / p['size'], 4)
+            else:
+                liq = None
+        else:
+            pos_margin = None
+            leverage = None
+            liq = p['api_liq']
+        p['margin'] = round(pos_margin, 4) if pos_margin is not None else None
+        p['leverage'] = leverage
+        p['liq_price'] = liq
+        del p['mark_value']
+        del p['api_liq']
+
+    return {
+        'positions': positions,
+        'balance': float(account_data.get('balance', 0) or 0),
+        'equity': equity,
+        'available': float(account_data.get('available_to_spend', 0) or 0),
+        'margin_used': margin_used,
+        'maint_margin': maint_margin,
+        'unrealised_pnl': sum(p['unrealised_pnl'] for p in positions),
+    }
+
+
+@app.route('/api/pacifica/accounts', methods=['GET'])
+def get_pacifica_accounts():
+    return jsonify(db.get_pacifica_accounts())
+
+
+@app.route('/api/pacifica/accounts', methods=['POST'])
+def add_pacifica_account():
+    data = request.json
+    label = (data.get('label') or '').strip()
+    address = (data.get('address') or '').strip()
+    if not label or not address:
+        return jsonify({'error': 'label and address required'}), 400
+    db.add_pacifica_account(label, address)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/pacifica/accounts/<int:aid>', methods=['DELETE'])
+def delete_pacifica_account(aid):
+    db.delete_pacifica_account(aid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/pacifica/accounts/<int:aid>', methods=['PATCH'])
+def patch_pacifica_account(aid):
+    data = request.json or {}
+    if 'group_name' in data:
+        db.update_pacifica_account_group(aid, data['group_name'])
+    return jsonify({'ok': True})
+
+
+@app.route('/api/pacifica/all-positions')
+def pacifica_all_positions():
+    accounts = db.get_pacifica_accounts()
+    if not accounts:
+        return jsonify({'accounts': []})
+    result = []
+    for acc in accounts:
+        try:
+            data = _fetch_pacifica_account(acc['address'])
+            data['id'] = acc['id']
+            data['label'] = acc['label']
+            data['group_name'] = acc.get('group_name')
+            result.append(data)
+        except Exception as e:
+            result.append({'id': acc['id'], 'label': acc['label'],
+                           'error': str(e), 'positions': []})
+    return jsonify({'accounts': result})
+
+
+# --- Nado ---
+
+NADO_API = 'https://gateway.prod.nado.xyz/v1'
+_nado_symbols: dict = {}
+_nado_symbols_ts: float = 0
+
+def _nado_get_symbols() -> dict:
+    """Returns {product_id: symbol_name}, cached for 5 minutes."""
+    global _nado_symbols, _nado_symbols_ts
+    now = time.time()
+    if _nado_symbols and (now - _nado_symbols_ts) < 300:
+        return _nado_symbols
+    try:
+        resp = requests.get(f'{NADO_API}/query', params={'type': 'symbols'}, timeout=10).json()
+        mapping = {}
+        for sym, info in resp.get('data', {}).get('symbols', {}).items():
+            mapping[info['product_id']] = sym
+        _nado_symbols = mapping
+        _nado_symbols_ts = now
+    except Exception:
+        pass
+    return _nado_symbols
+
+def _addr_to_nado_subaccount(address: str) -> str:
+    """Convert EVM address to Nado default subaccount (bytes32 hex).
+    Format: address (20 bytes) + 'default' in ASCII (7 bytes) + zero padding (5 bytes)
+    """
+    addr = address.lower().replace('0x', '').zfill(40)
+    default_hex = 'default'.encode().hex()  # 64656661756c74 = 7 bytes
+    padding = '00' * 5                       # 5 zero bytes
+    return '0x' + addr + default_hex + padding
+
+
+def _fetch_nado_account(address: str) -> dict:
+    subaccount = _addr_to_nado_subaccount(address)
+    symbols = _nado_get_symbols()
+
+    # Fetch positions and account info in parallel would be ideal, but sequential is fine
+    pos_resp = requests.get(
+        f'{NADO_API}/query',
+        params={'type': 'isolated_positions', 'subaccount': subaccount},
+        timeout=10
+    ).json()
+
+    # Fetch overall account info (value + available margin)
+    account_value = None
+    available_margin = None
+    try:
+        info_resp = requests.get(
+            f'{NADO_API}/query',
+            params={'type': 'subaccount_info', 'subaccount': subaccount},
+            timeout=10
+        ).json()
+        healths = info_resp.get('data', {}).get('healths', [])
+        if healths:
+            account_value = round(int(healths[0].get('assets', 0)) / 1e18, 2)
+            available_margin = round(int(healths[0].get('health', 0)) / 1e18, 2)
+    except Exception:
+        pass
+
+    positions = []
+    if pos_resp.get('status') == 'success':
+        for p in pos_resp.get('data', {}).get('isolated_positions', []):
+            base = p.get('base_balance', {}).get('balance', {})
+            quote = p.get('quote_balance', {}).get('balance', {})
+            base_product = p.get('base_product', {})
+            product_id = p.get('base_balance', {}).get('product_id')
+            amount_raw = int(base.get('amount', 0))
+            v_quote_raw = int(base.get('v_quote_balance', 0))
+            quote_raw = int(quote.get('amount', 0))
+            if amount_raw == 0:
+                continue
+            size = amount_raw / 1e18
+            direction = 'long' if size > 0 else 'short'
+            size_abs = abs(size)
+            entry_price = abs(v_quote_raw / 1e18) / size_abs if size_abs else 0
+
+            # Current oracle price
+            oracle_raw = base_product.get('oracle_price_x18', 0)
+            current_price = int(oracle_raw) / 1e18 if oracle_raw else None
+
+            # Unrealized PnL
+            unrealized_pnl = None
+            if current_price and entry_price:
+                sign = 1 if direction == 'long' else -1
+                unrealized_pnl = round((current_price - entry_price) * size_abs * sign, 4)
+
+            # Health % and liq price from healths[1] (maintenance)
+            health_pct = None
+            liq_price = None
+            pos_healths = p.get('healths', [])
+            if len(pos_healths) >= 2:
+                maint = pos_healths[1]
+                h_assets = int(maint.get('assets', 0))
+                h_health = int(maint.get('health', 0))
+                if h_assets > 0:
+                    health_pct = round(h_health / h_assets * 100, 2)
+                # Liq price: price at which maintenance health reaches 0
+                # dHealth/dP = size * W_maint (long) or -size * W_maint (short)
+                # P_liq = current ∓ health / (size * W_maint)
+                risk = base_product.get('risk', {})
+                if current_price and size_abs and h_health >= 0:
+                    health_usd = h_health / 1e18
+                    if direction == 'long':
+                        w = int(risk.get('long_weight_maintenance_x18', 0)) / 1e18
+                        if w:
+                            liq_price = round(current_price - health_usd / (size_abs * w), 4)
+                    else:
+                        w = int(risk.get('short_weight_maintenance_x18', 0)) / 1e18
+                        if w:
+                            liq_price = round(current_price + health_usd / (size_abs * w), 4)
+
+            margin = quote_raw / 1e18
+            leverage = round((size_abs * entry_price) / margin, 1) if margin > 0 and entry_price > 0 else None
+            symbol = symbols.get(product_id, f'#{product_id}')
+            positions.append({
+                'product_id': product_id,
+                'symbol': symbol,
+                'direction': direction,
+                'size': round(size_abs, 6),
+                'entry_price': round(entry_price, 6),
+                'current_price': round(current_price, 6) if current_price else None,
+                'unrealized_pnl': unrealized_pnl,
+                'health_pct': health_pct,
+                'liq_price': liq_price,
+                'margin': round(margin, 4),
+                'leverage': leverage,
+            })
+    # Total equity = available margin + sum of (margin + unrealized_pnl) per isolated position
+    # This matches Nado's "Total Equity" display
+    if available_margin is not None:
+        pos_equity = sum((p['margin'] + (p['unrealized_pnl'] or 0)) for p in positions)
+        total_equity = round(available_margin + pos_equity, 2)
+    else:
+        total_equity = None
+
+    return {
+        'positions': positions,
+        'subaccount': subaccount,
+        'account_value': total_equity,
+        'available_margin': available_margin,
+    }
+
+
+@app.route('/api/nado/accounts', methods=['GET'])
+def get_nado_accounts():
+    return jsonify(db.get_nado_accounts())
+
+
+@app.route('/api/nado/accounts', methods=['POST'])
+def add_nado_account():
+    data = request.json
+    label = (data.get('label') or '').strip()
+    address = (data.get('address') or '').strip()
+    if not label or not address:
+        return jsonify({'error': 'label and address required'}), 400
+    db.add_nado_account(label, address)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/nado/accounts/<int:aid>', methods=['DELETE'])
+def delete_nado_account(aid):
+    db.delete_nado_account(aid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/nado/accounts/<int:aid>', methods=['PATCH'])
+def patch_nado_account(aid):
+    data = request.json or {}
+    if 'group_name' in data:
+        db.update_nado_account_group(aid, data.get('group_name'))
+    return jsonify({'ok': True})
+
+
+@app.route('/api/nado/all-positions')
+def nado_all_positions():
+    accounts = db.get_nado_accounts()
+    if not accounts:
+        return jsonify({'accounts': []})
+    result = []
+    for acc in accounts:
+        try:
+            data = _fetch_nado_account(acc['address'])
+            data['id'] = acc['id']
+            data['label'] = acc['label']
+            data['address'] = acc['address']
+            data['group_name'] = acc.get('group_name')
+            result.append(data)
+        except Exception as e:
+            result.append({'id': acc['id'], 'label': acc['label'],
+                           'address': acc['address'], 'error': str(e),
+                           'positions': []})
+    return jsonify({'accounts': result})
+
+
 # --- Hyperliquid ---
 
 HL_API = 'https://api.hyperliquid.xyz/info'
@@ -415,6 +930,15 @@ def add_hl_account():
 def delete_hl_account(aid):
     db.delete_hl_account(aid)
     return jsonify({'ok': True})
+
+
+@app.route('/api/hl/accounts/<int:aid>', methods=['PATCH'])
+def patch_hl_account(aid):
+    data = request.json or {}
+    if 'group_name' in data:
+        db.update_hl_account_group(aid, data.get('group_name'))
+    return jsonify({'ok': True})
+
 
 
 @app.route('/api/hl/all-positions')
