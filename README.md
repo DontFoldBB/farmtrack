@@ -1,8 +1,8 @@
 # FarmTrack
 
-A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
+A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
 
-![Version](https://img.shields.io/badge/version-alpha%20v0.2-blue)
+![Version](https://img.shields.io/badge/version-alpha%20v0.7-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 
@@ -10,31 +10,30 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 
 ## Features
 
-- **Profiles** — separate databases for different wallets/accounts, switch between them instantly
-- **Protocols** — track every project you're farming: deposit, balance, spent, withdrawn, points, status
-- **Wallets** — manage addresses across protocols, add labels, bulk import
-- **Import** — paste wallet data from spreadsheets into any protocol; automatically creates wallets if they don't exist yet
+- **Profiles** — separate databases for different sets of wallets, switch between them instantly
+- **Protocols** — track every project: deposit, balance, spent, withdrawn, points, $/point, status
+- **Weekly snapshots** — break protocol data into weeks, track progress over time
+- **Wallets** — manage addresses across protocols, add labels, bulk import from spreadsheets
+- **Import** — paste wallet data from Google Sheets into any protocol or weekly snapshot
 - **Export** — export all data to Excel in one click
-- **Reminders** — set deadlines per protocol, get notified when they're due
-- **Perp Calculator** — track manual perpetual positions and pull live data from Hyperliquid
-- **P&L overview** — see total balance, spent, and net profit across all protocols at a glance
-- **EN / RU** — language toggle, preference saved locally
+- **Reminders** — set deadlines per protocol, see what's due
+- **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L
+- **Overview** — total balance, spent, net profit, $/point across all protocols at a glance
 
 ---
 
-## Stack
+## Download
 
-| Layer | Tech |
-|---|---|
-| Backend | Python 3.10+, Flask |
-| Frontend | Vanilla JS + HTML/CSS (Apple-style dark UI) |
-| Desktop | pywebview (native window, no browser needed) |
-| Database | SQLite (one `.db` file per profile) |
-| Export | openpyxl |
+Pre-built binaries are available in [Actions → latest build → Artifacts](../../actions):
+
+- **FarmTrack-Windows** — unzip, run `FarmTrack.exe`
+- **FarmTrack-Mac** — unzip, run `FarmTrack.app` (right-click → Open on first launch)
+
+No Python required.
 
 ---
 
-## Getting Started
+## Run from source
 
 ### 1. Clone
 
@@ -59,6 +58,18 @@ The app opens as a native desktop window. On first launch, create a profile to g
 
 ---
 
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Backend | Python 3.10+, Flask |
+| Frontend | Vanilla JS + HTML/CSS (OpenCode dark design system) |
+| Desktop | pywebview (native window, no browser needed) |
+| Database | SQLite (one `.db` file per profile) |
+| Export | openpyxl |
+
+---
+
 ## Project Structure
 
 ```
@@ -72,24 +83,12 @@ farmtrack/
     └── profiles.html # Profile selection screen
 ```
 
-Data is stored in `data/<profile-name>.db` (created automatically, not tracked by git).
-
----
-
-## Requirements
-
-- Python 3.10+
-- Windows or macOS (pywebview requirement)
-- Dependencies from `requirements.txt`:
-  - flask
-  - pywebview
-  - openpyxl
-  - requests
+Data is stored in `data/<profile-name>.db` — created automatically, not tracked by git.
 
 ---
 
 ## Notes
 
-- All data is local — nothing is sent anywhere except live Hyperliquid price fetches (public API, no auth)
+- All data is local — nothing is sent anywhere except live price fetches from exchange public APIs (no auth)
 - Wallet addresses are never shared or logged
 - The `data/` folder is in `.gitignore` — your databases won't be accidentally committed if you fork this
