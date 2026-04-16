@@ -2,7 +2,7 @@
 
 A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
 
-![Version](https://img.shields.io/badge/version-alpha%20v0.7-blue)
+![Version](https://img.shields.io/badge/version-alpha%20v0.8-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 
