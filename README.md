@@ -2,7 +2,7 @@
 
 A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
 
-![Version](https://img.shields.io/badge/version-alpha%20v0.8-blue)
+![Version](https://img.shields.io/badge/version-alpha%20v0.9-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 
@@ -19,6 +19,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 - **Reminders** — set deadlines per protocol, see what's due
 - **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L
 - **Overview** — total balance, spent, net profit, $/point across all protocols at a glance
+- **Light/dark theme** — toggle in the sidebar, persists between sessions
 
 ---
 
@@ -63,7 +64,7 @@ The app opens as a native desktop window. On first launch, create a profile to g
 | Layer | Tech |
 |---|---|
 | Backend | Python 3.10+, Flask |
-| Frontend | Vanilla JS + HTML/CSS (OpenCode dark design system) |
+| Frontend | Vanilla JS + HTML/CSS (OpenCode design system, light + dark) |
 | Desktop | pywebview (native window, no browser needed) |
 | Database | SQLite (one `.db` file per profile) |
 | Export | openpyxl |
