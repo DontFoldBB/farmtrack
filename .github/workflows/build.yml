@@ -45,9 +45,23 @@ jobs:
           pip install -r requirements.txt
           pip install pyinstaller
 
+      - name: Convert icon to icns
+        run: |
+          mkdir -p farmtrack_icon.iconset
+          sips -z 16 16   farmtrack_icon.png --out farmtrack_icon.iconset/icon_16x16.png
+          sips -z 32 32   farmtrack_icon.png --out farmtrack_icon.iconset/icon_16x16@2x.png
+          sips -z 32 32   farmtrack_icon.png --out farmtrack_icon.iconset/icon_32x32.png
+          sips -z 64 64   farmtrack_icon.png --out farmtrack_icon.iconset/icon_32x32@2x.png
+          sips -z 128 128 farmtrack_icon.png --out farmtrack_icon.iconset/icon_128x128.png
+          sips -z 256 256 farmtrack_icon.png --out farmtrack_icon.iconset/icon_128x128@2x.png
+          sips -z 256 256 farmtrack_icon.png --out farmtrack_icon.iconset/icon_256x256.png
+          sips -z 512 512 farmtrack_icon.png --out farmtrack_icon.iconset/icon_256x256@2x.png
+          sips -z 512 512 farmtrack_icon.png --out farmtrack_icon.iconset/icon_512x512.png
+          iconutil -c icns farmtrack_icon.iconset -o farmtrack_icon.icns
+
       - name: Build
         run: |
-          pyinstaller --onedir --windowed --name FarmTrack --icon farmtrack_icon.png --add-data "templates:templates" main.py
+          pyinstaller --onedir --windowed --name FarmTrack --icon farmtrack_icon.icns --add-data "templates:templates" main.py
 
       - name: Zip app bundle
         run: |
