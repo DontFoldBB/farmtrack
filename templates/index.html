@@ -25,6 +25,33 @@
   --amber:   #ff9f0a;
   --teal:    #30d158;
   --purple:  #007aff;
+  --hover-overlay: rgba(253,252,252,0.05);
+  --row-hover:     rgba(253,252,252,0.025);
+  --badge-bg:      rgba(255,255,255,0.08);
+  --select-bg:     #302c2c;
+}
+
+[data-theme="light"] {
+  --bg:      #fdfcfc;
+  --sidebar: #f1eeee;
+  --card:    #f8f7f7;
+  --card2:   #f1eeee;
+  --border:  rgba(15,0,0,0.14);
+  --sep:     rgba(15,0,0,0.08);
+  --text:    #201d1d;
+  --text2:   #424245;
+  --muted:   #6e6e73;
+  --muted2:  #9a9898;
+  --blue:    #007aff;
+  --green:   #30d158;
+  --red:     #ff3b30;
+  --amber:   #ff9f0a;
+  --teal:    #30d158;
+  --purple:  #007aff;
+  --hover-overlay: rgba(32,29,29,0.04);
+  --row-hover:     rgba(32,29,29,0.02);
+  --badge-bg:      rgba(0,0,0,0.06);
+  --select-bg:     #f1eeee;
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -77,7 +104,7 @@ nav a {
   margin-bottom: 2px;
 
 }
-nav a:hover { color: var(--text2); background: rgba(253,252,252,0.05); }
+nav a:hover { color: var(--text2); background: var(--hover-overlay); }
 nav a.active { background: rgba(0,122,255,0.1); color: var(--blue); border-left: 2px solid var(--blue); padding-left: 10px; }
 nav a svg {
   width: 15px; height: 15px;
@@ -119,7 +146,7 @@ nav a svg {
   gap: 6px;
 
 }
-.btn-export:hover { background: rgba(253,252,252,0.06); color: var(--text2); }
+.btn-export:hover { background: var(--hover-overlay); color: var(--text2); }
 
 /* ── Main ── */
 .main {
@@ -185,6 +212,21 @@ section.active { display: block; }
   border-bottom-color: var(--blue);
   font-weight: 500;
 }
+.pf-badge {
+  display: inline-block;
+  background: var(--badge-bg);
+  color: var(--muted);
+  border-radius: 20px;
+  font-size: 0.68rem;
+  padding: 0 5px;
+  margin-left: 3px;
+  vertical-align: middle;
+  min-width: 16px;
+  text-align: center;
+}
+.proto-tab-btn.active .pf-badge { background: rgba(0,122,255,0.18); color: var(--blue); }
+.status-badge-btn { cursor: pointer; }
+.status-badge-btn:hover { opacity: 0.8; }
 
 /* ── Stats grid ── */
 .stats-grid {
@@ -273,7 +315,7 @@ td {
 
 }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: rgba(253,252,252,0.025); }
+tr:hover td { background: var(--row-hover); }
 
 .td-mono {
   font-family: inherit;
@@ -355,7 +397,7 @@ tr:hover td { background: rgba(253,252,252,0.025); }
   border: 1px solid var(--border);
   color: var(--text2);
 }
-.btn-ghost:hover { background: rgba(253,252,252,0.05); opacity: 1; }
+.btn-ghost:hover { background: var(--hover-overlay); opacity: 1; }
 .btn-secondary {
   background: var(--card2);
   border: 1px solid var(--border);
@@ -404,7 +446,7 @@ input:focus, select:focus, textarea:focus {
   box-shadow: none;
 }
 select { appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%236e6e73' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 10px center; padding-right: 28px; }
-select option { background: #302c2c; color: var(--text); }
+select option { background: var(--select-bg); color: var(--text); }
 textarea { resize: vertical; min-height: 72px; }
 
 .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -508,7 +550,7 @@ textarea { resize: vertical; min-height: 72px; }
   outline: none;
 }
 .color-swatch:hover { transform: scale(1.2); }
-.color-swatch.active { border-color: rgba(253,252,252,0.8); box-shadow: 0 0 0 2px rgba(253,252,252,0.15); }
+.color-swatch.active { border-color: var(--text); box-shadow: 0 0 0 2px var(--hover-overlay); }
 
 /* ── Inline amount edit ── */
 .amount-cell { cursor: text; white-space: nowrap; }
@@ -640,7 +682,7 @@ tr:hover .copy-btn { opacity: 1; }
   font-size: 0.82rem;
   user-select: none;
 }
-.cb-proto-item:hover { background: rgba(253,252,252,0.04); }
+.cb-proto-item:hover { background: var(--hover-overlay); }
 .cb-proto-item input { cursor: pointer; flex-shrink: 0; }
 
 /* ── Selection bar ── */
@@ -690,7 +732,7 @@ tr:hover .copy-btn { opacity: 1; }
   align-items: center;
   gap: 8px;
 }
-.token-dropdown-item:hover { background: rgba(253,252,252,0.05); }
+.token-dropdown-item:hover { background: var(--hover-overlay); }
 .token-sym { font-weight: 600; color: var(--text); }
 .token-name { color: var(--muted); font-size: 0.75rem; }
 
@@ -809,20 +851,31 @@ nav a { transition: background 0.15s, color 0.15s, padding-left 0.15s; }
 }
 section.active { animation: sectionIn 0.22s ease; }
 
-/* Table row stagger */
-.table-wrap tbody tr {
+/* Table row stagger — only for protocols and wallets, not perp tree */
+#s-protocols .table-wrap tbody tr,
+#s-wallets   .table-wrap tbody tr {
   animation: rowIn 0.18s ease backwards;
 }
-.table-wrap tbody tr:nth-child(1)  { animation-delay:  0ms; }
-.table-wrap tbody tr:nth-child(2)  { animation-delay: 25ms; }
-.table-wrap tbody tr:nth-child(3)  { animation-delay: 50ms; }
-.table-wrap tbody tr:nth-child(4)  { animation-delay: 75ms; }
-.table-wrap tbody tr:nth-child(5)  { animation-delay:100ms; }
-.table-wrap tbody tr:nth-child(6)  { animation-delay:115ms; }
-.table-wrap tbody tr:nth-child(7)  { animation-delay:130ms; }
-.table-wrap tbody tr:nth-child(8)  { animation-delay:140ms; }
-.table-wrap tbody tr:nth-child(9)  { animation-delay:148ms; }
-.table-wrap tbody tr:nth-child(n+10){ animation-delay:155ms; }
+#s-protocols .table-wrap tbody tr:nth-child(1),
+#s-wallets   .table-wrap tbody tr:nth-child(1)  { animation-delay:  0ms; }
+#s-protocols .table-wrap tbody tr:nth-child(2),
+#s-wallets   .table-wrap tbody tr:nth-child(2)  { animation-delay: 25ms; }
+#s-protocols .table-wrap tbody tr:nth-child(3),
+#s-wallets   .table-wrap tbody tr:nth-child(3)  { animation-delay: 50ms; }
+#s-protocols .table-wrap tbody tr:nth-child(4),
+#s-wallets   .table-wrap tbody tr:nth-child(4)  { animation-delay: 75ms; }
+#s-protocols .table-wrap tbody tr:nth-child(5),
+#s-wallets   .table-wrap tbody tr:nth-child(5)  { animation-delay:100ms; }
+#s-protocols .table-wrap tbody tr:nth-child(6),
+#s-wallets   .table-wrap tbody tr:nth-child(6)  { animation-delay:115ms; }
+#s-protocols .table-wrap tbody tr:nth-child(7),
+#s-wallets   .table-wrap tbody tr:nth-child(7)  { animation-delay:130ms; }
+#s-protocols .table-wrap tbody tr:nth-child(8),
+#s-wallets   .table-wrap tbody tr:nth-child(8)  { animation-delay:140ms; }
+#s-protocols .table-wrap tbody tr:nth-child(9),
+#s-wallets   .table-wrap tbody tr:nth-child(9)  { animation-delay:148ms; }
+#s-protocols .table-wrap tbody tr:nth-child(n+10),
+#s-wallets   .table-wrap tbody tr:nth-child(n+10){ animation-delay:155ms; }
 
 /* Button press micro-feedback */
 .btn:active { transform: scale(0.97); }
@@ -857,7 +910,7 @@ section.active { animation: sectionIn 0.22s ease; }
 }
 .modal-box {
   background: var(--card2);
-  border: 1px solid rgba(255,255,255,0.1);
+  border: 1px solid var(--border);
   border-radius: 4px;
   padding: 28px 28px 24px;
   width: 360px;
@@ -939,6 +992,11 @@ section.active { animation: sectionIn 0.22s ease; }
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
       <span data-i18n="btn_switch_profile">Switch Profile</span>
     </button>
+    <button class="btn-export" id="theme-toggle-btn" style="margin-top:8px" onclick="toggleTheme()">
+      <svg id="theme-icon-dark" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+      <svg id="theme-icon-light" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      <span id="theme-label">Light mode</span>
+    </button>
     <div id="active-profile" style="font-size:0.72rem;color:var(--muted);text-align:center;margin-top:6px;opacity:0.7"></div>
   </div>
 </aside>
@@ -964,6 +1022,12 @@ section.active { animation: sectionIn 0.22s ease; }
         <div class="sec-header">
           <span class="sec-title" data-i18n="nav_protocols">Protocols</span>
           <button class="btn btn-primary" onclick="openProtocolModal()" data-i18n="btn_add">+ Add</button>
+        </div>
+        <div class="proto-tabs" id="proto-filter-tabs" style="margin-bottom:12px">
+          <button class="proto-tab-btn active" data-filter="all"       onclick="setProtoFilter('all')">All <span class="pf-badge" id="pf-all"></span></button>
+          <button class="proto-tab-btn"        data-filter="farming"   onclick="setProtoFilter('farming')">Farming <span class="pf-badge" id="pf-farming"></span></button>
+          <button class="proto-tab-btn"        data-filter="awaiting"  onclick="setProtoFilter('awaiting')">Awaiting <span class="pf-badge" id="pf-awaiting"></span></button>
+          <button class="proto-tab-btn"        data-filter="closed"    onclick="setProtoFilter('closed')">Closed <span class="pf-badge" id="pf-closed"></span></button>
         </div>
         <div class="table-wrap">
           <table>
@@ -1991,19 +2055,51 @@ function buildDonutChart(protocols, field) {
 }
 
 // ── Protocols ──────────────────────────────────────────────────
+let _protoFilter = 'all';
+
 async function loadProtocols() {
-  const protocols = await api('GET', '/api/protocols');
+  window._protocols = await api('GET', '/api/protocols');
+  renderProtocols();
+}
+
+function _normStatus(s) {
+  if (s === 'фармлю'   || s === 'farming')       return 'farming';
+  if (s === 'жду дроп' || s === 'awaiting drop') return 'awaiting';
+  if (s === 'закрыт'   || s === 'closed')        return 'closed';
+  return 'farming';
+}
+
+function renderProtocols() {
+  const protocols = window._protocols || [];
   const tbody = document.getElementById('protocols-tbody');
 
-  if (!protocols.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="9"><div class="empty-state">
-      <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-      <div class="empty-state-title">No protocols yet</div>
-      <div class="empty-state-hint">Click + Add to track your first farming protocol</div>
-    </div></td></tr>`;
+  // update filter tab counts
+  const counts = { all: protocols.length, farming: 0, awaiting: 0, closed: 0 };
+  protocols.forEach(p => { counts[_normStatus(p.status)]++; });
+  ['all','farming','awaiting','closed'].forEach(f => {
+    const el = document.getElementById(`pf-${f}`);
+    if (el) el.textContent = counts[f] || '';
+  });
+
+  // filter
+  const list = _protoFilter === 'all'
+    ? protocols
+    : protocols.filter(p => _normStatus(p.status) === _protoFilter);
+
+  if (!list.length) {
+    tbody.innerHTML = protocols.length
+      ? `<tr class="empty-row"><td colspan="9"><div class="empty-state">
+          <div class="empty-state-title">No protocols with this status</div>
+        </div></td></tr>`
+      : `<tr class="empty-row"><td colspan="9"><div class="empty-state">
+          <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          <div class="empty-state-title">No protocols yet</div>
+          <div class="empty-state-hint">Click + Add to track your first farming protocol</div>
+        </div></td></tr>`;
     return;
   }
-  tbody.innerHTML = protocols.map(p => {
+
+  tbody.innerHTML = list.map(p => {
     const deposit  = p.total_deposit   || 0;
     const balance  = p.total_balance   || 0;
     const wearned  = p.total_wp_earned || 0;
@@ -2019,7 +2115,7 @@ async function loadProtocols() {
       <td style="text-align:right" class="c-muted">${wearned ? fmt(wearned) : '—'}</td>
       <td style="text-align:right" class="${pnlCls(pnl)}">${fmt(pnl)}</td>
       <td style="text-align:right" class="c-blue">${pts ? fmtPts(pts) : '<span class="c-muted">—</span>'}</td>
-      <td onclick="event.stopPropagation()">${statusBadge(p.status)}</td>
+      <td onclick="event.stopPropagation();cycleStatus(${p.id},'${p.status}')" title="Click to change status" class="status-badge-btn">${statusBadge(p.status)}</td>
       <td onclick="event.stopPropagation()">
         <div class="row-actions">
           <button class="btn btn-sm btn-ghost btn-icon" title="Edit" onclick='event.stopPropagation();openProtocolModal(${JSON.stringify(p)})'>✎</button>
@@ -2028,6 +2124,27 @@ async function loadProtocols() {
       </td>
     </tr>`;
   }).join('');
+}
+
+function setProtoFilter(f) {
+  _protoFilter = f;
+  document.querySelectorAll('#proto-filter-tabs .proto-tab-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.filter === f);
+  });
+  renderProtocols();
+}
+
+const _STATUS_CYCLE = ['farming', 'awaiting drop', 'closed'];
+
+async function cycleStatus(id, current) {
+  const norm = _normStatus(current);
+  const cycleMap = { farming: 'awaiting drop', awaiting: 'closed', closed: 'farming' };
+  const next = cycleMap[norm] || 'farming';
+  await api('PATCH', `/api/protocols/${id}`, { status: next });
+  const p = (window._protocols || []).find(p => p.id === id);
+  if (p) p.status = next;
+  renderProtocols();
+  if (currentSection === 'overview') loadOverview();
 }
 
 // ── Protocol detail ────────────────────────────────────────────
@@ -4895,6 +5012,25 @@ fetch('/api/profiles/current').then(r => r.json()).then(d => {
   const el = document.getElementById('active-profile');
   if (el) el.textContent = '📂 ' + d.name;
 });
+
+// ── Theme toggle ──
+function applyTheme(theme) {
+  document.documentElement.setAttribute('data-theme', theme);
+  const isDark = theme === 'dark';
+  document.getElementById('theme-icon-dark').style.display  = isDark ? '' : 'none';
+  document.getElementById('theme-icon-light').style.display = isDark ? 'none' : '';
+  document.getElementById('theme-label').textContent = isDark ? 'Light mode' : 'Dark mode';
+}
+
+function toggleTheme() {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  const next = current === 'dark' ? 'light' : 'dark';
+  localStorage.setItem('farmtrack-theme', next);
+  applyTheme(next);
+}
+
+// Apply saved theme on load
+applyTheme(localStorage.getItem('farmtrack-theme') || 'dark');
 </script>
 
 <!-- Proxy import modal -->

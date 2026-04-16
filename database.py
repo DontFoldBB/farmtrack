@@ -684,6 +684,9 @@ def bulk_add_wallets(addresses, protocols=None, label=''):
             c.execute('INSERT OR IGNORE INTO wallets (address, label, chain) VALUES (?,?,?)', (addr, label, chain))
             if c.execute('SELECT changes()').fetchone()[0]:
                 added += 1
+            elif label:
+                # wallet already existed — overwrite label
+                c.execute('UPDATE wallets SET label=? WHERE address=?', (label, addr))
             if protocols:
                 wid = c.execute('SELECT id FROM wallets WHERE address=?', (addr,)).fetchone()['id']
                 for proto in protocols:
