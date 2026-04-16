@@ -295,10 +295,20 @@ tr:hover td { background: rgba(253,252,252,0.025); }
 
 .empty-row td {
   text-align: center;
-  padding: 40px;
+  padding: 0;
   color: var(--muted2);
   font-size: 0.82rem;
 }
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 52px 24px;
+  gap: 6px;
+}
+.empty-state-icon { opacity: 0.18; margin-bottom: 6px; }
+.empty-state-title { font-size: 0.88rem; font-weight: 600; color: var(--text2); }
+.empty-state-hint  { font-size: 0.78rem; color: var(--muted2); margin-top: 2px; }
 
 /* ── Colors ── */
 .c-green { color: var(--green); }
@@ -1852,7 +1862,11 @@ async function loadOverview() {
 
   if (!protocols.length) {
     document.getElementById('ov-metrics').innerHTML = '';
-    document.getElementById('ov-body').innerHTML = `<div class="c-muted" style="font-size:0.85rem;padding:16px 0">No protocols yet</div>`;
+    document.getElementById('ov-body').innerHTML = `<div class="empty-state" style="padding:48px 0">
+      <svg class="empty-state-icon" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <div class="empty-state-title">Nothing to show yet</div>
+      <div class="empty-state-hint">Go to Protocols and add your first farming project</div>
+    </div>`;
     return;
   }
 
@@ -1957,7 +1971,11 @@ async function loadProtocols() {
   const tbody = document.getElementById('protocols-tbody');
 
   if (!protocols.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="9">${t('empty_protocols')}</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="9"><div class="empty-state">
+      <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+      <div class="empty-state-title">No protocols yet</div>
+      <div class="empty-state-hint">Click + Add to track your first farming protocol</div>
+    </div></td></tr>`;
     return;
   }
   tbody.innerHTML = protocols.map(p => {
@@ -2106,7 +2124,11 @@ async function loadProtocolDetailWallets(protocolName) {
   const wallets = await api('GET', `/api/protocols/${encodeURIComponent(protocolName)}/wallets`);
   const tbody = document.getElementById('proto-detail-tbody');
   if (!wallets.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="7">${t('empty_wallets_proto')}</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="7"><div class="empty-state">
+      <svg class="empty-state-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="empty-state-title">No wallets in this protocol</div>
+      <div class="empty-state-hint">Use ↧ Import to paste data from a spreadsheet</div>
+    </div></td></tr>`;
     return;
   }
   // Refresh stats after wallet data loaded
@@ -2233,7 +2255,11 @@ async function loadProtoWeeks() {
   const weeks = await api('GET', `/api/protocols/${encodeURIComponent(_protoDetail.name)}/weeks`);
   const tbody = document.getElementById('proto-weeks-tbody');
   if (!weeks.length) {
-    tbody.innerHTML = '<tr class="empty-row"><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No weeks. Create the first one.</td></tr>';
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="5"><div class="empty-state">
+      <svg class="empty-state-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      <div class="empty-state-title">No weeks yet</div>
+      <div class="empty-state-hint">Click + Create Week to add a weekly snapshot</div>
+    </div></td></tr>`;
     return;
   }
   tbody.innerHTML = weeks.map(w => {
@@ -2323,7 +2349,11 @@ async function loadWeekWallets() {
   const wallets = await api('GET', `/api/protocols/${encodeURIComponent(_protoDetail.name)}/weeks/${_currentWeek.week_start}/wallets`);
   const tbody = document.getElementById('proto-week-tbody');
   if (!wallets.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="6" style="text-align:center;color:var(--muted);padding:20px">No wallets. Import data.</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="6"><div class="empty-state">
+      <svg class="empty-state-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+      <div class="empty-state-title">No data for this week</div>
+      <div class="empty-state-hint">Use ↧ Import to paste wallet data from a spreadsheet</div>
+    </div></td></tr>`;
     return;
   }
   tbody.innerHTML = wallets.map(w => {
@@ -2418,7 +2448,11 @@ async function loadWallets() {
   if (searchEl) searchEl.value = '';
 
   if (!wallets.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="12">${t('empty_wallets')}</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="12"><div class="empty-state">
+      <svg class="empty-state-icon" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8a2 2 0 0 0-2 2v2h12V5a2 2 0 0 0-2-2z"/><circle cx="16" cy="14" r="1.5" fill="currentColor" stroke="none"/></svg>
+      <div class="empty-state-title">No wallets yet</div>
+      <div class="empty-state-hint">Click + Add to add your first wallet address</div>
+    </div></td></tr>`;
     return;
   }
 
@@ -2649,7 +2683,11 @@ async function loadReminders() {
   const now = new Date();
 
   if (!reminders.length) {
-    tbody.innerHTML = `<tr class="empty-row"><td colspan="4">${t('empty_reminders')}</td></tr>`;
+    tbody.innerHTML = `<tr class="empty-row"><td colspan="4"><div class="empty-state">
+      <svg class="empty-state-icon" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+      <div class="empty-state-title">No reminders</div>
+      <div class="empty-state-hint">Add a deadline for a protocol so you don't miss it</div>
+    </div></td></tr>`;
     return;
   }
 
