@@ -6,6 +6,8 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 
+> Fair warning: this is vibe-coded. It took a while, but at the end of the day it's still vibe code — no automated tests, just vibes and whatever bugs you reported along the way.
+
 ---
 
 ## Features
@@ -16,7 +18,6 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 - **Wallets** — manage addresses across protocols, add labels, bulk import from spreadsheets
 - **Import** — paste wallet data from Google Sheets into any protocol or weekly snapshot
 - **Export** — export all data to Excel in one click
-- **Reminders** — set deadlines per protocol, see what's due
 - **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L, Margin Ratio and Account Leverage badges per account
 - **Overview** — total balance, spent, net profit, $/point across all protocols at a glance
 - **Light/dark theme** — toggle in the sidebar, persists between sessions
@@ -85,6 +86,31 @@ farmtrack/
 ```
 
 Data is stored in `data/<profile-name>.db` — created automatically, not tracked by git.
+
+---
+
+## Usage Guide
+
+### 1. Create a profile
+On first launch you'll see the profile screen. Create a profile — each profile gets its own isolated database. Switch between profiles anytime via **Switch Profile** in the sidebar.
+
+### 2. Add protocols
+Go to **Protocols** and add each project you're farming. Fill in deposit, balance, spent, withdrawn, and points as you go. Set a status (active / done / pending) and a $/point estimate.
+
+### 3. Track wallets
+In **Wallets**, add your addresses and link them to protocols. You can bulk-import wallet–protocol pairs by pasting a table from Google Sheets.
+
+### 4. Weekly snapshots
+Inside any protocol, switch to the **Weekly** view to log per-week data — useful for tracking progress over time or comparing epochs.
+
+### 5. Live perp positions
+In **Perp**, add accounts for HyperLiquid, Nado, Extended, or Pacifica. Positions update on each tab open. Pacifica accounts show Margin Ratio and Account Leverage badges per account.
+
+### 6. Overview
+**Overview** aggregates total balance, spent, net profit, and $/point across all protocols in the active profile.
+
+### 7. Export
+Hit **Export Excel** at any time to download all data as an Excel file.
 
 ---
 
