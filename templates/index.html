@@ -4284,10 +4284,13 @@ function renderPacificaPositions(accounts) {
         ? `<span class="c-muted" style="font-size:0.75rem">avail ${fmt2(a.available)}</span>` : '';
       const pnl = a.unrealised_pnl || 0;
       const pnlCls = pnl >= 0 ? 'c-green' : 'c-red';
-      // Health = available / equity %
-      const hlthPct = (a.equity > 0 && a.available != null) ? (a.available / a.equity * 100) : null;
-      const hlthStr = hlthPct != null
-        ? `<span class="${hlthPct <= 10 ? 'c-red' : hlthPct <= 30 ? 'c-amber' : 'c-green'}">${hlthPct.toFixed(1)}%</span>` : '—';
+      const mr = a.margin_ratio;
+      const mrColor = mr == null ? null : mr >= 50 ? '#c0392b' : mr >= 20 ? '#d4860a' : '#27ae60';
+      const mrBadge = mr != null
+        ? `<span style="font-size:0.7rem;margin-left:8px;padding:2px 7px;border-radius:4px;background:${mrColor};color:#fff;font-weight:600;letter-spacing:0.02em" title="Margin Ratio">MR ${mr.toFixed(1)}%</span>` : '';
+      const lev = a.account_leverage;
+      const levBadge = lev != null
+        ? `<span style="font-size:0.7rem;margin-left:6px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.1);color:#e0e0e0;font-weight:600;letter-spacing:0.02em" title="Account Leverage">×${lev}</span>` : '';
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
       const accIndent = groupName ? '44px' : '14px';
       rows.push(`<tr onclick="pacificaAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
@@ -4296,11 +4299,10 @@ function renderPacificaPositions(accounts) {
           <strong>${esc(a.label)}</strong>
           <span style="font-weight:600;margin-left:14px">${equity}</span>
           <span style="margin-left:8px">${avail}</span>
-          ${errBadge}
+          ${levBadge}${mrBadge}${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;font-weight:600" class="${pnlCls}">${pnl ? (pnl >= 0 ? '+' : '') + fmt2(pnl) : ''}</td>
-        <td></td>
-        <td style="text-align:right;padding:9px 12px">${hlthStr}</td>
+        <td></td><td></td>
         <td style="text-align:right;padding:9px 12px;color:var(--muted);font-size:0.8rem">${cnt} pos.</td>
         <td style="padding:9px 12px;text-align:right">
           <button onclick="event.stopPropagation();deletePacificaAccount(${a.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:2px 4px" title="Delete">✕</button>

@@ -534,14 +534,7 @@ def _fetch_pacifica_account(address: str) -> dict:
 
     margin_used = float(account_data.get('total_margin_used', 0) or 0)
     equity = float(account_data.get('account_equity', 0) or 0)
-    # Use API-provided maintenance_margin if available, otherwise derive from cross_margin_ratio
-    maint_margin = float(account_data.get('maintenance_margin', 0) or 0)
-    if not maint_margin:
-        cross_margin_ratio = float(account_data.get('cross_margin_ratio', 0) or 0)
-        if cross_margin_ratio and equity:
-            # Handle both decimal (0.1707) and percentage (17.07) formats
-            ratio = cross_margin_ratio / 100 if cross_margin_ratio > 1 else cross_margin_ratio
-            maint_margin = ratio * equity
+    maint_margin = float(account_data.get('cross_mmr') or account_data.get('maintenance_margin') or 0)
 
     positions = []
     for p in positions_raw:
@@ -609,6 +602,9 @@ def _fetch_pacifica_account(address: str) -> dict:
         del p['mark_value']
         del p['api_liq']
 
+    account_leverage = round(total_mark_value / equity, 2) if equity > 0 and total_mark_value > 0 else None
+    margin_ratio = round(maint_margin / equity * 100, 2) if equity > 0 and maint_margin > 0 else None
+
     return {
         'positions': positions,
         'balance': float(account_data.get('balance', 0) or 0),
@@ -617,6 +613,8 @@ def _fetch_pacifica_account(address: str) -> dict:
         'margin_used': margin_used,
         'maint_margin': maint_margin,
         'unrealised_pnl': sum(p['unrealised_pnl'] for p in positions),
+        'account_leverage': account_leverage,
+        'margin_ratio': margin_ratio,
     }
 
 
