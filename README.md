@@ -6,7 +6,9 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 
-> Fair warning: this is vibe-coded. It took a while, but at the end of the day it's still vibe code — no automated tests, just vibes and whatever bugs you reported along the way.
+## Fair Warning
+
+This is vibe-coded. It took a while, but at the end of the day it's still vibe code — no automated tests, just vibes and whatever bugs you reported along the way.
 
 ---
 
