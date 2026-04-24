@@ -17,7 +17,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 - **Import** — paste wallet data from Google Sheets into any protocol or weekly snapshot
 - **Export** — export all data to Excel in one click
 - **Reminders** — set deadlines per protocol, see what's due
-- **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L
+- **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L, Margin Ratio and Account Leverage badges per account
 - **Overview** — total balance, spent, net profit, $/point across all protocols at a glance
 - **Light/dark theme** — toggle in the sidebar, persists between sessions
 
