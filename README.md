@@ -5,10 +5,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 ![Version](https://img.shields.io/badge/version-alpha%20v0.9-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
-
-## Fair Warning
-
-This is vibe-coded. It took a while, but at the end of the day it's still vibe code — no automated tests, just vibes and whatever bugs you reported along the way.
+![Tests](https://img.shields.io/badge/tests-191%20passing-brightgreen)
 
 ---
 
@@ -71,6 +68,7 @@ The app opens as a native desktop window. On first launch, create a profile to g
 | Desktop | pywebview (native window, no browser needed) |
 | Database | SQLite (one `.db` file per profile) |
 | Export | openpyxl |
+| Tests | pytest (191 tests) |
 
 ---
 
@@ -82,12 +80,24 @@ farmtrack/
 ├── app.py            # Flask routes / REST API
 ├── database.py       # SQLite logic, all DB operations
 ├── requirements.txt  # Python dependencies
+├── tests/
+│   └── test_database.py  # pytest suite (191 tests)
 └── templates/
     ├── index.html    # Main app UI (single-page)
     └── profiles.html # Profile selection screen
 ```
 
 Data is stored in `data/<profile-name>.db` — created automatically, not tracked by git.
+
+---
+
+## Running tests
+
+```bash
+pytest tests/
+```
+
+Each test gets its own isolated in-memory database via `tmp_path` — no shared state, no manual cleanup.
 
 ---
 
@@ -121,3 +131,4 @@ Hit **Export Excel** at any time to download all data as an Excel file.
 - All data is local — nothing is sent anywhere except live price fetches from exchange public APIs (no auth)
 - Wallet addresses are never shared or logged
 - The `data/` folder is in `.gitignore` — your databases won't be accidentally committed if you fork this
+- **API keys (Extended exchange) are stored in plaintext inside the local SQLite database.** The database is not encrypted. Don't use FarmTrack on a shared machine or in an environment where others have filesystem access.

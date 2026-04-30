@@ -121,6 +121,7 @@ def init():
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 label TEXT NOT NULL,
                 address TEXT NOT NULL UNIQUE,
+                group_name TEXT DEFAULT NULL,
                 created_at TEXT DEFAULT (datetime('now'))
             );
             CREATE TABLE IF NOT EXISTS nado_accounts (
@@ -275,6 +276,11 @@ def _migrate(c):
     nado_cols = {r[1] for r in c.execute("PRAGMA table_info(nado_accounts)").fetchall()}
     if 'group_name' not in nado_cols:
         c.execute("ALTER TABLE nado_accounts ADD COLUMN group_name TEXT DEFAULT NULL")
+
+    # Add group_name to hl_accounts if missing (must run for all DB versions)
+    hl_cols = {r[1] for r in c.execute("PRAGMA table_info(hl_accounts)").fetchall()}
+    if 'group_name' not in hl_cols:
+        c.execute("ALTER TABLE hl_accounts ADD COLUMN group_name TEXT DEFAULT NULL")
 
     # Create extended_accounts if missing (migration for older DBs)
     c.execute('''
@@ -563,6 +569,7 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
                     c.execute('UPDATE wallets SET proxy=? WHERE id=?', (proxy_val, found_id))
                     _sync_proxy_link(c, found_id, proxy_val)
                 # Auto-set deposit from first week's balance if deposit never set
+                _auto_deposit = None
                 if week and row.get('deposit') is None and row.get('wallet_balance') is not None:
                     has_prior = c.execute(
                         'SELECT 1 FROM weekly_points WHERE wallet_id=? AND protocol=? LIMIT 1',
@@ -574,17 +581,17 @@ def import_protocol_wallet_data(protocol, rows, add_points=False, add_deposit=Fa
                             (found_id, protocol)
                         ).fetchone()
                         if not cur_dep or (cur_dep['deposit'] or 0) == 0:
-                            sets2 = ['deposit=?']
-                            vals2 = [float(row['wallet_balance']), found_id, protocol]
-                            c.execute(f"UPDATE wallet_protocols SET deposit=? WHERE wallet_id=? AND protocol=?", vals2)
+                            _auto_deposit = float(row['wallet_balance'])
+                            c.execute("UPDATE wallet_protocols SET deposit=? WHERE wallet_id=? AND protocol=?",
+                                      [_auto_deposit, found_id, protocol])
 
                 # Save weekly snapshot if week provided
                 if week and found_id:
                     wk_points  = float(row.get('wp_points') or 0)
                     wk_balance = float(row.get('wallet_balance') or 0)
                     wk_earned  = float(row.get('wp_earned') or 0)
-                    # start_balance: use explicitly provided deposit (the actual week start)
-                    wk_start = float(row['deposit']) if row.get('deposit') is not None else None
+                    # start_balance: explicit deposit, or auto-set value (so delete_protocol_week can restore it)
+                    wk_start = float(row['deposit']) if row.get('deposit') is not None else _auto_deposit
                     c.execute('''
                         INSERT INTO weekly_points (wallet_id, protocol, week, points, wallet_balance, wp_earned, start_balance)
                         VALUES (?,?,?,?,?,?,?)
@@ -793,8 +800,8 @@ def bulk_add_proxies(proxy_list):
             if not proxy:
                 continue
             try:
-                c.execute('INSERT OR IGNORE INTO proxies (proxy) VALUES (?)', (proxy,))
-                if c.rowcount:
+                cur = c.execute('INSERT OR IGNORE INTO proxies (proxy) VALUES (?)', (proxy,))
+                if cur.rowcount:
                     added += 1
             except Exception:
                 pass
@@ -909,7 +916,7 @@ def get_due_reminders():
 
 def get_positions():
     with _conn() as c:
-        return [dict(r) for r in c.execute('SELECT * FROM positions ORDER BY created_at DESC').fetchall()]
+        return [dict(r) for r in c.execute('SELECT * FROM positions ORDER BY created_at DESC, id DESC').fetchall()]
 
 
 def add_position(symbol, direction, collateral, leverage, entry_price, note='', group_id=None):
@@ -1054,9 +1061,9 @@ def bulk_add_hl_accounts(accounts):
     with _conn() as c:
         for acc in accounts:
             try:
-                c.execute('INSERT OR IGNORE INTO hl_accounts (label, address) VALUES (?,?)',
-                          (acc['label'], acc['address']))
-                if c.rowcount:
+                cur = c.execute('INSERT OR IGNORE INTO hl_accounts (label, address) VALUES (?,?)',
+                                (acc['label'], acc['address']))
+                if cur.rowcount:
                     added += 1
             except Exception:
                 pass

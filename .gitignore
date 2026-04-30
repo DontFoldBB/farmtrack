@@ -9,6 +9,26 @@ backups/
 tg_bot.py
 *.xlsx
 
+# Personal / credentials
+proxy.txt
+
+# Claude internal
+CLAUDE.md
+
+# Build artifacts & binaries
+FarmTrack-Windows/
+FarmTrack-Mac/
+*.zip
+
+# Screenshots & photos
+Screenshot_*.png
+photo_*.jpg
+
+# Other projects checked out here
+andrej-karpathy-skills-main/
+open-design/
+design/
+
 # Python
 __pycache__/
 *.pyc
@@ -20,6 +40,7 @@ env/
 
 # Claude internal
 .claude/
+
 
 # OS
 .DS_Store
