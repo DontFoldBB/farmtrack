@@ -5,7 +5,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 ![Version](https://img.shields.io/badge/version-alpha%20v0.9-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
-![Tests](https://img.shields.io/badge/tests-191%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-251%20passing-brightgreen)
 
 ---
 
@@ -68,7 +68,7 @@ The app opens as a native desktop window. On first launch, create a profile to g
 | Desktop | pywebview (native window, no browser needed) |
 | Database | SQLite (one `.db` file per profile) |
 | Export | openpyxl |
-| Tests | pytest (191 tests) |
+| Tests | pytest (251 tests) |
 
 ---
 
@@ -81,7 +81,9 @@ farmtrack/
 ├── database.py       # SQLite logic, all DB operations
 ├── requirements.txt  # Python dependencies
 ├── tests/
-│   └── test_database.py  # pytest suite (191 tests)
+│   ├── test_database.py    # DB operations (191 tests)
+│   ├── test_app.py         # Flask routes
+│   └── test_migrations.py # Schema migration safety
 └── templates/
     ├── index.html    # Main app UI (single-page)
     └── profiles.html # Profile selection screen
@@ -97,7 +99,7 @@ Data is stored in `data/<profile-name>.db` — created automatically, not tracke
 pytest tests/
 ```
 
-Each test gets its own isolated in-memory database via `tmp_path` — no shared state, no manual cleanup.
+Each test gets its own isolated in-memory database — no shared state, no manual cleanup. Migration tests verify that existing rows survive schema upgrades.
 
 ---
 
