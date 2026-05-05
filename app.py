@@ -19,6 +19,24 @@ with app.app_context():
     db.init()
 
 
+def _get_json(url: str, **kwargs):
+    resp = requests.get(url, **kwargs)
+    resp.raise_for_status()
+    try:
+        return resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f'Invalid JSON from {url}') from exc
+
+
+def _post_json(url: str, **kwargs):
+    resp = requests.post(url, **kwargs)
+    resp.raise_for_status()
+    try:
+        return resp.json()
+    except ValueError as exc:
+        raise RuntimeError(f'Invalid JSON from {url}') from exc
+
+
 @app.route('/profiles')
 def profiles_page():
     return render_template('profiles.html')
@@ -266,7 +284,7 @@ def add_wallet():
     address = (data.get('address') or '').strip()
     if not protocol or not address:
         return jsonify({'error': 'Протокол и адрес обязательны'}), 400
-    db.add_wallet(protocol, address, data.get('label', ''))
+    db.bulk_add_wallets([address], protocols=[protocol], label=data.get('label', ''))
     return jsonify({'ok': True})
 
 
@@ -398,8 +416,8 @@ EXTENDED_API = 'https://api.starknet.extended.exchange'
 def _fetch_extended_account(api_key: str) -> dict:
     headers = {'X-Api-Key': api_key}
 
-    bal_resp = requests.get(f'{EXTENDED_API}/api/v1/user/balance', headers=headers, timeout=10).json()
-    pos_resp = requests.get(f'{EXTENDED_API}/api/v1/user/positions', headers=headers, timeout=10).json()
+    bal_resp = _get_json(f'{EXTENDED_API}/api/v1/user/balance', headers=headers, timeout=10)
+    pos_resp = _get_json(f'{EXTENDED_API}/api/v1/user/positions', headers=headers, timeout=10)
 
     balance = bal_resp.get('data', {}) if isinstance(bal_resp.get('data'), dict) else {}
     positions_raw = pos_resp.get('data', []) if isinstance(pos_resp.get('data'), list) else []
@@ -510,7 +528,7 @@ def _pacifica_get_prices() -> dict:
     now = time.time()
     if _pacifica_prices and (now - _pacifica_prices_ts) < 10:
         return _pacifica_prices
-    resp = requests.get(f'{PACIFICA_API}/info/prices', timeout=10).json()
+    resp = _get_json(f'{PACIFICA_API}/info/prices', timeout=10)
     prices = {}
     for item in (resp.get('data') or []):
         sym = item.get('symbol', '')
@@ -526,8 +544,8 @@ def _pacifica_get_prices() -> dict:
 def _fetch_pacifica_account(address: str) -> dict:
     prices = _pacifica_get_prices()
 
-    pos_resp = requests.get(f'{PACIFICA_API}/positions', params={'account': address}, timeout=10).json()
-    acc_resp = requests.get(f'{PACIFICA_API}/account', params={'account': address}, timeout=10).json()
+    pos_resp = _get_json(f'{PACIFICA_API}/positions', params={'account': address}, timeout=10)
+    acc_resp = _get_json(f'{PACIFICA_API}/account', params={'account': address}, timeout=10)
 
     positions_raw = pos_resp.get('data') or []
     account_data = acc_resp.get('data') or {}
@@ -680,7 +698,7 @@ def _nado_get_symbols() -> dict:
     if _nado_symbols and (now - _nado_symbols_ts) < 300:
         return _nado_symbols
     try:
-        resp = requests.get(f'{NADO_API}/query', params={'type': 'symbols'}, timeout=10).json()
+        resp = _get_json(f'{NADO_API}/query', params={'type': 'symbols'}, timeout=10)
         mapping = {}
         for sym, info in resp.get('data', {}).get('symbols', {}).items():
             mapping[info['product_id']] = sym
@@ -705,21 +723,21 @@ def _fetch_nado_account(address: str) -> dict:
     symbols = _nado_get_symbols()
 
     # Fetch positions and account info in parallel would be ideal, but sequential is fine
-    pos_resp = requests.get(
+    pos_resp = _get_json(
         f'{NADO_API}/query',
         params={'type': 'isolated_positions', 'subaccount': subaccount},
         timeout=10
-    ).json()
+    )
 
     # Fetch overall account info (value + available margin)
     account_value = None
     available_margin = None
     try:
-        info_resp = requests.get(
+        info_resp = _get_json(
             f'{NADO_API}/query',
             params={'type': 'subaccount_info', 'subaccount': subaccount},
             timeout=10
-        ).json()
+        )
         healths = info_resp.get('data', {}).get('healths', [])
         if healths:
             account_value = round(int(healths[0].get('assets', 0)) / 1e18, 2)
@@ -871,7 +889,7 @@ _mids_cache_ts: float = 0
 
 
 def _fetch_hl_account(address, mids):
-    state = requests.post(HL_API, json={'type': 'clearinghouseState', 'user': address}, timeout=10).json()
+    state = _post_json(HL_API, json={'type': 'clearinghouseState', 'user': address}, timeout=10)
     positions = []
     for ap in state.get('assetPositions', []):
         p = ap['position']
@@ -948,7 +966,7 @@ def hl_all_positions():
     try:
         now = time.time()
         if not _mids_cache or (now - _mids_cache_ts) > _PRICE_TTL:
-            _mids_cache = requests.post(HL_API, json={'type': 'allMids'}, timeout=10).json()
+            _mids_cache = _post_json(HL_API, json={'type': 'allMids'}, timeout=10)
             _mids_cache_ts = now
         mids = _mids_cache
 
@@ -1061,7 +1079,7 @@ def hl_mids():
     try:
         now = time.time()
         if not _mids_cache or (now - _mids_cache_ts) > _PRICE_TTL:
-            _mids_cache = requests.post(HL_API, json={'type': 'allMids'}, timeout=10).json()
+            _mids_cache = _post_json(HL_API, json={'type': 'allMids'}, timeout=10)
             _mids_cache_ts = now
         return jsonify(_mids_cache)
     except Exception as e:
@@ -1076,7 +1094,7 @@ def hl_search():
     try:
         now = time.time()
         if not _mids_cache or (now - _mids_cache_ts) > _PRICE_TTL:
-            _mids_cache = requests.post(HL_API, json={'type': 'allMids'}, timeout=10).json()
+            _mids_cache = _post_json(HL_API, json={'type': 'allMids'}, timeout=10)
             _mids_cache_ts = now
         results = [
             {'symbol': k, 'price': float(v)}

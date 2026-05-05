@@ -158,6 +158,41 @@ def init():
         _migrate(c)
 
 
+def _rebuild_positions_table(c, existing_cols):
+    """Recreate positions table while preserving compatible rows."""
+    desired_cols = ['id', 'symbol', 'direction', 'collateral', 'leverage', 'entry_price', 'note', 'created_at']
+    insert_cols = [col for col in desired_cols if col in existing_cols]
+    select_exprs = []
+    for col in desired_cols:
+        if col in existing_cols:
+            select_exprs.append(col)
+        elif col == 'note':
+            select_exprs.append("'' AS note")
+        elif col == 'created_at':
+            select_exprs.append("datetime('now') AS created_at")
+
+    c.executescript('''
+        ALTER TABLE positions RENAME TO positions_legacy;
+        CREATE TABLE positions (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            symbol TEXT NOT NULL,
+            direction TEXT NOT NULL,
+            collateral REAL NOT NULL,
+            leverage REAL NOT NULL,
+            entry_price REAL NOT NULL,
+            note TEXT DEFAULT '',
+            group_id INTEGER DEFAULT NULL,
+            created_at TEXT DEFAULT (datetime('now'))
+        );
+    ''')
+    if insert_cols:
+        c.execute(
+            f"INSERT INTO positions ({', '.join(insert_cols)}) "
+            f"SELECT {', '.join(select_exprs)} FROM positions_legacy"
+        )
+    c.execute('DROP TABLE positions_legacy')
+
+
 def _migrate(c):
     """Run all incremental migrations."""
     # Add color/points columns to protocols if missing
@@ -178,22 +213,10 @@ def _migrate(c):
         );
     ''')
 
-    # Drop positions table if it has old coingecko_id column (incompatible schema)
+    # Rebuild positions table if it has old incompatible columns, but preserve existing rows.
     pos_cols = {r[1] for r in c.execute("PRAGMA table_info(positions)").fetchall()}
     if 'coingecko_id' in pos_cols:
-        c.executescript('''
-            DROP TABLE IF EXISTS positions;
-            CREATE TABLE positions (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                symbol TEXT NOT NULL,
-                direction TEXT NOT NULL,
-                collateral REAL NOT NULL,
-                leverage REAL NOT NULL,
-                entry_price REAL NOT NULL,
-                note TEXT DEFAULT '',
-                created_at TEXT DEFAULT (datetime('now'))
-            );
-        ''')
+        _rebuild_positions_table(c, pos_cols)
 
     # Add chain column to wallets if missing
     w_cols = {r[1] for r in c.execute("PRAGMA table_info(wallets)").fetchall()}
@@ -307,23 +330,61 @@ def _migrate(c):
     if 'protocol' not in cols:
         return  # already on new schema
 
+    legacy_protocol_links = c.execute(
+        'SELECT id, protocol FROM wallets WHERE protocol IS NOT NULL'
+    ).fetchall()
+
     # Recreate wallets without protocol column, preserve data
     c.executescript('''
-        CREATE TABLE IF NOT EXISTS wallets_new (
+        ALTER TABLE wallets RENAME TO wallets_legacy;
+        CREATE TABLE wallets (
             id       INTEGER PRIMARY KEY AUTOINCREMENT,
             address  TEXT NOT NULL UNIQUE,
             label    TEXT DEFAULT '',
+            proxy    TEXT DEFAULT NULL,
+            chain    TEXT DEFAULT NULL,
+            balance  REAL DEFAULT NULL,
+            volume   REAL DEFAULT NULL,
+            burn     REAL DEFAULT NULL,
+            points   REAL DEFAULT NULL,
+            p_price  REAL DEFAULT NULL,
+            sync_at  TEXT DEFAULT NULL,
             added_at TEXT DEFAULT (datetime('now'))
         );
-        INSERT OR IGNORE INTO wallets_new (id, address, label, added_at)
-            SELECT id, address, label, added_at FROM wallets;
-
-        INSERT OR IGNORE INTO wallet_protocols (wallet_id, protocol)
-            SELECT id, protocol FROM wallets WHERE protocol IS NOT NULL;
-
-        DROP TABLE wallets;
-        ALTER TABLE wallets_new RENAME TO wallets;
+        INSERT OR IGNORE INTO wallets
+            (id, address, label, proxy, chain, balance, volume, burn, points, p_price, sync_at, added_at)
+        SELECT
+            id,
+            address,
+            label,
+            proxy,
+            chain,
+            balance,
+            volume,
+            burn,
+            points,
+            p_price,
+            sync_at,
+            added_at
+        FROM wallets_legacy;
+        DROP TABLE wallets_legacy;
+        DROP TABLE wallet_protocols;
+        CREATE TABLE wallet_protocols (
+            wallet_id INTEGER NOT NULL,
+            protocol TEXT NOT NULL,
+            spent REAL DEFAULT 0,
+            deposit REAL DEFAULT 0,
+            wallet_balance REAL DEFAULT 0,
+            wp_points REAL DEFAULT 0,
+            wp_earned REAL DEFAULT 0,
+            PRIMARY KEY (wallet_id, protocol),
+            FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE
+        );
     ''')
+    c.executemany(
+        'INSERT OR IGNORE INTO wallet_protocols (wallet_id, protocol) VALUES (?,?)',
+        [(row['id'], row['protocol']) for row in legacy_protocol_links]
+    )
 
 
 # ── Protocols ─────────────────────────────────────────────────────────────────
