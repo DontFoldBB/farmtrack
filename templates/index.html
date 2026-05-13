@@ -1302,6 +1302,8 @@ section.active { animation: sectionIn 0.22s ease; }
             <button class="perp-tab" data-tab="nado" onclick="switchPerpTab('nado')">Nado</button>
             <button class="perp-tab" data-tab="extended" onclick="switchPerpTab('extended')">Extended</button>
             <button class="perp-tab" data-tab="pacifica" onclick="switchPerpTab('pacifica')">Pacifica</button>
+            <button class="perp-tab" data-tab="ethereal" onclick="switchPerpTab('ethereal')">Ethereal</button>
+            <button class="perp-tab" data-tab="variational" onclick="switchPerpTab('variational')">Variational</button>
           </div>
         </div>
         <div style="display:flex;align-items:center;gap:8px;min-height:32px">
@@ -1333,6 +1335,13 @@ section.active { animation: sectionIn 0.22s ease; }
             <button class="btn btn-secondary" onclick="openPacificaManageGroups()">⊞ Groups</button>
             <button class="btn btn-primary" onclick="openPacificaAddAccount()">+ Account</button>
           </div>
+          <div id="perp-actions-ethereal" style="display:none;gap:8px;align-items:center">
+            <span id="ethereal-ts" class="c-muted" style="font-size:0.75rem"></span>
+            <button class="btn btn-secondary" onclick="refreshEtherealPos()" id="ethereal-refresh-btn">↻ Refresh</button>
+            <button class="btn btn-secondary" onclick="openEtherealManageGroups()">⊞ Groups</button>
+            <button class="btn btn-primary" onclick="openEtherealAddAccount()">+ Account</button>
+          </div>
+          <div id="perp-actions-variational" style="display:none"></div>
         </div>
       </div>
 
@@ -1525,6 +1534,38 @@ section.active { animation: sectionIn 0.22s ease; }
           </table>
         </div>
       </div>
+
+      <!-- Ethereal tab -->
+      <div id="perp-tab-ethereal" class="hidden">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Account / Market</th>
+              <th>Side</th>
+              <th style="text-align:right">Size</th>
+              <th style="text-align:right">Entry</th>
+              <th style="text-align:right">Mark</th>
+              <th style="text-align:right">PnL</th>
+              <th style="text-align:right">Lev.</th>
+              <th style="text-align:right">Liq Price</th>
+              <th style="text-align:right">Dist</th>
+              <th style="text-align:right">Margin</th>
+              <th style="width:32px"></th>
+            </tr></thead>
+            <tbody id="ethereal-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Variational tab -->
+      <div id="perp-tab-variational" class="hidden">
+        <div style="padding:48px 0;text-align:center;color:var(--muted)">
+          <div style="font-size:2rem;margin-bottom:12px">🔜</div>
+          <div style="font-size:1.1rem;font-weight:600;margin-bottom:6px">Coming Soon</div>
+          <div style="font-size:0.85rem">Variational API access is currently invite-only.<br>Integration will be added once API keys are available.</div>
+        </div>
+      </div>
+
     </section>
 
   </div><!-- .content -->
@@ -1973,16 +2014,20 @@ function switchPerpTab(tab) {
   document.getElementById('perp-tab-nado').classList.toggle('hidden', tab !== 'nado');
   document.getElementById('perp-tab-extended').classList.toggle('hidden', tab !== 'extended');
   document.getElementById('perp-tab-pacifica').classList.toggle('hidden', tab !== 'pacifica');
+  document.getElementById('perp-tab-ethereal').classList.toggle('hidden', tab !== 'ethereal');
+  document.getElementById('perp-tab-variational').classList.toggle('hidden', tab !== 'variational');
   document.getElementById('perp-actions-manual').style.display = tab === 'manual' ? 'flex' : 'none';
   document.getElementById('perp-actions-hl').style.display = tab === 'hl' ? 'flex' : 'none';
   document.getElementById('perp-actions-nado').style.display = tab === 'nado' ? 'flex' : 'none';
   document.getElementById('perp-actions-extended').style.display = tab === 'extended' ? 'flex' : 'none';
   document.getElementById('perp-actions-pacifica').style.display = tab === 'pacifica' ? 'flex' : 'none';
+  document.getElementById('perp-actions-ethereal').style.display = tab === 'ethereal' ? 'flex' : 'none';
   if (tab === 'manual') initCalc();
   else if (tab === 'hl') initHLPos();
   else if (tab === 'nado') initNadoPos();
   else if (tab === 'extended') initExtendedPos();
   else if (tab === 'pacifica') initPacificaPos();
+  else if (tab === 'ethereal') initEtherealPos();
 }
 
 // ── API ────────────────────────────────────────────────────────
@@ -3340,6 +3385,14 @@ async function modalConfirm() {
     closeModal();
     refreshPacificaPos();
 
+  } else if (modalAction === 'ethereal-add-account') {
+    const label   = (document.getElementById('ethereal-add-label').value || '').trim();
+    const address = (document.getElementById('ethereal-add-address').value || '').trim();
+    if (!label || !address) { toast('Fill all fields', 'error'); return; }
+    await api('POST', '/api/ethereal/accounts', { label, address });
+    closeModal();
+    refreshEtherealPos();
+
   }
 }
 
@@ -4545,6 +4598,205 @@ async function deletePacificaAccount(id) {
   if (!await showConfirm('Delete account', 'Delete Pacifica account?', true)) return;
   await api('DELETE', `/api/pacifica/accounts/${id}`);
   refreshPacificaPos();
+}
+
+// ── Ethereal ───────────────────────────────────────────────────
+let _etherealPosTimer = null;
+const _etherealExpanded = new Set();
+let _etherealAccountsCache = [];
+
+async function initEtherealPos() {
+  await refreshEtherealPos();
+  clearInterval(_etherealPosTimer);
+  _etherealPosTimer = setInterval(refreshEtherealPos, 30_000);
+}
+
+async function refreshEtherealPos() {
+  document.getElementById('ethereal-refresh-btn').disabled = true;
+  try {
+    const data = await api('GET', '/api/ethereal/all-positions');
+    _etherealAccountsCache = data.accounts || [];
+    for (const a of _etherealAccountsCache) {
+      if (a.group_name) _etherealExpanded.add(`g:${a.group_name}`);
+      _etherealExpanded.add(`a:${a.id}`);
+    }
+    renderEtherealPositions(_etherealAccountsCache);
+    document.getElementById('ethereal-ts').textContent =
+      'updated ' + new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  } finally {
+    document.getElementById('ethereal-refresh-btn').disabled = false;
+  }
+}
+
+function renderEtherealPositions(accounts) {
+  const tbody = document.getElementById('ethereal-tbody');
+  if (!accounts.length) {
+    tbody.innerHTML = '<tr class="empty-row"><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No accounts — add the first one</td></tr>';
+    return;
+  }
+  const fmt2  = v => v != null ? '$' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:2}) : '—';
+  const fmtPx = v => v != null ? '$' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4}) : '—';
+  const rows = [];
+
+  const groups = new Map();
+  for (const a of accounts) {
+    const g = a.group_name || null;
+    if (!groups.has(g)) groups.set(g, []);
+    groups.get(g).push(a);
+  }
+  const sortedGroups = [...groups.keys()].sort((a, b) => {
+    if (a === null) return 1; if (b === null) return -1;
+    return a.localeCompare(b);
+  });
+
+  for (const groupName of sortedGroups) {
+    const groupAccounts = groups.get(groupName);
+    const gKey = groupName ? `g:${groupName}` : null;
+
+    if (groupName) {
+      const gExpanded = _etherealExpanded.has(gKey);
+      const gChevron = gExpanded ? '▾' : '▸';
+      const groupEquity = groupAccounts.reduce((s, a) => s + (a.equity || 0), 0);
+      const groupPnl = groupAccounts.reduce((s, a) => s + (a.unrealised_pnl || 0), 0);
+      const groupPositions = groupAccounts.reduce((s, a) => s + (a.positions || []).length, 0);
+      const gPnlCls = groupPnl >= 0 ? 'c-green' : 'c-red';
+      rows.push(`<tr onclick="etherealGroupToggle('${esc(groupName)}')" style="cursor:pointer;background:rgba(0,122,255,0.13);border-left:3px solid rgba(0,122,255,0.85);user-select:none">
+        <td colspan="6" style="padding:10px 14px;padding-left:12px">
+          <span style="margin-right:8px;color:var(--muted)">${gChevron}</span>
+          <strong style="font-size:0.95rem">${esc(groupName)}</strong>
+          <span style="color:var(--muted);font-size:0.78rem;margin-left:10px">${groupAccounts.length} acc.</span>
+          <span style="font-weight:600;margin-left:14px">${fmt2(groupEquity)}</span>
+        </td>
+        <td style="text-align:right;padding:10px 14px;font-weight:600" class="${gPnlCls}">${groupPnl ? (groupPnl >= 0 ? '+' : '') + fmt2(groupPnl) : ''}</td>
+        <td></td><td></td><td></td>
+        <td style="text-align:right;padding:10px 14px;color:var(--muted);font-size:0.8rem">${groupPositions} pos.</td>
+        <td></td>
+      </tr>`);
+      if (!gExpanded) continue;
+    }
+
+    for (const a of groupAccounts) {
+      const aKey = `a:${a.id}`;
+      const aExpanded = _etherealExpanded.has(aKey);
+      const cnt = (a.positions || []).length;
+      const chevron = aExpanded ? '▾' : '▸';
+      const equity = a.equity != null ? fmt2(a.equity) : '—';
+      const avail = a.available != null
+        ? `<span class="c-muted" style="font-size:0.75rem">avail ${fmt2(a.available)}</span>` : '';
+      const pnl = a.unrealised_pnl || 0;
+      const pnlCls = pnl >= 0 ? 'c-green' : 'c-red';
+      const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
+      const accIndent = groupName ? '44px' : '14px';
+      rows.push(`<tr onclick="etherealAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
+        <td colspan="6" style="padding:9px 12px;padding-left:${accIndent}">
+          <span style="margin-right:8px;color:var(--muted)">${chevron}</span>
+          <strong>${esc(a.label)}</strong>
+          <span style="font-weight:600;margin-left:14px">${equity}</span>
+          <span style="margin-left:8px">${avail}</span>
+          ${errBadge}
+        </td>
+        <td style="text-align:right;padding:9px 12px;font-weight:600" class="${pnlCls}">${pnl ? (pnl >= 0 ? '+' : '') + fmt2(pnl) : ''}</td>
+        <td></td><td></td><td></td>
+        <td style="text-align:right;padding:9px 12px;color:var(--muted);font-size:0.8rem">${cnt} pos.</td>
+        <td style="padding:9px 12px;text-align:right">
+          <button onclick="event.stopPropagation();deleteEtherealAccount(${a.id})" style="background:none;border:none;color:var(--muted);cursor:pointer;font-size:0.75rem;padding:2px 4px" title="Delete">✕</button>
+        </td>
+      </tr>`);
+
+      if (!aExpanded) continue;
+
+      const posIndent = groupName ? '68px' : '36px';
+      if (a.error) {
+        rows.push(`<tr><td colspan="11" style="padding:10px ${posIndent};color:var(--danger);font-size:0.8rem">${esc(a.error)}</td></tr>`);
+      } else if (!cnt) {
+        rows.push(`<tr style="background:var(--bg);border-top:1px solid rgba(255,255,255,0.04)"><td colspan="11" style="padding:10px ${posIndent};color:var(--muted);font-size:0.85rem">No open positions</td></tr>`);
+      } else {
+        for (const p of (a.positions || [])) {
+          const ppnl = p.unrealized_pnl || 0;
+          const ppnlCls = ppnl >= 0 ? 'c-green' : 'c-red';
+          const dirCls = p.direction === 'long' ? 'c-green' : 'c-red';
+          const dirLabel = p.direction === 'long' ? 'Long' : 'Short';
+          const pnlStr = `<span class="${ppnlCls}">${ppnl >= 0 ? '+' : ''}${fmt2(ppnl)}</span>`;
+          const levStr = p.leverage ? `<span style="font-size:0.8rem;color:var(--muted)">×${Number(p.leverage).toFixed(1)}</span>` : '—';
+          const liqStr = p.liq_price ? `<span class="c-red">${fmtPx(p.liq_price)}</span>` : '—';
+          const dist = p.dist_liq;
+          const distCls = dist == null ? '' : dist < 5 ? 'c-red' : dist < 10 ? 'c-amber' : dist < 20 ? '' : 'c-green';
+          const distStr = dist != null ? `<span class="${distCls}">${dist.toFixed(1)}%</span>` : '—';
+          const marginStr = p.margin ? fmt2(p.margin) : '—';
+          rows.push(`<tr style="background:var(--bg);border-top:1px solid rgba(255,255,255,0.04)">
+            <td style="padding-left:${posIndent}">${esc(p.symbol || '?')}</td>
+            <td class="${dirCls}">${dirLabel}</td>
+            <td style="text-align:right">${p.size != null ? Number(p.size).toLocaleString() : '—'}</td>
+            <td style="text-align:right">${fmtPx(p.entry_price)}</td>
+            <td style="text-align:right">${fmtPx(p.current_price)}</td>
+            <td style="text-align:right;font-weight:600">${pnlStr}</td>
+            <td style="text-align:right">${levStr}</td>
+            <td style="text-align:right">${liqStr}</td>
+            <td style="text-align:right">${distStr}</td>
+            <td style="text-align:right">${marginStr}</td>
+            <td></td>
+          </tr>`);
+        }
+      }
+    }
+  }
+  tbody.innerHTML = rows.join('');
+}
+
+function etherealGroupToggle(groupName) {
+  const gKey = `g:${groupName}`;
+  if (_etherealExpanded.has(gKey)) _etherealExpanded.delete(gKey);
+  else _etherealExpanded.add(gKey);
+  renderEtherealPositions(_etherealAccountsCache);
+}
+
+function etherealAccToggle(id) {
+  const aKey = `a:${id}`;
+  if (_etherealExpanded.has(aKey)) _etherealExpanded.delete(aKey);
+  else _etherealExpanded.add(aKey);
+  renderEtherealPositions(_etherealAccountsCache);
+}
+
+function openEtherealManageGroups() {
+  const accounts = _etherealAccountsCache;
+  if (!accounts.length) { toast('Add accounts first', 'error'); return; }
+  const groups = [...new Set(accounts.map(a => a.group_name).filter(Boolean))];
+  modalAction = 'ethereal-manage-groups';
+  document.getElementById('modal-title').textContent = 'Ethereal Account Groups';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:10px">
+      ${accounts.map(a => `
+        <div style="display:flex;align-items:center;gap:10px">
+          <span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(a.label)}</span>
+          <input list="ethereal-groups-dl-${a.id}" value="${esc(a.group_name||'')}" placeholder="Group"
+            style="width:140px" data-aid="${a.id}"
+            onchange="api('PATCH','/api/ethereal/accounts/'+${a.id},{group_name:this.value||null}).then(()=>refreshEtherealPos())">
+        </div>
+        <datalist id="ethereal-groups-dl-${a.id}">${groups.map(g=>`<option value="${esc(g)}">`).join('')}</datalist>
+      `).join('')}
+    </div>`;
+  document.getElementById('overlay').classList.remove('hidden');
+  document.querySelector('#overlay .modal-footer').style.display = 'none';
+}
+
+function openEtherealAddAccount() {
+  modalAction = 'ethereal-add-account';
+  document.getElementById('modal-title').textContent = 'Add Account — Ethereal';
+  document.getElementById('modal-body').innerHTML = `
+    <div style="display:flex;flex-direction:column;gap:12px">
+      <div><label class="form-label">Label</label>
+        <input id="ethereal-add-label" type="text" placeholder="My wallet"></div>
+      <div><label class="form-label">EVM Address</label>
+        <input id="ethereal-add-address" type="text" placeholder="0x..."></div>
+    </div>`;
+  document.getElementById('overlay').classList.remove('hidden');
+  document.querySelector('#overlay .modal-footer').style.display = '';
+}
+
+async function deleteEtherealAccount(id) {
+  if (!await showConfirm('Delete account', 'Delete Ethereal account?', true)) return;
+  await api('DELETE', `/api/ethereal/accounts/${id}`);
+  refreshEtherealPos();
 }
 
 // ── Calculator (manual, prices from HL) ───────────────────────

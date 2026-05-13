@@ -154,6 +154,13 @@ def init():
                 UNIQUE(wallet_id, protocol, week),
                 FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE
             );
+            CREATE TABLE IF NOT EXISTS ethereal_accounts (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                label TEXT NOT NULL,
+                address TEXT NOT NULL UNIQUE,
+                group_name TEXT,
+                created_at TEXT DEFAULT (datetime('now'))
+            );
             CREATE TABLE IF NOT EXISTS telegram_config (
                 id INTEGER PRIMARY KEY,
                 bot_token TEXT DEFAULT '',
@@ -331,6 +338,17 @@ def _migrate(c):
     # Create pacifica_accounts if missing (migration for older DBs)
     c.execute('''
         CREATE TABLE IF NOT EXISTS pacifica_accounts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            label TEXT NOT NULL,
+            address TEXT NOT NULL UNIQUE,
+            group_name TEXT,
+            created_at TEXT DEFAULT (datetime('now'))
+        )
+    ''')
+
+    # Create ethereal_accounts if missing (migration for older DBs)
+    c.execute('''
+        CREATE TABLE IF NOT EXISTS ethereal_accounts (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             label TEXT NOT NULL,
             address TEXT NOT NULL UNIQUE,
@@ -1110,6 +1128,23 @@ def delete_pacifica_account(aid):
 def update_pacifica_account_group(aid, group_name):
     with _conn() as c:
         c.execute('UPDATE pacifica_accounts SET group_name=? WHERE id=?', (group_name or None, aid))
+
+
+def get_ethereal_accounts():
+    with _conn() as c:
+        return [dict(r) for r in c.execute('SELECT * FROM ethereal_accounts ORDER BY created_at ASC').fetchall()]
+
+def add_ethereal_account(label, address):
+    with _conn() as c:
+        c.execute('INSERT OR IGNORE INTO ethereal_accounts (label, address) VALUES (?,?)', (label, address))
+
+def delete_ethereal_account(aid):
+    with _conn() as c:
+        c.execute('DELETE FROM ethereal_accounts WHERE id=?', (aid,))
+
+def update_ethereal_account_group(aid, group_name):
+    with _conn() as c:
+        c.execute('UPDATE ethereal_accounts SET group_name=? WHERE id=?', (group_name or None, aid))
 
 
 def get_hl_accounts_from_profile(profile_name):

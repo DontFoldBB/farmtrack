@@ -14,6 +14,9 @@ _price_cache: dict = {}
 _price_cache_ts: float = 0
 _PRICE_TTL = 30  # seconds
 
+_ethereal_products: dict = {}
+_ethereal_products_ts: float = 0
+
 app = Flask(__name__)
 
 with app.app_context():
@@ -694,6 +697,169 @@ def pacifica_all_positions():
         except Exception as e:
             result.append({'id': acc['id'], 'label': acc['label'],
                            'error': str(e), 'positions': []})
+    return jsonify({'accounts': result})
+
+
+# --- Ethereal ---
+
+ETHEREAL_API = 'https://api.ethereal.trade'
+
+
+def _ethereal_get_products() -> dict:
+    """Returns {product_id: symbol}, cached for 5 minutes."""
+    global _ethereal_products, _ethereal_products_ts
+    now = time.time()
+    if _ethereal_products and (now - _ethereal_products_ts) < 300:
+        return _ethereal_products
+    try:
+        resp = _get_json(f'{ETHEREAL_API}/v1/product', timeout=10)
+        mapping = {}
+        for p in (resp.get('data') or resp if isinstance(resp, list) else []):
+            pid = p.get('id') or p.get('productId')
+            sym = p.get('symbol') or p.get('name') or str(pid)
+            if pid:
+                mapping[str(pid)] = sym
+        _ethereal_products = mapping
+        _ethereal_products_ts = now
+    except Exception:
+        pass
+    return _ethereal_products
+
+
+def _fetch_ethereal_account(address: str) -> dict:
+    products = _ethereal_get_products()
+
+    # Step 1: resolve subaccounts for this sender
+    sub_resp = _get_json(f'{ETHEREAL_API}/v1/subaccount', params={'sender': address}, timeout=10)
+    subaccounts = sub_resp.get('data') or []
+    if not subaccounts:
+        return {'positions': [], 'equity': 0.0, 'available': 0.0, 'margin_used': 0.0, 'unrealised_pnl': 0.0}
+
+    all_positions = []
+    total_equity = 0.0
+    total_available = 0.0
+    total_margin = 0.0
+    total_pnl = 0.0
+
+    for sub in subaccounts:
+        sub_id = sub.get('id') or sub.get('subaccountId')
+        if not sub_id:
+            continue
+
+        # Positions
+        try:
+            pos_resp = _get_json(
+                f'{ETHEREAL_API}/v1/position',
+                params={'subaccountId': sub_id, 'open': 'true'},
+                timeout=10,
+            )
+            raw_positions = pos_resp.get('data') or []
+        except Exception:
+            raw_positions = []
+
+        # Balance
+        try:
+            bal_resp = _get_json(
+                f'{ETHEREAL_API}/v1/subaccount/balance',
+                params={'subaccountId': sub_id},
+                timeout=10,
+            )
+            equity    = float(bal_resp.get('amount', 0) or 0)
+            available = float(bal_resp.get('available', 0) or 0)
+            used      = float(bal_resp.get('totalUsed', 0) or 0)
+            total_equity    += equity
+            total_available += available
+            total_margin    += used
+        except Exception:
+            pass
+
+        for p in raw_positions:
+            product_id = str(p.get('productId') or '')
+            symbol = products.get(product_id, product_id or '?')
+            side = (p.get('side') or '').upper()
+            direction = 'long' if side == 'BUY' else 'short'
+
+            mark = float(p.get('mark_price') or 0)
+            liq  = float(p.get('liquidation_price') or 0)
+            pnl  = float(p.get('unrealized_pnl') or 0)
+            total_pnl += pnl
+
+            dist_liq = None
+            if mark and liq:
+                dist_liq = round(
+                    (mark - liq) / mark * 100 if direction == 'long' else (liq - mark) / mark * 100,
+                    2,
+                )
+
+            all_positions.append({
+                'symbol':          symbol,
+                'direction':       direction,
+                'size':            float(p.get('size') or 0),
+                'entry_price':     float(p.get('entry_price') or 0),
+                'current_price':   mark,
+                'liq_price':       liq or None,
+                'dist_liq':        dist_liq,
+                'unrealized_pnl':  pnl,
+                'margin':          float(p.get('margin_usage') or 0),
+                'leverage':        float(p.get('current_leverage') or 0) or None,
+            })
+
+    return {
+        'positions':     all_positions,
+        'equity':        round(total_equity, 2),
+        'available':     round(total_available, 2),
+        'margin_used':   round(total_margin, 2),
+        'unrealised_pnl': round(total_pnl, 4),
+    }
+
+
+@app.route('/api/ethereal/accounts', methods=['GET'])
+def get_ethereal_accounts():
+    return jsonify(db.get_ethereal_accounts())
+
+
+@app.route('/api/ethereal/accounts', methods=['POST'])
+def add_ethereal_account():
+    data = request.json
+    label   = (data.get('label')   or '').strip()
+    address = (data.get('address') or '').strip()
+    if not label or not address:
+        return jsonify({'error': 'label and address required'}), 400
+    db.add_ethereal_account(label, address)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/ethereal/accounts/<int:aid>', methods=['DELETE'])
+def delete_ethereal_account(aid):
+    db.delete_ethereal_account(aid)
+    return jsonify({'ok': True})
+
+
+@app.route('/api/ethereal/accounts/<int:aid>', methods=['PATCH'])
+def patch_ethereal_account(aid):
+    data = request.json or {}
+    if 'group_name' in data:
+        db.update_ethereal_account_group(aid, data.get('group_name'))
+    return jsonify({'ok': True})
+
+
+@app.route('/api/ethereal/all-positions')
+def ethereal_all_positions():
+    accounts = db.get_ethereal_accounts()
+    if not accounts:
+        return jsonify({'accounts': []})
+    result = []
+    for acc in accounts:
+        try:
+            data = _fetch_ethereal_account(acc['address'])
+            data['id']         = acc['id']
+            data['label']      = acc['label']
+            data['address']    = acc['address']
+            data['group_name'] = acc.get('group_name')
+            result.append(data)
+        except Exception as e:
+            result.append({'id': acc['id'], 'label': acc['label'],
+                           'address': acc['address'], 'error': str(e), 'positions': []})
     return jsonify({'accounts': result})
 
 
