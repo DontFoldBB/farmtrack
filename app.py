@@ -8,6 +8,7 @@ import openpyxl
 from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
 from openpyxl.utils import get_column_letter
 import database as db
+import telegram_bot as tg
 
 _price_cache: dict = {}
 _price_cache_ts: float = 0
@@ -17,6 +18,17 @@ app = Flask(__name__)
 
 with app.app_context():
     db.init()
+
+_tg_monitor: tg.TelegramMonitor | None = None
+
+
+def init_telegram_monitor() -> None:
+    global _tg_monitor
+    cfg = db.get_telegram_config()
+    _tg_monitor = tg.TelegramMonitor()
+    _tg_monitor.update_config(cfg)
+    if cfg.get('enabled') and cfg.get('bot_token') and cfg.get('chat_id'):
+        _tg_monitor.start()
 
 
 def _get_json(url: str, **kwargs):
@@ -1243,3 +1255,55 @@ def export():
     wb.save(filepath)
 
     return jsonify({'ok': True, 'filename': filename, 'path': filepath, 'folder': downloads})
+
+
+# --- Telegram ---
+
+@app.route('/api/telegram/config', methods=['GET'])
+def get_telegram_config():
+    cfg = db.get_telegram_config()
+    token = cfg.get('bot_token', '')
+    if token:
+        cfg['bot_token'] = '***' + token[-4:]
+    return jsonify(cfg)
+
+
+@app.route('/api/telegram/config', methods=['POST'])
+def set_telegram_config():
+    global _tg_monitor
+    data = request.json or {}
+    fields = {}
+    for key in ('chat_id', 'alert_threshold_pct', 'alert_cooldown_minutes',
+                'report_interval_minutes', 'check_interval_minutes',
+                'alerts_enabled', 'reports_enabled', 'enabled'):
+        if key in data:
+            fields[key] = data[key]
+    # Only update token if user sent a real value (not masked)
+    token = (data.get('bot_token') or '').strip()
+    if token and not token.startswith('***'):
+        fields['bot_token'] = token
+
+    if fields:
+        db.set_telegram_config(**fields)
+
+    cfg = db.get_telegram_config()
+    if _tg_monitor:
+        _tg_monitor.update_config(cfg)
+        if cfg.get('enabled') and cfg.get('bot_token') and cfg.get('chat_id'):
+            if not _tg_monitor.is_running():
+                _tg_monitor.start()
+        else:
+            _tg_monitor.stop()
+
+    return jsonify({'ok': True})
+
+
+@app.route('/api/telegram/test', methods=['POST'])
+def test_telegram():
+    cfg = db.get_telegram_config()
+    if not cfg.get('bot_token') or not cfg.get('chat_id'):
+        return jsonify({'error': 'bot_token и chat_id не заполнены'}), 400
+    ok = tg.send_message(cfg['bot_token'], cfg['chat_id'], '✅ FarmTrack подключён!')
+    if ok:
+        return jsonify({'ok': True})
+    return jsonify({'error': 'Не удалось отправить сообщение. Проверьте токен и chat_id.'}), 502

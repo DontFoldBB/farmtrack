@@ -982,6 +982,10 @@ section.active { animation: sectionIn 0.22s ease; }
       <svg viewBox="0 0 24 24"><polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/></svg>
       Perp
     </a>
+    <a href="#" data-section="telegram" onclick="navigate(this)">
+      <svg viewBox="0 0 24 24"><path d="M21.93 3.24L1.6 11.17c-1.32.53-1.31 1.27-.24 1.6l5.2 1.62 2.02 6.16c.25.76.44 1.04 1.23.95.61-.07.9-.38 1.26-.73l3.02-2.93 6.27 4.63c1.15.64 1.98.31 2.27-.91l3.95-18.59c.41-1.62-.62-2.36-1.65-1.73z"/></svg>
+      Telegram
+    </a>
   </nav>
   <div class="sidebar-bottom">
     <button class="btn-export" onclick="exportData()">
@@ -1206,6 +1210,84 @@ section.active { animation: sectionIn 0.22s ease; }
           </tr></thead>
           <tbody id="reminders-tbody"></tbody>
         </table>
+      </div>
+    </section>
+
+    <!-- Telegram -->
+    <section id="s-telegram">
+      <div class="sec-header">
+        <span class="sec-title">Telegram</span>
+      </div>
+      <div style="max-width:540px;display:flex;flex-direction:column;gap:14px">
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:0.82rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">Бот</div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:0.8rem;color:var(--muted)">Bot Token</label>
+            <input id="tg-token" type="password" placeholder="1234567890:AAE..." autocomplete="off">
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <label style="font-size:0.8rem;color:var(--muted)">Chat ID</label>
+            <input id="tg-chat-id" type="text" placeholder="-100123456789" autocomplete="off">
+          </div>
+          <div style="display:flex;gap:8px;margin-top:4px">
+            <button class="btn btn-primary" onclick="saveTelegramConfig()">Сохранить</button>
+            <button class="btn btn-secondary" onclick="testTelegram()" id="tg-test-btn">Test</button>
+            <span id="tg-status" style="font-size:0.82rem;color:var(--muted);align-self:center;margin-left:4px"></span>
+          </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:0.82rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">Алерты ликвидации</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="tg-alerts-enabled" style="width:14px;height:14px">
+            <span style="font-size:0.88rem">Включить алерты</span>
+          </label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">
+              <label style="font-size:0.8rem;color:var(--muted)">Порог дистанции до ликвидации (%)</label>
+              <input id="tg-threshold" type="number" min="1" max="100" step="1" placeholder="10">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">
+              <label style="font-size:0.8rem;color:var(--muted)">Кулдаун повтора (мин)</label>
+              <input id="tg-cooldown" type="number" min="1" placeholder="60">
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:18px;display:flex;flex-direction:column;gap:12px">
+          <div style="font-size:0.82rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase">Периодические отчёты</div>
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="tg-reports-enabled" style="width:14px;height:14px">
+            <span style="font-size:0.88rem">Включить периодические отчёты</span>
+          </label>
+          <div style="display:flex;gap:12px;flex-wrap:wrap">
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">
+              <label style="font-size:0.8rem;color:var(--muted)">Интервал отчёта (мин)</label>
+              <input id="tg-report-interval" type="number" min="5" placeholder="60">
+            </div>
+            <div style="display:flex;flex-direction:column;gap:4px;flex:1;min-width:140px">
+              <label style="font-size:0.8rem;color:var(--muted)">Интервал проверки позиций (мин)</label>
+              <input id="tg-check-interval" type="number" min="1" placeholder="5">
+            </div>
+          </div>
+        </div>
+
+        <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:14px 18px;display:flex;align-items:center;gap:10px">
+          <label style="display:flex;align-items:center;gap:8px;cursor:pointer">
+            <input type="checkbox" id="tg-enabled" style="width:15px;height:15px">
+            <span style="font-size:0.9rem;font-weight:500">Бот активен</span>
+          </label>
+          <span id="tg-running-badge" style="display:none;font-size:0.75rem;background:rgba(16,185,129,0.15);color:#10b981;padding:2px 8px;border-radius:20px;margin-left:auto">● работает</span>
+        </div>
+
+        <div style="background:rgba(148,163,184,0.06);border:1px solid var(--border);border-radius:6px;padding:14px 18px">
+          <div style="font-size:0.8rem;color:var(--muted);margin-bottom:8px;font-weight:600">Команды бота</div>
+          <div style="font-size:0.82rem;color:var(--text2);display:flex;flex-direction:column;gap:4px">
+            <div><code style="color:var(--blue)">/report</code> — полный отчёт по всем позициям</div>
+            <div><code style="color:var(--blue)">/danger</code> — только позиции с малой дистанцией до ликвидации</div>
+          </div>
+        </div>
       </div>
     </section>
 
@@ -1812,6 +1894,7 @@ function navigate(el) {
   if (section === 'wallets')    loadWallets();
   if (section === 'reminders')  loadReminders();
   if (section === 'perp')       initPerp();
+  if (section === 'telegram')   loadTelegramSettings();
 }
 
 function initPerp() {
@@ -1819,6 +1902,67 @@ function initPerp() {
   else if (_perpActiveTab === 'hl') initHLPos();
   else if (_perpActiveTab === 'nado') initNadoPos();
   else if (_perpActiveTab === 'extended') initExtendedPos();
+}
+
+// ── Telegram ────────────────────────────────────────────────────
+async function loadTelegramSettings() {
+  const cfg = await fetch('/api/telegram/config').then(r => r.json());
+  document.getElementById('tg-token').value = cfg.bot_token || '';
+  document.getElementById('tg-chat-id').value = cfg.chat_id || '';
+  document.getElementById('tg-threshold').value = cfg.alert_threshold_pct ?? 10;
+  document.getElementById('tg-cooldown').value = cfg.alert_cooldown_minutes ?? 60;
+  document.getElementById('tg-report-interval').value = cfg.report_interval_minutes ?? 60;
+  document.getElementById('tg-check-interval').value = cfg.check_interval_minutes ?? 5;
+  document.getElementById('tg-alerts-enabled').checked = !!cfg.alerts_enabled;
+  document.getElementById('tg-reports-enabled').checked = !!cfg.reports_enabled;
+  document.getElementById('tg-enabled').checked = !!cfg.enabled;
+  document.getElementById('tg-running-badge').style.display = cfg.enabled ? 'inline' : 'none';
+}
+
+async function saveTelegramConfig() {
+  const token = document.getElementById('tg-token').value.trim();
+  const body = {
+    chat_id:                document.getElementById('tg-chat-id').value.trim(),
+    alert_threshold_pct:    parseFloat(document.getElementById('tg-threshold').value) || 10,
+    alert_cooldown_minutes: parseInt(document.getElementById('tg-cooldown').value) || 60,
+    report_interval_minutes:parseInt(document.getElementById('tg-report-interval').value) || 60,
+    check_interval_minutes: parseInt(document.getElementById('tg-check-interval').value) || 5,
+    alerts_enabled:         document.getElementById('tg-alerts-enabled').checked ? 1 : 0,
+    reports_enabled:        document.getElementById('tg-reports-enabled').checked ? 1 : 0,
+    enabled:                document.getElementById('tg-enabled').checked ? 1 : 0,
+  };
+  if (token && !token.startsWith('***')) body.bot_token = token;
+  const st = document.getElementById('tg-status');
+  st.textContent = 'Сохраняю...';
+  st.style.color = 'var(--muted)';
+  const res = await fetch('/api/telegram/config', {
+    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(body),
+  }).then(r => r.json());
+  if (res.ok) {
+    st.textContent = '✓ Сохранено';
+    st.style.color = '#10b981';
+    document.getElementById('tg-running-badge').style.display = body.enabled ? 'inline' : 'none';
+  } else {
+    st.textContent = '✗ Ошибка';
+    st.style.color = 'var(--red)';
+  }
+}
+
+async function testTelegram() {
+  const btn = document.getElementById('tg-test-btn');
+  const st  = document.getElementById('tg-status');
+  btn.disabled = true;
+  st.textContent = 'Отправляю...';
+  st.style.color = 'var(--muted)';
+  const res = await fetch('/api/telegram/test', {method:'POST'}).then(r => r.json());
+  btn.disabled = false;
+  if (res.ok) {
+    st.textContent = '✓ Сообщение отправлено';
+    st.style.color = '#10b981';
+  } else {
+    st.textContent = '✗ ' + (res.error || 'Ошибка');
+    st.style.color = 'var(--red)';
+  }
 }
 
 function switchPerpTab(tab) {

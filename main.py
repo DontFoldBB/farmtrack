@@ -1,7 +1,7 @@
 import threading
 import time
 import webview
-from app import app
+from app import app, init_telegram_monitor
 
 PORT = 5632
 
@@ -14,6 +14,7 @@ def main():
     flask_thread = threading.Thread(target=start_flask, daemon=True)
     flask_thread.start()
     time.sleep(0.8)  # wait for Flask to start
+    init_telegram_monitor()
 
     webview.create_window(
         title='FarmTrack',

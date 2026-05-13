@@ -2,7 +2,7 @@
 
 A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
 
-![Version](https://img.shields.io/badge/version-alpha%20v0.9-blue)
+![Version](https://img.shields.io/badge/version-alpha%20v0.91-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-251%20passing-brightgreen)
@@ -18,6 +18,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 - **Import** — paste wallet data from Google Sheets into any protocol or weekly snapshot
 - **Export** — export all data to Excel in one click
 - **Perp** — live positions from HyperLiquid, Nado, Extended, Pacifica; grouped by account with P&L, Margin Ratio and Account Leverage badges per account
+- **Telegram bot** — liquidation alerts and periodic position reports sent to Telegram; supports `/report` and `/danger` commands from the chat
 - **Overview** — total balance, spent, net profit, $/point across all protocols at a glance
 - **Light/dark theme** — toggle in the sidebar, persists between sessions
 
@@ -79,6 +80,7 @@ farmtrack/
 ├── main.py           # Entry point — starts Flask + opens webview window
 ├── app.py            # Flask routes / REST API
 ├── database.py       # SQLite logic, all DB operations
+├── telegram_bot.py   # Telegram bot — alerts, reports, command polling
 ├── requirements.txt  # Python dependencies
 ├── tests/
 │   ├── test_database.py    # DB operations (191 tests)
@@ -120,10 +122,19 @@ Inside any protocol, switch to the **Weekly** view to log per-week data — usef
 ### 5. Live perp positions
 In **Perp**, add accounts for HyperLiquid, Nado, Extended, or Pacifica. Positions update on each tab open. Pacifica accounts show Margin Ratio and Account Leverage badges per account.
 
-### 6. Overview
+### 6. Telegram notifications
+Go to **Telegram** in the sidebar. Create a bot via [@BotFather](https://t.me/BotFather), paste the token and your chat ID, configure the liquidation alert threshold and report interval, then enable the bot and hit Save.
+
+**Commands you can send to the bot:**
+- `/report` — full positions report across all accounts and exchanges
+- `/danger` — only positions below the liquidation distance threshold
+
+> **Note:** the bot runs inside the FarmTrack process — it only works while the app is open. If you close the window, notifications stop until you relaunch.
+
+### 7. Overview
 **Overview** aggregates total balance, spent, net profit, and $/point across all protocols in the active profile.
 
-### 7. Export
+### 8. Export
 Hit **Export Excel** at any time to download all data as an Excel file.
 
 ---

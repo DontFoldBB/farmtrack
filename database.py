@@ -154,6 +154,18 @@ def init():
                 UNIQUE(wallet_id, protocol, week),
                 FOREIGN KEY (wallet_id) REFERENCES wallets(id) ON DELETE CASCADE
             );
+            CREATE TABLE IF NOT EXISTS telegram_config (
+                id INTEGER PRIMARY KEY,
+                bot_token TEXT DEFAULT '',
+                chat_id TEXT DEFAULT '',
+                alert_threshold_pct REAL DEFAULT 10.0,
+                alert_cooldown_minutes INTEGER DEFAULT 60,
+                report_interval_minutes INTEGER DEFAULT 60,
+                check_interval_minutes INTEGER DEFAULT 5,
+                alerts_enabled INTEGER DEFAULT 1,
+                reports_enabled INTEGER DEFAULT 1,
+                enabled INTEGER DEFAULT 0
+            );
         ''')
         _migrate(c)
 
@@ -1350,3 +1362,36 @@ def get_week_wallets(protocol, week_start):
             ORDER BY w.label ASC, w.address ASC
         ''', (protocol, week_start, protocol, protocol, week_start)).fetchall()
         return [dict(r) for r in rows]
+
+
+def get_telegram_config() -> dict:
+    with _conn() as c:
+        row = c.execute('SELECT * FROM telegram_config WHERE id=1').fetchone()
+        if row:
+            return dict(row)
+        return {
+            'id': 1, 'bot_token': '', 'chat_id': '',
+            'alert_threshold_pct': 10.0, 'alert_cooldown_minutes': 60,
+            'report_interval_minutes': 60, 'check_interval_minutes': 5,
+            'alerts_enabled': 1, 'reports_enabled': 1, 'enabled': 0,
+        }
+
+
+def set_telegram_config(**kwargs) -> None:
+    allowed = {
+        'bot_token', 'chat_id', 'alert_threshold_pct', 'alert_cooldown_minutes',
+        'report_interval_minutes', 'check_interval_minutes',
+        'alerts_enabled', 'reports_enabled', 'enabled',
+    }
+    fields = {k: v for k, v in kwargs.items() if k in allowed}
+    if not fields:
+        return
+    with _conn() as c:
+        exists = c.execute('SELECT 1 FROM telegram_config WHERE id=1').fetchone()
+        if exists:
+            sets = ', '.join(f'{k}=?' for k in fields)
+            c.execute(f'UPDATE telegram_config SET {sets} WHERE id=1', list(fields.values()))
+        else:
+            cols = ', '.join(['id'] + list(fields.keys()))
+            placeholders = ', '.join(['1'] + ['?'] * len(fields))
+            c.execute(f'INSERT INTO telegram_config ({cols}) VALUES ({placeholders})', list(fields.values()))
