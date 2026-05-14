@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack minimal logo 03 - Ledger</title>
+  <desc id="desc">A restrained ledger mark with a single upward signal.</desc>
+  <rect width="512" height="512" rx="96" fill="#201d1d"/>
+  <rect x="104" y="108" width="304" height="296" rx="42" fill="#151312" stroke="#302929" stroke-width="10"/>
+  <path d="M154 190h128M154 256h92M154 322h178" fill="none" stroke="#4a4240" stroke-width="18" stroke-linecap="round"/>
+  <path d="M214 318l54-68 42 38 66-94" fill="none" stroke="#72e0bd" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="376" cy="194" r="18" fill="#58a6ff"/>
+</svg>

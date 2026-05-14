@@ -1,0 +1,86 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="980" viewBox="0 0 1400 980" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack logo variants preview</title>
+  <desc id="desc">A contact sheet showing five FarmTrack logo directions.</desc>
+  <style>
+    .label { fill: #f5efe7; font: 700 24px "IBM Plex Mono", Consolas, monospace; letter-spacing: 0; }
+    .note { fill: #9a908c; font: 18px "IBM Plex Mono", Consolas, monospace; letter-spacing: 0; }
+    .panel { fill: #151312; stroke: #3a3131; stroke-width: 3; }
+  </style>
+  <rect width="1400" height="980" fill="#201d1d"/>
+  <text x="70" y="78" class="label" font-size="34">FarmTrack logo variants</text>
+  <text x="70" y="112" class="note">SVG directions for a local crypto airdrop farming desktop app</text>
+
+  <rect class="panel" x="70" y="160" width="380" height="320" rx="10"/>
+  <svg x="130" y="196" width="220" height="220" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="p1bg" x1="80" y1="40" x2="430" y2="470" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2a2424"/><stop offset="1" stop-color="#151312"/></linearGradient>
+      <linearGradient id="p1bars" x1="140" y1="320" x2="370" y2="140" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#56b6f7"/><stop offset="1" stop-color="#63e6a5"/></linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="72" fill="#201d1d"/>
+    <rect x="52" y="52" width="408" height="408" rx="46" fill="url(#p1bg)" stroke="#3a3131" stroke-width="4"/>
+    <g stroke="#4b4141" stroke-width="4" stroke-linecap="round"><path d="M126 168h260"/><path d="M126 238h260"/><path d="M126 308h260"/><path d="M126 378h260"/></g>
+    <g fill="url(#p1bars)"><rect x="142" y="284" width="56" height="94" rx="10"/><rect x="228" y="230" width="56" height="148" rx="10"/><rect x="314" y="178" width="56" height="200" rx="10"/></g>
+    <path d="M173 247c18-31 43-47 75-47 39 0 60 28 100 28" fill="none" stroke="#f2c94c" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M250 184c-3-23 8-44 32-60 4 25-8 45-32 60z" fill="#63e6a5"/><path d="M250 184c-23-3-39-18-47-44 25 2 41 17 47 44z" fill="#56b6f7"/>
+  </svg>
+  <text x="100" y="432" class="label">01 Growth Ledger</text>
+  <text x="100" y="460" class="note">closest to the current icon</text>
+
+  <rect class="panel" x="510" y="160" width="380" height="320" rx="10"/>
+  <svg x="570" y="196" width="220" height="220" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="p2bg" x1="66" y1="66" x2="446" y2="446" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#241f1f"/><stop offset="1" stop-color="#111010"/></linearGradient>
+      <linearGradient id="p2accent" x1="140" y1="138" x2="370" y2="360" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6ee7b7"/><stop offset="0.55" stop-color="#58a6ff"/><stop offset="1" stop-color="#f2c94c"/></linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="64" fill="#201d1d"/><rect x="62" y="74" width="388" height="364" rx="24" fill="url(#p2bg)" stroke="#3a3131" stroke-width="4"/>
+    <path d="M118 174h276c28 0 50 22 50 50v144c0 28-22 50-50 50H118c-28 0-50-22-50-50V224c0-28 22-50 50-50z" fill="#2b2525" stroke="#4b4141" stroke-width="4"/>
+    <rect x="330" y="244" width="76" height="92" rx="16" fill="#201d1d" stroke="#58a6ff" stroke-width="4"/><circle cx="366" cy="290" r="10" fill="#f2c94c"/>
+    <g stroke="url(#p2accent)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M154 224h122"/><path d="M154 274h92"/><path d="M154 224v108"/><path d="M154 274h70l52 58"/><path d="M224 274l52-50"/></g>
+    <g fill="#6ee7b7" stroke="#201d1d" stroke-width="6"><circle cx="154" cy="224" r="15"/><circle cx="276" cy="224" r="15"/><circle cx="224" cy="274" r="15"/><circle cx="154" cy="332" r="15"/><circle cx="276" cy="332" r="15"/></g>
+    <text x="256" y="390" fill="#f5efe7" font-family="IBM Plex Mono, Consolas, monospace" font-size="46" font-weight="700" text-anchor="middle">FT</text>
+  </svg>
+  <text x="540" y="432" class="label">02 Wallet Grid</text>
+  <text x="540" y="460" class="note">wallets plus protocol links</text>
+
+  <rect class="panel" x="950" y="160" width="380" height="320" rx="10"/>
+  <svg x="1010" y="196" width="220" height="220" viewBox="0 0 512 512">
+    <defs>
+      <linearGradient id="p3shield" x1="144" y1="76" x2="370" y2="424" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#2f2929"/><stop offset="1" stop-color="#151312"/></linearGradient>
+      <linearGradient id="p3line" x1="156" y1="320" x2="360" y2="192" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#58a6ff"/><stop offset="1" stop-color="#6ee7b7"/></linearGradient>
+    </defs>
+    <rect width="512" height="512" rx="64" fill="#201d1d"/><path d="M256 66l166 56v132c0 102-62 170-166 212C152 424 90 356 90 254V122l166-56z" fill="url(#p3shield)" stroke="#4b4141" stroke-width="5" stroke-linejoin="round"/>
+    <path d="M256 116l104 36v94c0 68-38 112-104 144-66-32-104-76-104-144v-94l104-36z" fill="#201d1d" stroke="#3a3131" stroke-width="4"/>
+    <rect x="172" y="236" width="168" height="108" rx="16" fill="#2a2424" stroke="#58a6ff" stroke-width="5"/><path d="M210 236v-34c0-29 18-50 46-50s46 21 46 50v34" fill="none" stroke="#6ee7b7" stroke-width="10" stroke-linecap="round"/>
+    <circle cx="256" cy="292" r="14" fill="#f2c94c"/><path d="M256 306v24" stroke="#f2c94c" stroke-width="8" stroke-linecap="round"/>
+    <g fill="none" stroke="url(#p3line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"><path d="M158 372h64l40-48 34 28 58-76"/><path d="M334 276h20v20"/></g>
+  </svg>
+  <text x="980" y="432" class="label">03 Local Vault</text>
+  <text x="980" y="460" class="note">privacy/local-first emphasis</text>
+
+  <rect class="panel" x="70" y="540" width="380" height="320" rx="10"/>
+  <svg x="130" y="576" width="220" height="220" viewBox="0 0 512 512">
+    <rect width="512" height="512" rx="64" fill="#201d1d"/><circle cx="256" cy="256" r="176" fill="#171514" stroke="#3a3131" stroke-width="4"/>
+    <g fill="none" stroke="#4b4141" stroke-width="4"><circle cx="256" cy="256" r="126"/><path d="M130 256h252"/><path d="M256 130v252"/><path d="M168 168l176 176"/><path d="M344 168L168 344"/></g>
+    <g fill="#2a2424" stroke-width="5"><circle cx="256" cy="88" r="30" stroke="#6ee7b7"/><circle cx="404" cy="184" r="28" stroke="#58a6ff"/><circle cx="390" cy="340" r="30" stroke="#f2c94c"/><circle cx="122" cy="340" r="28" stroke="#58a6ff"/><circle cx="108" cy="184" r="30" stroke="#6ee7b7"/></g>
+    <rect x="166" y="166" width="180" height="180" rx="18" fill="#151312" stroke="#58a6ff" stroke-width="5"/>
+    <path d="M206 218h100" stroke="#6ee7b7" stroke-width="12" stroke-linecap="round"/><path d="M206 218v100" stroke="#6ee7b7" stroke-width="12" stroke-linecap="round"/><path d="M206 268h72" stroke="#f2c94c" stroke-width="12" stroke-linecap="round"/><path d="M306 218v100" stroke="#58a6ff" stroke-width="12" stroke-linecap="round"/><path d="M262 318h88" stroke="#58a6ff" stroke-width="12" stroke-linecap="round"/>
+    <circle cx="256" cy="256" r="12" fill="#f5efe7"/>
+  </svg>
+  <text x="100" y="812" class="label">04 Protocol Orbit</text>
+  <text x="100" y="840" class="note">multi-protocol command center</text>
+
+  <rect class="panel" x="510" y="540" width="820" height="320" rx="10"/>
+  <svg x="560" y="625" width="720" height="240" viewBox="0 0 960 320">
+    <defs>
+      <linearGradient id="p5mark" x1="76" y1="64" x2="250" y2="256" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6ee7b7"/><stop offset="0.5" stop-color="#58a6ff"/><stop offset="1" stop-color="#f2c94c"/></linearGradient>
+    </defs>
+    <rect width="960" height="320" rx="24" fill="#201d1d"/><rect x="44" y="44" width="872" height="232" rx="12" fill="#151312" stroke="#3a3131" stroke-width="4"/>
+    <g fill="none" stroke="url(#p5mark)" stroke-width="10" stroke-linecap="round" stroke-linejoin="round"><path d="M92 112l42 48-42 48"/><path d="M158 210h72"/><path d="M178 178l38-42 34 28 50-62"/><path d="M300 102v108h52"/></g>
+    <g fill="#2a2424" stroke="#201d1d" stroke-width="5"><circle cx="178" cy="178" r="12"/><circle cx="216" cy="136" r="12"/><circle cx="250" cy="164" r="12"/><circle cx="300" cy="102" r="12"/></g>
+    <text x="386" y="176" fill="#f5efe7" font-family="IBM Plex Mono, Consolas, monospace" font-size="64" font-weight="700" letter-spacing="0">Farm</text>
+    <text x="581" y="176" fill="#58a6ff" font-family="IBM Plex Mono, Consolas, monospace" font-size="64" font-weight="700" letter-spacing="0">Track</text>
+    <text x="390" y="220" fill="#9a908c" font-family="IBM Plex Mono, Consolas, monospace" font-size="22" letter-spacing="0">local airdrop farming desk</text>
+  </svg>
+  <text x="540" y="812" class="label">05 Terminal Wordmark</text>
+  <text x="540" y="840" class="note">horizontal brand lockup for README/site/splash</text>
+</svg>

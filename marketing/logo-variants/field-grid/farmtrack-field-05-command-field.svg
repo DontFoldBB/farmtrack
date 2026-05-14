@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack field concept 05 - Command Field</title>
+  <desc id="desc">A terminal-like route entering a protocol field grid.</desc>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="60" x2="430" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#262120"/>
+      <stop offset="1" stop-color="#141211"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="92" fill="#201d1d"/>
+  <rect x="70" y="70" width="372" height="372" rx="62" fill="url(#bg)"/>
+  <path d="M142 172l78 84-78 84" fill="none" stroke="#58a6ff" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+  <g fill="none" stroke="#3b3331" stroke-width="6">
+    <rect x="254" y="150" width="52" height="52" rx="11"/>
+    <rect x="324" y="150" width="52" height="52" rx="11"/>
+    <rect x="254" y="220" width="52" height="52" rx="11"/>
+    <rect x="324" y="220" width="52" height="52" rx="11"/>
+    <rect x="254" y="290" width="52" height="52" rx="11"/>
+    <rect x="324" y="290" width="52" height="52" rx="11"/>
+  </g>
+  <rect x="324" y="220" width="52" height="52" rx="11" fill="#252f2b" stroke="#72e0bd" stroke-width="6"/>
+  <path d="M220 256h78l52-10" fill="none" stroke="#f5efe7" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="350" cy="246" r="16" fill="#72e0bd"/>
+  <path d="M246 352h132" stroke="#3b3331" stroke-width="12" stroke-linecap="round"/>
+</svg>

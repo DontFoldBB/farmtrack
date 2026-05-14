@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack minimal logo 05 - Local Stack</title>
+  <desc id="desc">A local database stack with a calm tracking pulse.</desc>
+  <rect width="512" height="512" rx="96" fill="#201d1d"/>
+  <g fill="#151312" stroke="#3b3331" stroke-width="12">
+    <rect x="126" y="138" width="260" height="76" rx="38"/>
+    <rect x="126" y="218" width="260" height="76" rx="38"/>
+    <rect x="126" y="298" width="260" height="76" rx="38"/>
+  </g>
+  <path d="M166 256h62l34-48 38 84 34-36h42" fill="none" stroke="#72e0bd" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="256" cy="256" r="18" fill="#58a6ff"/>
+</svg>

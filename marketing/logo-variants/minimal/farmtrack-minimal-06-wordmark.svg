@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="300" viewBox="0 0 960 300" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack minimal logo 06 - Wordmark</title>
+  <desc id="desc">A minimal FarmTrack horizontal lockup.</desc>
+  <rect width="960" height="300" rx="36" fill="#201d1d"/>
+  <g transform="translate(84 72)">
+    <rect width="156" height="156" rx="36" fill="#151312"/>
+    <path d="M48 112V44h64M48 78h42" fill="none" stroke="#72e0bd" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M92 44h36M110 44v68" fill="none" stroke="#58a6ff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+  <text x="286" y="158" fill="#f5efe7" font-family="IBM Plex Mono, Consolas, monospace" font-size="68" font-weight="700" letter-spacing="0">Farm</text>
+  <text x="490" y="158" fill="#72e0bd" font-family="IBM Plex Mono, Consolas, monospace" font-size="68" font-weight="700" letter-spacing="0">Track</text>
+  <path d="M292 202h360" stroke="#302929" stroke-width="8" stroke-linecap="round"/>
+  <path d="M292 202h134" stroke="#58a6ff" stroke-width="8" stroke-linecap="round"/>
+</svg>

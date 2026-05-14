@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="340" viewBox="0 0 1040 340" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack field concept 06 - Wordmark</title>
+  <desc id="desc">A modern FarmTrack wordmark using the parcel-route field sign.</desc>
+  <defs>
+    <linearGradient id="route" x1="34" y1="130" x2="164" y2="48" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#58a6ff"/>
+      <stop offset="0.6" stop-color="#f5efe7"/>
+      <stop offset="1" stop-color="#72e0bd"/>
+    </linearGradient>
+  </defs>
+  <rect width="1040" height="340" rx="40" fill="#201d1d"/>
+  <g transform="translate(80 76)">
+    <rect width="188" height="188" rx="42" fill="#151312"/>
+    <g fill="#211c1b" stroke="#3b3331" stroke-width="4">
+      <rect x="40" y="40" width="42" height="42" rx="9"/>
+      <rect x="94" y="40" width="42" height="42" rx="9"/>
+      <rect x="40" y="94" width="42" height="42" rx="9"/>
+      <rect x="94" y="94" width="42" height="42" rx="9"/>
+    </g>
+    <rect x="94" y="94" width="42" height="42" rx="9" fill="#252f2b" stroke="#72e0bd" stroke-width="4"/>
+    <path d="M48 136c34-1 43-47 70-60 21-10 40 8 58-30" fill="none" stroke="url(#route)" stroke-width="13" stroke-linecap="round" stroke-linejoin="round"/>
+    <circle cx="48" cy="136" r="9" fill="#58a6ff"/>
+    <circle cx="118" cy="76" r="9" fill="#f5efe7"/>
+    <circle cx="176" cy="46" r="10" fill="#72e0bd"/>
+  </g>
+  <text x="318" y="176" fill="#f5efe7" font-family="IBM Plex Mono, Consolas, monospace" font-size="78" font-weight="700" letter-spacing="0">Farm</text>
+  <text x="552" y="176" fill="#72e0bd" font-family="IBM Plex Mono, Consolas, monospace" font-size="78" font-weight="700" letter-spacing="0">Track</text>
+  <text x="322" y="226" fill="#9a908c" font-family="IBM Plex Mono, Consolas, monospace" font-size="24" letter-spacing="0">airdrop farming command desk</text>
+</svg>

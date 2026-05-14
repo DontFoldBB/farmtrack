@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack minimal logo 02 - Route</title>
+  <desc id="desc">A clean tracking route with three portfolio nodes.</desc>
+  <rect width="512" height="512" rx="96" fill="#201d1d"/>
+  <circle cx="256" cy="256" r="174" fill="#151312"/>
+  <path d="M130 338l92-98 66 58 96-130" fill="none" stroke="#f5efe7" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M130 338l92-98" fill="none" stroke="#58a6ff" stroke-width="24" stroke-linecap="round"/>
+  <path d="M288 298l96-130" fill="none" stroke="#72e0bd" stroke-width="24" stroke-linecap="round"/>
+  <circle cx="130" cy="338" r="18" fill="#58a6ff"/>
+  <circle cx="222" cy="240" r="18" fill="#f5efe7"/>
+  <circle cx="288" cy="298" r="18" fill="#f5efe7"/>
+  <circle cx="384" cy="168" r="18" fill="#72e0bd"/>
+</svg>

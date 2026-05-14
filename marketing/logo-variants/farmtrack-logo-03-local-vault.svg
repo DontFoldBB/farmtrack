@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack logo variant 03 - Local Vault</title>
+  <desc id="desc">A shield-vault mark combining local storage, privacy, and portfolio tracking.</desc>
+  <defs>
+    <linearGradient id="shield" x1="144" y1="76" x2="370" y2="424" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f2929"/>
+      <stop offset="1" stop-color="#151312"/>
+    </linearGradient>
+    <linearGradient id="line" x1="156" y1="320" x2="360" y2="192" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#58a6ff"/>
+      <stop offset="1" stop-color="#6ee7b7"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="#201d1d"/>
+  <path d="M256 66l166 56v132c0 102-62 170-166 212C152 424 90 356 90 254V122l166-56z" fill="url(#shield)" stroke="#4b4141" stroke-width="5" stroke-linejoin="round"/>
+  <path d="M256 116l104 36v94c0 68-38 112-104 144-66-32-104-76-104-144v-94l104-36z" fill="#201d1d" stroke="#3a3131" stroke-width="4"/>
+  <rect x="172" y="236" width="168" height="108" rx="16" fill="#2a2424" stroke="#58a6ff" stroke-width="5"/>
+  <path d="M210 236v-34c0-29 18-50 46-50s46 21 46 50v34" fill="none" stroke="#6ee7b7" stroke-width="10" stroke-linecap="round"/>
+  <circle cx="256" cy="292" r="14" fill="#f2c94c"/>
+  <path d="M256 306v24" stroke="#f2c94c" stroke-width="8" stroke-linecap="round"/>
+  <g fill="none" stroke="url(#line)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M158 372h64l40-48 34 28 58-76"/>
+    <path d="M334 276h20v20"/>
+  </g>
+</svg>

@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack field concept 03 - Drop Zone</title>
+  <desc id="desc">An airdrop point landing on a field grid without using literal farming imagery.</desc>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="60" x2="430" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#262120"/>
+      <stop offset="1" stop-color="#141211"/>
+    </linearGradient>
+    <radialGradient id="pulse" cx="50%" cy="50%" r="50%">
+      <stop offset="0" stop-color="#72e0bd" stop-opacity="0.34"/>
+      <stop offset="1" stop-color="#72e0bd" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="512" height="512" rx="92" fill="#201d1d"/>
+  <rect x="70" y="70" width="372" height="372" rx="62" fill="url(#bg)"/>
+  <g fill="#211c1b" stroke="#382f2e" stroke-width="5">
+    <path d="M150 178h92v64h-92z"/>
+    <path d="M270 178h92v64h-92z"/>
+    <path d="M150 270h92v64h-92z"/>
+    <path d="M270 270h92v64h-92z"/>
+  </g>
+  <path d="M270 270h92v64h-92z" fill="#252f2b" stroke="#72e0bd" stroke-width="6"/>
+  <circle cx="316" cy="302" r="70" fill="url(#pulse)"/>
+  <path d="M256 132c36 42 60 78 60 120" fill="none" stroke="#58a6ff" stroke-width="18" stroke-linecap="round"/>
+  <path d="M256 132c-36 42-60 78-60 120" fill="none" stroke="#72e0bd" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="256" cy="132" r="18" fill="#f5efe7"/>
+  <path d="M196 252c20 40 56 58 120 50" fill="none" stroke="#f5efe7" stroke-width="18" stroke-linecap="round"/>
+  <circle cx="316" cy="302" r="18" fill="#72e0bd"/>
+  <path d="M140 366h232" stroke="#3b3331" stroke-width="12" stroke-linecap="round"/>
+</svg>

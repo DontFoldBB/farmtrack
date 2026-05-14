@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack minimal logo 01 - FT Mono</title>
+  <desc id="desc">A minimal FT monogram built from two rounded strokes.</desc>
+  <rect width="512" height="512" rx="96" fill="#201d1d"/>
+  <rect x="72" y="72" width="368" height="368" rx="72" fill="#151312"/>
+  <path d="M158 356V156h174M158 256h116" fill="none" stroke="#72e0bd" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M282 156h78M322 156v200" fill="none" stroke="#58a6ff" stroke-width="34" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack logo variant 04 - Protocol Orbit</title>
+  <desc id="desc">A network of protocol nodes orbiting a FarmTrack command-center monogram.</desc>
+  <defs>
+    <linearGradient id="core" x1="172" y1="150" x2="340" y2="366" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f2929"/>
+      <stop offset="1" stop-color="#151312"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="#201d1d"/>
+  <circle cx="256" cy="256" r="176" fill="#171514" stroke="#3a3131" stroke-width="4"/>
+  <g fill="none" stroke="#4b4141" stroke-width="4">
+    <circle cx="256" cy="256" r="126"/>
+    <path d="M130 256h252"/>
+    <path d="M256 130v252"/>
+    <path d="M168 168l176 176"/>
+    <path d="M344 168L168 344"/>
+  </g>
+  <g fill="#2a2424" stroke-width="5">
+    <circle cx="256" cy="88" r="30" stroke="#6ee7b7"/>
+    <circle cx="404" cy="184" r="28" stroke="#58a6ff"/>
+    <circle cx="390" cy="340" r="30" stroke="#f2c94c"/>
+    <circle cx="122" cy="340" r="28" stroke="#58a6ff"/>
+    <circle cx="108" cy="184" r="30" stroke="#6ee7b7"/>
+  </g>
+  <rect x="166" y="166" width="180" height="180" rx="18" fill="url(#core)" stroke="#58a6ff" stroke-width="5"/>
+  <path d="M206 218h100" stroke="#6ee7b7" stroke-width="12" stroke-linecap="round"/>
+  <path d="M206 218v100" stroke="#6ee7b7" stroke-width="12" stroke-linecap="round"/>
+  <path d="M206 268h72" stroke="#f2c94c" stroke-width="12" stroke-linecap="round"/>
+  <path d="M306 218v100" stroke="#58a6ff" stroke-width="12" stroke-linecap="round"/>
+  <path d="M262 318h88" stroke="#58a6ff" stroke-width="12" stroke-linecap="round"/>
+  <circle cx="256" cy="256" r="12" fill="#f5efe7"/>
+</svg>

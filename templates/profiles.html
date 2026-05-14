@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>FarmTrack — Profile</title>
+<link rel="icon" type="image/png" href="/static/brand/farmtrack-mark.png">
 <style>
   @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&display=swap');
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -44,14 +45,26 @@
     gap: 22px;
   }
 
-  .logo { text-align: center; }
+  .logo {
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .logo-mark {
+    width: 88px;
+    height: 88px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+  }
   .logo h1 {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--text);
-    letter-spacing: -0.5px;
+    letter-spacing: 0;
+    line-height: 1;
   }
-  .logo h1 span { color: var(--blue); }
+  .logo h1 span { color: var(--green); }
   .logo .version {
     font-size: 0.65rem;
     color: var(--muted2);
@@ -231,8 +244,9 @@
 
 <div class="box">
   <div class="logo">
+    <img class="logo-mark" src="/static/brand/farmtrack-mark.svg" alt="" aria-hidden="true">
     <h1>Farm<span>Track</span></h1>
-    <div class="version">alpha v0.8</div>
+    <div class="version">alpha v0.91</div>
     <p class="sub">Select a profile to continue</p>
   </div>
 

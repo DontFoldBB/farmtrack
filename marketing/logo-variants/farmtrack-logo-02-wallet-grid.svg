@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack logo variant 02 - Wallet Grid</title>
+  <desc id="desc">A wallet-shaped mark with protocol nodes and an FT monogram.</desc>
+  <defs>
+    <linearGradient id="bg" x1="66" y1="66" x2="446" y2="446" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#241f1f"/>
+      <stop offset="1" stop-color="#111010"/>
+    </linearGradient>
+    <linearGradient id="accent" x1="140" y1="138" x2="370" y2="360" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6ee7b7"/>
+      <stop offset="0.55" stop-color="#58a6ff"/>
+      <stop offset="1" stop-color="#f2c94c"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="64" fill="#201d1d"/>
+  <rect x="62" y="74" width="388" height="364" rx="24" fill="url(#bg)" stroke="#3a3131" stroke-width="4"/>
+  <path d="M118 174h276c28 0 50 22 50 50v144c0 28-22 50-50 50H118c-28 0-50-22-50-50V224c0-28 22-50 50-50z" fill="#2b2525" stroke="#4b4141" stroke-width="4"/>
+  <path d="M126 126h224c25 0 44 19 44 44v4H118c-22 0-40 18-40 40v-38c0-28 20-50 48-50z" fill="#151312" stroke="#3a3131" stroke-width="4"/>
+  <rect x="330" y="244" width="76" height="92" rx="16" fill="#201d1d" stroke="#58a6ff" stroke-width="4"/>
+  <circle cx="366" cy="290" r="10" fill="#f2c94c"/>
+  <g stroke="url(#accent)" stroke-width="8" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M154 224h122"/>
+    <path d="M154 274h92"/>
+    <path d="M154 224v108"/>
+    <path d="M154 274h70l52 58"/>
+    <path d="M224 274l52-50"/>
+  </g>
+  <g fill="#6ee7b7" stroke="#201d1d" stroke-width="6">
+    <circle cx="154" cy="224" r="15"/>
+    <circle cx="276" cy="224" r="15"/>
+    <circle cx="224" cy="274" r="15"/>
+    <circle cx="154" cy="332" r="15"/>
+    <circle cx="276" cy="332" r="15"/>
+  </g>
+  <text x="256" y="390" fill="#f5efe7" font-family="IBM Plex Mono, Consolas, monospace" font-size="46" font-weight="700" text-anchor="middle">FT</text>
+</svg>

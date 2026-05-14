@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack field concept 01 - Parcel Route</title>
+  <desc id="desc">A modern field-grid mark with a tracked route across protocol parcels.</desc>
+  <defs>
+    <linearGradient id="bg" x1="84" y1="60" x2="430" y2="452" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#262120"/>
+      <stop offset="1" stop-color="#141211"/>
+    </linearGradient>
+    <linearGradient id="route" x1="130" y1="350" x2="382" y2="150" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#58a6ff"/>
+      <stop offset="0.55" stop-color="#f5efe7"/>
+      <stop offset="1" stop-color="#72e0bd"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="6" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.45 0 0 0 0 0.88 0 0 0 0 0.72 0 0 0 0.45 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="92" fill="#201d1d"/>
+  <rect x="70" y="70" width="372" height="372" rx="62" fill="url(#bg)"/>
+  <g fill="#211c1b" stroke="#3b3331" stroke-width="5">
+    <rect x="132" y="132" width="72" height="72" rx="14"/>
+    <rect x="220" y="132" width="72" height="72" rx="14"/>
+    <rect x="308" y="132" width="72" height="72" rx="14"/>
+    <rect x="132" y="220" width="72" height="72" rx="14"/>
+    <rect x="220" y="220" width="72" height="72" rx="14"/>
+    <rect x="308" y="220" width="72" height="72" rx="14"/>
+    <rect x="132" y="308" width="72" height="72" rx="14"/>
+    <rect x="220" y="308" width="72" height="72" rx="14"/>
+    <rect x="308" y="308" width="72" height="72" rx="14"/>
+  </g>
+  <rect x="220" y="220" width="72" height="72" rx="14" fill="#2b2524" stroke="#72e0bd" stroke-width="5"/>
+  <rect x="308" y="132" width="72" height="72" rx="14" fill="#2b2524" stroke="#58a6ff" stroke-width="5"/>
+  <path d="M150 352c48-2 65-72 108-96 36-20 73 12 110-74" fill="none" stroke="url(#route)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"/>
+  <circle cx="150" cy="352" r="15" fill="#58a6ff"/>
+  <circle cx="258" cy="256" r="15" fill="#f5efe7"/>
+  <circle cx="368" cy="182" r="17" fill="#72e0bd"/>
+</svg>
