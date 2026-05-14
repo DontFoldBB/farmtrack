@@ -1,5 +1,7 @@
 # FarmTrack
 
+[English](README.md) | [Русский](README.ru.md)
+
 ![FarmTrack brand header](marketing/brand/farmtrack-brand-header.svg)
 
 A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
@@ -7,7 +9,7 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 ![Version](https://img.shields.io/badge/version-alpha%20v0.91-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
-![Tests](https://img.shields.io/badge/tests-251%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-255%20passing-brightgreen)
 
 ---
 
@@ -89,7 +91,7 @@ The app opens as a native desktop window. On first launch, create a profile to g
 | Desktop | pywebview (native window, no browser needed) |
 | Database | SQLite (one `.db` file per profile) |
 | Export | openpyxl |
-| Tests | pytest (251 tests) |
+| Tests | pytest (255 tests) |
 
 ---
 
