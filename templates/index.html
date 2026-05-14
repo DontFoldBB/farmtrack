@@ -3736,6 +3736,28 @@ function fmtPct(n) {
   if (n === null || n === undefined) return '—';
   return (n >= 0 ? '+' : '') + Number(n).toFixed(2) + '%';
 }
+function riskTone(type, value) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return 'rgba(160,168,176,0.14);color:var(--muted)';
+  const v = Number(value);
+  if (type === 'health') {
+    if (v <= 20) return 'rgba(255,59,48,0.16);color:var(--red)';
+    if (v <= 50) return 'rgba(255,159,10,0.16);color:var(--amber)';
+    return 'rgba(48,209,88,0.16);color:var(--green)';
+  }
+  if (v >= 80) return 'rgba(255,59,48,0.16);color:var(--red)';
+  if (v >= 40) return 'rgba(255,159,10,0.16);color:var(--amber)';
+  return 'rgba(48,209,88,0.16);color:var(--green)';
+}
+function riskPill(label, value, toneType, title) {
+  if (value === null || value === undefined || Number.isNaN(Number(value))) return '';
+  return `<span title="${title}" style="font-size:0.7rem;margin-left:6px;padding:2px 7px;border-radius:4px;background:${riskTone(toneType, value)};font-weight:600">${label} ${Number(value).toFixed(1)}%</span>`;
+}
+function accountRiskBadges(health, usage, leverage) {
+  const lev = leverage !== null && leverage !== undefined
+    ? `<span title="Account Leverage" style="font-size:0.7rem;margin-left:6px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.1);color:#e0e0e0;font-weight:600">×${Number(leverage).toFixed(2)}</span>`
+    : '';
+  return `${riskPill('H', health, 'health', 'Account Health')}${riskPill('MU', usage, 'usage', 'Margin Usage')}${lev}`;
+}
 function hlPosRow(p, accountLabel) {
   const dir = p.direction === 'long'
     ? '<span class="badge badge-long">LONG</span>'
@@ -3855,6 +3877,7 @@ function renderHLAllPositions(accounts) {
       const chevron = aExpanded ? '▾' : '▸';
       const pnlCls = (s.total_pnl || 0) >= 0 ? 'c-green' : 'c-red';
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
+      const riskBadges = accountRiskBadges(s.account_health, s.margin_usage, s.account_leverage);
       const accIndent = groupName ? '44px' : '14px';
       rows.push(`<tr onclick="hlAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
         <td colspan="9" style="padding:9px 12px;padding-left:${accIndent}">
@@ -3863,6 +3886,7 @@ function renderHLAllPositions(accounts) {
           <span style="font-size:0.72rem;color:var(--muted);font-family:monospace;margin-left:8px">${a.address.slice(0,6)}...${a.address.slice(-4)}</span>
           <span style="font-weight:600;margin-left:14px">${fmtUsd(s.account_value)}</span>
           <span style="margin-left:10px" class="${pnlCls}">${(s.total_pnl||0) >= 0 ? '+' : ''}${fmtUsd(s.total_pnl)} P&L</span>
+          ${riskBadges}
           ${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;color:var(--muted);font-size:0.8rem" colspan="2">${cnt} pos.</td>
@@ -4070,6 +4094,7 @@ function renderNadoPositions(accounts) {
       const avail = a.available_margin != null
         ? `<span class="c-muted" style="font-size:0.75rem">avail ${fmt2(a.available_margin)}</span>` : '';
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
+      const riskBadges = accountRiskBadges(a.account_health, a.margin_usage, a.account_leverage);
       const accIndent = groupName ? '44px' : '14px';
       rows.push(`<tr onclick="nadoAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
         <td colspan="8" style="padding:9px 12px;padding-left:${accIndent}">
@@ -4078,6 +4103,7 @@ function renderNadoPositions(accounts) {
           <span style="font-size:0.72rem;color:var(--muted);font-family:monospace;margin-left:8px">${a.address.slice(0,6)}...${a.address.slice(-4)}</span>
           <span style="font-weight:600;margin-left:14px">${equity}</span>
           <span style="margin-left:8px">${avail}</span>
+          ${riskBadges}
           ${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;color:var(--muted);font-size:0.8rem">${cnt} pos.</td>
@@ -4277,6 +4303,7 @@ function renderExtendedPositions(accounts) {
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
       const accIndent = groupName ? '44px' : '14px';
       const pnlCls = (a.unrealised_pnl || 0) >= 0 ? 'c-green' : 'c-red';
+      const riskBadges = accountRiskBadges(a.account_health, a.margin_usage, a.account_leverage);
       rows.push(`<tr onclick="extendedAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
         <td colspan="7" style="padding:9px 12px;padding-left:${accIndent}">
           <span style="margin-right:8px;color:var(--muted)">${chevron}</span>
@@ -4284,6 +4311,7 @@ function renderExtendedPositions(accounts) {
           <span style="font-weight:600;margin-left:14px">${fmt2(a.equity)}</span>
           <span style="margin-left:8px;color:var(--muted);font-size:0.78rem">avail ${fmt2(a.available)}</span>
           <span style="margin-left:10px" class="${pnlCls}">${(a.unrealised_pnl||0)>=0?'+':''}${fmt2(a.unrealised_pnl)} PnL</span>
+          ${riskBadges}
           ${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;color:var(--muted);font-size:0.8rem" colspan="2">${cnt} pos.</td>
@@ -4481,14 +4509,8 @@ function renderPacificaPositions(accounts) {
         ? `<span class="c-muted" style="font-size:0.75rem">avail ${fmt2(a.available)}</span>` : '';
       const pnl = a.unrealised_pnl || 0;
       const pnlCls = pnl >= 0 ? 'c-green' : 'c-red';
-      const mr = a.margin_ratio;
-      const mrColor = mr == null ? null : mr >= 50 ? '#c0392b' : mr >= 20 ? '#d4860a' : '#27ae60';
-      const mrBadge = mr != null
-        ? `<span style="font-size:0.7rem;margin-left:8px;padding:2px 7px;border-radius:4px;background:${mrColor};color:#fff;font-weight:600;letter-spacing:0.02em" title="Margin Ratio">MR ${mr.toFixed(1)}%</span>` : '';
-      const lev = a.account_leverage;
-      const levBadge = lev != null
-        ? `<span style="font-size:0.7rem;margin-left:6px;padding:2px 7px;border-radius:4px;background:rgba(255,255,255,0.1);color:#e0e0e0;font-weight:600;letter-spacing:0.02em" title="Account Leverage">×${lev}</span>` : '';
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
+      const riskBadges = accountRiskBadges(a.account_health, a.margin_usage, a.account_leverage);
       const accIndent = groupName ? '44px' : '14px';
       rows.push(`<tr onclick="pacificaAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
         <td colspan="5" style="padding:9px 12px;padding-left:${accIndent}">
@@ -4496,7 +4518,7 @@ function renderPacificaPositions(accounts) {
           <strong>${esc(a.label)}</strong>
           <span style="font-weight:600;margin-left:14px">${equity}</span>
           <span style="margin-left:8px">${avail}</span>
-          ${levBadge}${mrBadge}${errBadge}
+          ${riskBadges}${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;font-weight:600" class="${pnlCls}">${pnl ? (pnl >= 0 ? '+' : '') + fmt2(pnl) : ''}</td>
         <td></td><td></td>
@@ -4686,13 +4708,16 @@ function renderEtherealPositions(accounts) {
       const pnl = a.unrealised_pnl || 0;
       const pnlCls = pnl >= 0 ? 'c-green' : 'c-red';
       const errBadge = a.error ? `<span class="c-red" style="font-size:0.75rem;margin-left:8px">Error</span>` : '';
+      const riskBadges = accountRiskBadges(a.account_health, a.margin_usage, a.account_leverage);
       const accIndent = groupName ? '44px' : '14px';
       rows.push(`<tr onclick="etherealAccToggle(${a.id})" style="cursor:pointer;background:var(--card2);border-left:3px solid rgba(255,255,255,0.15);border-top:1px solid var(--border);user-select:none">
         <td colspan="6" style="padding:9px 12px;padding-left:${accIndent}">
           <span style="margin-right:8px;color:var(--muted)">${chevron}</span>
           <strong>${esc(a.label)}</strong>
+          <span style="font-size:0.72rem;color:var(--muted);margin-left:6px">${a.address ? a.address.slice(0,6)+'…'+a.address.slice(-4) : ''}</span>
           <span style="font-weight:600;margin-left:14px">${equity}</span>
           <span style="margin-left:8px">${avail}</span>
+          ${riskBadges}
           ${errBadge}
         </td>
         <td style="text-align:right;padding:9px 12px;font-weight:600" class="${pnlCls}">${pnl ? (pnl >= 0 ? '+' : '') + fmt2(pnl) : ''}</td>
@@ -4824,11 +4849,12 @@ async function refreshLiveDex() {
   const tbody = document.getElementById('live-dex-tbody');
   tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--muted);padding:12px;font-size:0.85rem">Loading...</td></tr>';
   try {
-    const [hlData, nadoData, extData, pacData] = await Promise.all([
+    const [hlData, nadoData, extData, pacData, ethData] = await Promise.all([
       api('GET', '/api/hl/all-positions').catch(() => ({ accounts: [] })),
       api('GET', '/api/nado/all-positions').catch(() => ({ accounts: [] })),
       api('GET', '/api/extended/all-positions').catch(() => ({ accounts: [] })),
       api('GET', '/api/pacifica/all-positions').catch(() => ({ accounts: [] })),
+      api('GET', '/api/ethereal/all-positions').catch(() => ({ accounts: [] })),
     ]);
     const rows = [];
     const fmtPx = v => v != null ? '$' + Number(v).toLocaleString('en-US', {minimumFractionDigits:2, maximumFractionDigits:4}) : '—';
@@ -4902,6 +4928,24 @@ async function refreshLiveDex() {
           <td style="text-align:right">${fmtPx(p.mark_price)}</td>
           <td style="text-align:right"><span class="${pnl>=0?'c-green':'c-red'}">${pnl>=0?'+':''}${fmt2(pnl)}</span></td>
           <td style="text-align:right">${p.isolated ? 'Isolated' : 'Cross'}</td>
+        </tr>`);
+      }
+    }
+
+    // Ethereal
+    for (const a of (ethData.accounts || [])) {
+      for (const p of (a.positions || [])) {
+        const pnl = p.unrealized_pnl ?? 0;
+        rows.push(`<tr>
+          <td><span style="font-size:0.72rem;background:rgba(34,211,238,0.15);color:#22d3ee;border-radius:4px;padding:1px 6px">Ethereal</span></td>
+          <td style="color:var(--muted);font-size:0.82rem">${esc(a.label)}</td>
+          <td><strong>${esc(p.symbol)}</strong></td>
+          <td>${p.direction === 'long' ? '<span class="c-green">Long</span>' : '<span class="c-red">Short</span>'}</td>
+          <td style="text-align:right">${p.size}</td>
+          <td style="text-align:right">${fmtPx(p.entry_price)}</td>
+          <td style="text-align:right">${fmtPx(p.current_price)}</td>
+          <td style="text-align:right"><span class="${pnl>=0?'c-green':'c-red'}">${pnl>=0?'+':''}${fmt2(pnl)}</span></td>
+          <td style="text-align:right">${fmt2(p.margin)}</td>
         </tr>`);
       }
     }

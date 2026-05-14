@@ -10,6 +10,7 @@ _EXCHANGES = [
     ('Pacifica',    '/api/pacifica/all-positions'),
     ('Nado',        '/api/nado/all-positions'),
     ('Extended',    '/api/extended/all-positions'),
+    ('Ethereal',    '/api/ethereal/all-positions'),
 ]
 
 
@@ -147,7 +148,7 @@ def format_full_report(positions: list[dict]) -> str:
     if not positions:
         return '📊 <b>FarmTrack Report</b>\n\nНет открытых позиций.'
 
-    _EMOJI = {'Hyperliquid': '🔵', 'Pacifica': '🟣', 'Nado': '🟢', 'Extended': '⚪'}
+    _EMOJI = {'Hyperliquid': '🔵', 'Pacifica': '🟣', 'Nado': '🟢', 'Extended': '⚪', 'Ethereal': '🔷'}
     now = datetime.utcnow().strftime('%H:%M UTC')
     lines = [f'📊 <b>FarmTrack Report</b> | {now}\n']
     total_pnl = 0.0

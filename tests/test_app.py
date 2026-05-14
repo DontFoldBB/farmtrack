@@ -39,6 +39,8 @@ def client(tmp_path):
     farm_app._mids_cache_ts = 0
     farm_app._pacifica_prices = {}
     farm_app._pacifica_prices_ts = 0
+    farm_app._ethereal_products = {}
+    farm_app._ethereal_products_ts = 0
     yield farm_app.app.test_client()
     database.DB_PATH = original_db_path
     database._DATA_DIR = original_data_dir
@@ -584,6 +586,9 @@ def test_fetch_extended_account_parses_payload(monkeypatch):
 
     assert result['equity'] == 123.45
     assert result['available'] == 100.0
+    assert result['margin_used'] == 20.0
+    assert result['margin_usage'] == 16.2
+    assert result['account_health'] == 81.0
     assert result['positions'][0]['market'] == 'BTC'
     assert result['positions'][0]['dist_liq'] == 33.33
 
@@ -608,6 +613,62 @@ def test_extended_all_positions_empty_accounts(client):
 
     assert response.status_code == 200
     assert response.get_json() == {'accounts': []}
+
+
+def test_ethereal_products_parse_public_payload(monkeypatch):
+    farm_app._ethereal_products = {}
+    farm_app._ethereal_products_ts = 0
+    monkeypatch.setattr(farm_app, '_get_json', lambda *args, **kwargs: {
+        'data': [{'id': 'product-1', 'ticker': 'ETHUSD', 'displayTicker': 'ETH-USD'}]
+    })
+
+    assert farm_app._ethereal_get_products() == {'product-1': 'ETH-USD'}
+
+
+def test_fetch_ethereal_account_parses_public_payload(monkeypatch):
+    monkeypatch.setattr(farm_app, '_ethereal_get_products', lambda: {'product-1': 'BTC-USD'})
+
+    def fake_get_json(url, **kwargs):
+        if url.endswith('/v1/subaccount'):
+            return {'data': [{'id': 'sub-1'}], 'hasNext': False}
+        if url.endswith('/v1/position'):
+            return {'data': [{
+                'productId': 'product-1',
+                'side': 0,
+                'size': '0.002',
+                'cost': '150',
+                'unrealizedPnl': '10.5',
+            }], 'hasNext': False}
+        if url.endswith('/v1/subaccount/balance'):
+            return {'data': [{
+                'tokenName': 'USD',
+                'amount': '42',
+                'available': '30',
+                'totalUsed': '10',
+            }], 'hasNext': False}
+        if url.endswith('/v1/product/market-price'):
+            assert kwargs['params'] == [('productIds[]', 'product-1')]
+            return {'data': [{'productId': 'product-1', 'oraclePrice': '80000'}]}
+        raise AssertionError(url)
+
+    monkeypatch.setattr(farm_app, '_get_json', fake_get_json)
+
+    result = farm_app._fetch_ethereal_account('0xabc')
+    position = result['positions'][0]
+
+    assert result['equity'] == 42.0
+    assert result['available'] == 30.0
+    assert result['margin_used'] == 10.0
+    assert result['unrealised_pnl'] == 10.5
+    assert position['symbol'] == 'BTC-USD'
+    assert position['direction'] == 'long'
+    assert position['entry_price'] == 75000.0
+    assert position['current_price'] == 80000.0
+    assert position['unrealized_pnl'] == 10.5
+    assert position['margin'] == 10.0
+    assert position['leverage'] == 15.0
+    assert result['margin_usage'] == 23.81
+    assert result['account_health'] == 71.43
 
 
 def test_pacifica_account_routes_and_partial_failures(client, monkeypatch):
@@ -648,6 +709,8 @@ def test_fetch_pacifica_account_parses_payload(monkeypatch):
     assert result['positions'][0]['unrealised_pnl'] == 5.0
     assert result['positions'][0]['leverage'] == 0.6
     assert result['margin_ratio'] == 10.0
+    assert result['margin_usage'] == 40.0
+    assert result['account_health'] == 50.0
 
 
 def test_nado_account_routes_and_partial_failures(client, monkeypatch):
@@ -688,6 +751,10 @@ def test_fetch_nado_account_parses_payload_and_tolerates_missing_info(monkeypatc
 
     assert result['available_margin'] == 10.0
     assert result['account_value'] == 19.0
+    assert result['margin_used'] == 5.0
+    assert result['margin_usage'] == 26.32
+    assert result['account_health'] == 52.63
+    assert result['account_leverage'] == 1.26
     assert result['positions'][0]['symbol'] == 'BTC'
     assert result['positions'][0]['unrealized_pnl'] == 4.0
 
@@ -749,6 +816,9 @@ def test_fetch_hl_account_parses_payload_with_mock(monkeypatch):
     assert result['positions'][0]['coin'] == 'BTC'
     assert result['positions'][0]['dist_liq'] == 33.33
     assert result['summary']['account_value'] == 100.0
+    assert result['summary']['margin_usage'] == 5.0
+    assert result['summary']['account_health'] == 80.0
+    assert result['summary']['account_leverage'] == 0.24
 
 
 def test_hl_all_positions_returns_502_when_mids_fetch_fails(client, monkeypatch):

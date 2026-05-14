@@ -52,6 +52,21 @@ def _post_json(url: str, **kwargs):
         raise RuntimeError(f'Invalid JSON from {url}') from exc
 
 
+def _account_risk_metrics(equity, margin_used, available=None) -> dict:
+    equity = float(equity or 0)
+    margin_used = float(margin_used or 0)
+    if equity <= 0:
+        return {'margin_usage': None, 'account_health': None}
+
+    margin_usage = round(margin_used / equity * 100, 2)
+    if available is not None:
+        health = round(float(available or 0) / equity * 100, 2)
+    else:
+        health = round(100 - margin_usage, 2)
+    health = max(0.0, min(100.0, health))
+    return {'margin_usage': margin_usage, 'account_health': health}
+
+
 @app.route('/profiles')
 def profiles_page():
     return render_template('profiles.html')
@@ -442,6 +457,8 @@ def _fetch_extended_account(api_key: str) -> dict:
     unrealised_pnl = float(balance.get('unrealisedPnl', 0) or 0)
 
     positions = []
+    total_margin = 0.0
+    total_notional = 0.0
     for p in positions_raw:
         size = float(p.get('size', 0) or 0)
         if size == 0:
@@ -454,6 +471,8 @@ def _fetch_extended_account(api_key: str) -> dict:
         lev = p.get('leverage', {})
         lev_val = float(lev.get('value', 0) or 0) if isinstance(lev, dict) else 0
         direction = 'long' if (p.get('side', '') or '').upper() == 'LONG' else 'short'
+        total_margin += margin
+        total_notional += abs(size) * (mark or entry)
         dist_liq = None
         if liq and mark:
             liq_f = float(liq)
@@ -478,7 +497,10 @@ def _fetch_extended_account(api_key: str) -> dict:
         'positions': positions,
         'equity': round(equity, 2),
         'available': round(available, 2),
+        'margin_used': round(total_margin, 2),
         'unrealised_pnl': round(unrealised_pnl, 4),
+        'account_leverage': round(total_notional / equity, 2) if equity > 0 and total_notional > 0 else None,
+        **_account_risk_metrics(equity, total_margin, available),
     }
 
 
@@ -637,6 +659,7 @@ def _fetch_pacifica_account(address: str) -> dict:
 
     account_leverage = round(total_mark_value / equity, 2) if equity > 0 and total_mark_value > 0 else None
     margin_ratio = round(maint_margin / equity * 100, 2) if equity > 0 and maint_margin > 0 else None
+    risk = _account_risk_metrics(equity, margin_used, float(account_data.get('available_to_spend', 0) or 0))
 
     return {
         'positions': positions,
@@ -648,6 +671,7 @@ def _fetch_pacifica_account(address: str) -> dict:
         'unrealised_pnl': sum(p['unrealised_pnl'] for p in positions),
         'account_leverage': account_leverage,
         'margin_ratio': margin_ratio,
+        **risk,
     }
 
 
@@ -712,11 +736,12 @@ def _ethereal_get_products() -> dict:
     if _ethereal_products and (now - _ethereal_products_ts) < 300:
         return _ethereal_products
     try:
-        resp = _get_json(f'{ETHEREAL_API}/v1/product', timeout=10)
+        resp = _get_json(f'{ETHEREAL_API}/v1/product', params={'limit': 100}, timeout=10)
         mapping = {}
-        for p in (resp.get('data') or resp if isinstance(resp, list) else []):
+        products = resp if isinstance(resp, list) else resp.get('data', [])
+        for p in products:
             pid = p.get('id') or p.get('productId')
-            sym = p.get('symbol') or p.get('name') or str(pid)
+            sym = p.get('displayTicker') or p.get('ticker') or p.get('symbol') or p.get('name') or str(pid)
             if pid:
                 mapping[str(pid)] = sym
         _ethereal_products = mapping
@@ -726,12 +751,62 @@ def _ethereal_get_products() -> dict:
     return _ethereal_products
 
 
+def _ethereal_data_list(resp) -> list:
+    if isinstance(resp, list):
+        return resp
+    data = resp.get('data') if isinstance(resp, dict) else None
+    return data if isinstance(data, list) else []
+
+
+def _ethereal_float(value, default: float = 0.0) -> float:
+    try:
+        return float(value)
+    except (TypeError, ValueError):
+        return default
+
+
+def _ethereal_direction(side) -> str:
+    if side in (0, '0'):
+        return 'long'
+    if side in (1, '1'):
+        return 'short'
+    side_s = str(side or '').upper()
+    return 'long' if side_s in ('BUY', 'LONG') else 'short'
+
+
+def _ethereal_get_market_prices(product_ids: list[str]) -> dict:
+    ids = sorted({pid for pid in product_ids if pid})
+    if not ids:
+        return {}
+    try:
+        resp = _get_json(
+            f'{ETHEREAL_API}/v1/product/market-price',
+            params=[('productIds[]', pid) for pid in ids],
+            timeout=10,
+        )
+    except Exception:
+        return {}
+
+    prices = {}
+    for item in _ethereal_data_list(resp):
+        pid = str(item.get('productId') or item.get('product_id') or '')
+        price = (
+            item.get('oraclePrice')
+            or item.get('markPrice')
+            or item.get('bestBidPrice')
+            or item.get('bestAskPrice')
+        )
+        if pid and price is not None:
+            prices[pid] = _ethereal_float(price)
+    return prices
+
+
 def _fetch_ethereal_account(address: str) -> dict:
     products = _ethereal_get_products()
 
     # Step 1: resolve subaccounts for this sender
     sub_resp = _get_json(f'{ETHEREAL_API}/v1/subaccount', params={'sender': address}, timeout=10)
-    subaccounts = sub_resp.get('data') or []
+    subaccounts = _ethereal_data_list(sub_resp)
     if not subaccounts:
         return {'positions': [], 'equity': 0.0, 'available': 0.0, 'margin_used': 0.0, 'unrealised_pnl': 0.0}
 
@@ -746,6 +821,8 @@ def _fetch_ethereal_account(address: str) -> dict:
         if not sub_id:
             continue
 
+        sub_used = 0.0
+
         # Positions
         try:
             pos_resp = _get_json(
@@ -753,7 +830,7 @@ def _fetch_ethereal_account(address: str) -> dict:
                 params={'subaccountId': sub_id, 'open': 'true'},
                 timeout=10,
             )
-            raw_positions = pos_resp.get('data') or []
+            raw_positions = _ethereal_data_list(pos_resp)
         except Exception:
             raw_positions = []
 
@@ -764,24 +841,43 @@ def _fetch_ethereal_account(address: str) -> dict:
                 params={'subaccountId': sub_id},
                 timeout=10,
             )
-            equity    = float(bal_resp.get('amount', 0) or 0)
-            available = float(bal_resp.get('available', 0) or 0)
-            used      = float(bal_resp.get('totalUsed', 0) or 0)
+            balances = _ethereal_data_list(bal_resp)
+            usd_balance = next((b for b in balances if b.get('tokenName') == 'USD'), balances[0] if balances else {})
+            equity    = _ethereal_float(usd_balance.get('amount'))
+            available = _ethereal_float(usd_balance.get('available'))
+            used      = _ethereal_float(usd_balance.get('totalUsed'))
+            sub_used  = used
             total_equity    += equity
             total_available += available
             total_margin    += used
         except Exception:
             pass
 
-        for p in raw_positions:
-            product_id = str(p.get('productId') or '')
-            symbol = products.get(product_id, product_id or '?')
-            side = (p.get('side') or '').upper()
-            direction = 'long' if side == 'BUY' else 'short'
+        product_ids = [str(p.get('productId') or p.get('product_id') or '') for p in raw_positions]
+        prices = _ethereal_get_market_prices(product_ids)
+        position_costs = [
+            abs(_ethereal_float(p.get('cost') or p.get('positionValue') or p.get('position_value')))
+            for p in raw_positions
+        ]
+        cost_total = sum(position_costs)
 
-            mark = float(p.get('mark_price') or 0)
-            liq  = float(p.get('liquidation_price') or 0)
-            pnl  = float(p.get('unrealized_pnl') or 0)
+        for p in raw_positions:
+            product_id = str(p.get('productId') or p.get('product_id') or '')
+            symbol = products.get(product_id, product_id or '?')
+            direction = _ethereal_direction(p.get('side'))
+
+            size = abs(_ethereal_float(p.get('size')))
+            cost = abs(_ethereal_float(p.get('cost') or p.get('positionValue') or p.get('position_value')))
+            entry = _ethereal_float(p.get('entryPrice') or p.get('entry_price'))
+            if not entry and size:
+                entry = cost / size
+
+            mark = (
+                prices.get(product_id)
+                or _ethereal_float(p.get('markPrice') or p.get('mark_price') or p.get('currentPrice') or p.get('current_price'))
+            )
+            liq = _ethereal_float(p.get('liquidationPrice') or p.get('liquidation_price'))
+            pnl = _ethereal_float(p.get('unrealizedPnl') or p.get('unrealized_pnl'))
             total_pnl += pnl
 
             dist_liq = None
@@ -791,17 +887,23 @@ def _fetch_ethereal_account(address: str) -> dict:
                     2,
                 )
 
+            margin = _ethereal_float(p.get('marginUsage') or p.get('margin_usage'))
+            if not margin and cost_total:
+                margin = sub_used * (cost / cost_total)
+            leverage = cost / margin if margin else None
+
             all_positions.append({
                 'symbol':          symbol,
                 'direction':       direction,
-                'size':            float(p.get('size') or 0),
-                'entry_price':     float(p.get('entry_price') or 0),
+                'size':            size,
+                'entry_price':     entry or None,
                 'current_price':   mark,
+                'mark_price':      mark,
                 'liq_price':       liq or None,
                 'dist_liq':        dist_liq,
                 'unrealized_pnl':  pnl,
-                'margin':          float(p.get('margin_usage') or 0),
-                'leverage':        float(p.get('current_leverage') or 0) or None,
+                'margin':          round(margin, 6) if margin else 0.0,
+                'leverage':        round(leverage, 4) if leverage else None,
             })
 
     return {
@@ -810,6 +912,11 @@ def _fetch_ethereal_account(address: str) -> dict:
         'available':     round(total_available, 2),
         'margin_used':   round(total_margin, 2),
         'unrealised_pnl': round(total_pnl, 4),
+        'account_leverage': (
+            round(sum(abs(p['size']) * (p['current_price'] or p['entry_price'] or 0) for p in all_positions) / total_equity, 2)
+            if total_equity > 0 and all_positions else None
+        ),
+        **_account_risk_metrics(total_equity, total_margin, total_available),
     }
 
 
@@ -998,12 +1105,20 @@ def _fetch_nado_account(address: str) -> dict:
         total_equity = round(available_margin + pos_equity, 2)
     else:
         total_equity = None
+    margin_used = round(sum(p['margin'] for p in positions), 4)
+    account_leverage = None
+    if total_equity and total_equity > 0:
+        notional = sum(abs(p['size']) * (p['current_price'] or p['entry_price'] or 0) for p in positions)
+        account_leverage = round(notional / total_equity, 2) if notional > 0 else None
 
     return {
         'positions': positions,
         'subaccount': subaccount,
         'account_value': total_equity,
         'available_margin': available_margin,
+        'margin_used': margin_used,
+        'account_leverage': account_leverage,
+        **_account_risk_metrics(total_equity, margin_used, available_margin),
     }
 
 
@@ -1093,13 +1208,21 @@ def _fetch_hl_account(address, mids):
             'roe': round(float(p.get('returnOnEquity', 0)) * 100, 2),
         })
     ms = state.get('marginSummary', {})
+    account_value = float(ms.get('accountValue', 0))
+    total_margin = float(ms.get('totalMarginUsed', 0))
+    withdrawable = float(state.get('withdrawable', 0))
     return {
         'positions': positions,
         'summary': {
-            'account_value': float(ms.get('accountValue', 0)),
-            'total_margin':  float(ms.get('totalMarginUsed', 0)),
+            'account_value': account_value,
+            'total_margin':  total_margin,
             'total_pnl':     float(ms.get('totalUnrealizedPnl', 0)),
-            'withdrawable':  float(state.get('withdrawable', 0)),
+            'withdrawable':  withdrawable,
+            'account_leverage': (
+                round(sum(p['position_value'] for p in positions) / account_value, 2)
+                if account_value > 0 and positions else None
+            ),
+            **_account_risk_metrics(account_value, total_margin, withdrawable),
         }
     }
 
