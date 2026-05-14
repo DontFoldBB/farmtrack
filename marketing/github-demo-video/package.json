@@ -1,0 +1,23 @@
+{
+  "name": "farmtrack-github-demo-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "generate:music": "node scripts/generate-music.mjs",
+    "start": "remotion studio src/index.ts",
+    "still": "remotion still src/index.ts FarmTrackGithubDemo out/preview.png --frame=150 --scale=0.5",
+    "render": "remotion render src/index.ts FarmTrackGithubDemo out/farmtrack-github-demo.mp4 --codec=h264 --audio-codec=aac"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.383",
+    "@remotion/media": "^4.0.383",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "remotion": "^4.0.383"
+  },
+  "devDependencies": {
+    "@types/node": "^22.15.18",
+    "@types/react": "^19.1.0",
+    "typescript": "^5.8.3"
+  }
+}

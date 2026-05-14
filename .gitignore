@@ -19,6 +19,8 @@ CLAUDE.md
 FarmTrack-Windows/
 FarmTrack-Mac/
 *.zip
+marketing/github-demo-video/node_modules/
+marketing/github-demo-video/out/
 
 # Screenshots & photos
 Screenshot_*.png

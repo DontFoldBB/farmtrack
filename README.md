@@ -13,6 +13,14 @@ A local desktop app for tracking crypto airdrop farming — protocols, wallets, 
 
 ---
 
+## Demo
+
+<video src="marketing/github-demo-video/farmtrack-github-demo.mp4" controls width="100%"></video>
+
+[Watch the 30-second demo](marketing/github-demo-video/farmtrack-github-demo.mp4)
+
+---
+
 ## Screenshots
 
 Screenshots below use sanitized demo data.
