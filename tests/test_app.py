@@ -174,6 +174,20 @@ def test_stats_route_returns_expected_totals(client):
     assert payload['pnl'] == 15
 
 
+def test_stats_route_keeps_wallet_pnl_from_database(client):
+    database.add_protocol('Proto', spent=999, earned=10)
+    database.bulk_add_wallets(['0x1111111111111111111111111111111111111111'], protocols=['Proto'])
+    wallet = database.get_wallets()[0]
+    database.update_wallet_protocol(wallet['id'], 'Proto', deposit=100, wallet_balance=90, wp_earned=30)
+
+    response = client.get('/api/stats')
+
+    assert response.status_code == 200
+    payload = response.get_json()
+    assert payload['total_spent'] == 0
+    assert payload['pnl'] == 20
+
+
 def test_protocols_endpoint_uses_manual_values_without_wallet_data(client):
     database.add_protocol('Proto', spent=12, earned=30)
 
@@ -927,7 +941,7 @@ def test_open_folder_route_calls_explorer_only_for_existing_path(client, monkeyp
 
 def test_export_route_writes_workbook_with_expected_sheets(client, monkeypatch, tmp_path):
     wallet = _seed_protocol_wallet()
-    database.update_wallet_protocol(wallet['id'], 'Proto', deposit=100, wallet_balance=60, wp_earned=20)
+    database.update_wallet_protocol(wallet['id'], 'Proto', deposit=100, wallet_balance=90, wp_earned=30)
     downloads = tmp_path / 'Downloads'
     monkeypatch.setattr(farm_app.os.path, 'expanduser', lambda _: str(tmp_path))
 
@@ -940,8 +954,13 @@ def test_export_route_writes_workbook_with_expected_sheets(client, monkeypatch, 
     wb = openpyxl.load_workbook(exported)
     assert wb.sheetnames == ['Протоколы', 'Кошельки', 'Сводка']
     assert wb['Протоколы']['A2'].value == 'Proto'
+    assert wb['Протоколы']['B2'].value == 0
+    assert wb['Протоколы']['C2'].value == 30
+    assert wb['Протоколы']['D2'].value == 20
     assert wb['Кошельки']['A2'].value == wallet['address']
     assert wb['Сводка']['A2'].value == 'Всего протоколов'
+    assert wb['Сводка']['A7'].value == 'P&L ($)'
+    assert wb['Сводка']['B7'].value == 20
 
 
 def test_export_route_marks_positive_and_negative_pnl_colors(client, monkeypatch, tmp_path):

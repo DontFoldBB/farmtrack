@@ -487,9 +487,11 @@ def get_stats():
                 COALESCE(SUM(COALESCE(wp_earned, 0)), 0)      AS total_wp_earned
             FROM wallet_protocols
         ''').fetchone()
-        # Manual spent for protocols with no wallet financial data
+        # Manual values for protocols with no wallet financial data
         manual = c.execute('''
-            SELECT COALESCE(SUM(p.spent), 0) AS manual_spent
+            SELECT
+                COALESCE(SUM(p.spent), 0) AS manual_spent,
+                COALESCE(SUM(p.earned), 0) AS manual_earned
             FROM protocols p
             LEFT JOIN (
                 SELECT protocol,
@@ -506,7 +508,8 @@ def get_stats():
         result['total_spent'] = total_spent
         result['total_deposit'] = agg['total_deposit'] or 0
         result['total_balance'] = agg['total_balance'] or 0
-        result['pnl'] = (agg['total_wp_earned'] or 0) + (agg['total_balance'] or 0) - (agg['total_deposit'] or 0) - (manual['manual_spent'] or 0)
+        result['total_earned'] = (agg['total_wp_earned'] or 0) + (manual['manual_earned'] or 0)
+        result['pnl'] = result['total_earned'] + (agg['total_balance'] or 0) - (agg['total_deposit'] or 0) - (manual['manual_spent'] or 0)
         return result
 
 

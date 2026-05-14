@@ -300,6 +300,12 @@ class TestGetStats:
         s = database.get_stats()
         assert s['total_spent'] == 75.0
 
+    def test_manual_pnl_protocol_no_wallets(self, db):
+        database.add_protocol('P', spent=10.0, earned=25.0)
+        s = database.get_stats()
+        assert s['total_earned'] == 25.0
+        assert s['pnl'] == 15.0
+
     def test_wallet_count(self, db):
         database.bulk_add_wallets([
             '0x1111111111111111111111111111111111111111',

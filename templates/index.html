@@ -2127,7 +2127,7 @@ async function loadOverview() {
   const balance   = stats.total_balance || 0;
   const spent     = stats.total_spent || 0;
   const deposit   = stats.total_deposit || 0;
-  const roi       = deposit > 0 ? ((balance - deposit) / deposit * 100) : 0;
+  const roi       = deposit > 0 ? (pnl / deposit * 100) : 0;
   const pnlColor  = pnl >= 0 ? 'var(--green)' : 'var(--red)';
   const pnlSign   = pnl >= 0 ? '+' : '';
   const roiSign   = roi >= 0 ? '+' : '';
@@ -2187,10 +2187,7 @@ async function loadOverview() {
 
   const protoRows = sorted.map((p, i) => {
     const bal  = p.total_balance || 0;
-    const dep  = p.total_deposit || 0;
-    const pw   = p.total_withdrawn || 0;
-    const psp  = p.total_spent || 0;
-    const ppnl = (bal + pw) - (dep + psp);
+    const ppnl = p.pnl || 0;
     const ppnlCls = ppnl >= 0 ? 'c-green' : 'c-red';
     const ppnlSign = ppnl >= 0 ? '+' : '';
     const pct  = maxBal > 0 ? (bal / maxBal * 100) : 0;

@@ -140,7 +140,7 @@ def index():
 @app.route('/api/stats')
 def stats():
     s = db.get_stats()
-    s['pnl'] = round(s['total_earned'] - s['total_spent'], 2)
+    s['pnl'] = round(s.get('pnl') or 0, 2)
     return jsonify(s)
 
 
@@ -1491,8 +1491,19 @@ def export():
     protocols = db.get_protocols()
     wallet_counts = db.get_wallet_counts()
     for p in protocols:
-        pnl = round((p['earned'] or 0) - (p['spent'] or 0), 2)
-        ws1.append([p['name'], p['spent'], p['earned'], pnl,
+        deposit = p.get('total_deposit') or 0
+        balance = p.get('total_balance') or 0
+        wp_earned = p.get('total_wp_earned') or 0
+        has_wallet_data = deposit > 0 or balance > 0 or wp_earned > 0
+        if has_wallet_data:
+            spent = round(max(0, deposit - balance - wp_earned), 2)
+            earned = round(wp_earned, 2)
+            pnl = round(wp_earned + balance - deposit, 2)
+        else:
+            spent = p['spent'] or 0
+            earned = p['earned'] or 0
+            pnl = round(earned - spent, 2)
+        ws1.append([p['name'], spent, earned, pnl,
                     wallet_counts.get(p['name'], 0), p['status'], p['note'] or ''])
 
     style_rows(ws1)
@@ -1521,7 +1532,7 @@ def export():
     ws3 = wb.create_sheet('Сводка')
     style_header(ws3, ['Показатель', 'Значение'])
     s = db.get_stats()
-    pnl = round(s['total_earned'] - s['total_spent'], 2)
+    pnl = round(s.get('pnl') or 0, 2)
     for row in [
         ['Всего протоколов', s['total']],
         ['Активных', s['active']],
