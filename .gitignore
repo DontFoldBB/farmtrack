@@ -23,6 +23,8 @@ FarmTrack-Mac/
 # Screenshots & photos
 Screenshot_*.png
 photo_*.jpg
+marketing/Screenshots for readme/*.png
+marketing/Screenshots for readme/sanitized/_preview_contact_sheet.png
 
 # Other projects checked out here
 andrej-karpathy-skills-main/

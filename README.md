@@ -1,11 +1,31 @@
 # FarmTrack
 
+![FarmTrack brand header](marketing/brand/farmtrack-brand-header.svg)
+
 A local desktop app for tracking crypto airdrop farming — protocols, wallets, balances, P&L, and perp positions. Built with Python + Flask + pywebview. No cloud, no accounts, everything stays on your machine.
 
 ![Version](https://img.shields.io/badge/version-alpha%20v0.91-blue)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
 ![Platform](https://img.shields.io/badge/platform-Windows%20%7C%20macOS-lightgrey)
 ![Tests](https://img.shields.io/badge/tests-251%20passing-brightgreen)
+
+---
+
+## Screenshots
+
+Screenshots below use sanitized demo data.
+
+![Overview dashboard](marketing/Screenshots%20for%20readme/sanitized/main_example.png)
+
+<p>
+  <img src="marketing/Screenshots%20for%20readme/sanitized/protocols_example.png" alt="Protocols table" width="49%">
+  <img src="marketing/Screenshots%20for%20readme/sanitized/wallets_example.png" alt="Wallets table" width="49%">
+</p>
+
+<p>
+  <img src="marketing/Screenshots%20for%20readme/sanitized/nado_protocol_example.png" alt="Protocol detail" width="49%">
+  <img src="marketing/Screenshots%20for%20readme/sanitized/perp_nado_example.png" alt="Perp positions" width="49%">
+</p>
 
 ---
 

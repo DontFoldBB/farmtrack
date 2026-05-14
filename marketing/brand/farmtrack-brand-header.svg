@@ -1,0 +1,55 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="480" viewBox="0 0 1280 480" role="img" aria-labelledby="title desc">
+  <title id="title">FarmTrack brand header</title>
+  <desc id="desc">A GitHub header using the Tilted Plots FarmTrack logo.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1280" y2="480" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#201d1d"/>
+      <stop offset="1" stop-color="#131110"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="96" y1="70" x2="1184" y2="410" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#282221"/>
+      <stop offset="1" stop-color="#191615"/>
+    </linearGradient>
+    <linearGradient id="plotA" x1="154" y1="170" x2="356" y2="348" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#2f2927"/>
+      <stop offset="1" stop-color="#191615"/>
+    </linearGradient>
+    <linearGradient id="plotB" x1="204" y1="154" x2="398" y2="300" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#29403a"/>
+      <stop offset="1" stop-color="#1a211f"/>
+    </linearGradient>
+  </defs>
+  <rect width="1280" height="480" fill="url(#bg)"/>
+  <rect x="64" y="56" width="1152" height="368" rx="4" fill="url(#panel)" stroke="#3d3838"/>
+  <g transform="translate(112 92) scale(0.58)">
+    <rect width="512" height="512" rx="92" fill="#201d1d"/>
+    <rect x="70" y="70" width="372" height="372" rx="62" fill="#1c1817"/>
+    <g stroke="#403735" stroke-width="5" stroke-linejoin="round">
+      <path d="M138 246l96-56 96 56-96 56z" fill="url(#plotA)"/>
+      <path d="M234 190l96-56 96 56-96 56z" fill="url(#plotB)" stroke="#4d7d69"/>
+      <path d="M90 326l96-56 96 56-96 56z" fill="url(#plotA)"/>
+      <path d="M282 326l96-56 96 56-96 56z" fill="url(#plotA)"/>
+    </g>
+    <g fill="none" stroke="#514744" stroke-width="4" stroke-linecap="round">
+      <path d="M160 246l74-42 74 42"/>
+      <path d="M112 326l74-42 74 42"/>
+      <path d="M304 326l74-42 74 42"/>
+    </g>
+    <path d="M124 328l110-64 88 34 76-108" fill="none" stroke="#f5efe7" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="M124 328l110-64" fill="none" stroke="#58a6ff" stroke-width="18" stroke-linecap="round"/>
+    <path d="M322 298l76-108" fill="none" stroke="#72e0bd" stroke-width="18" stroke-linecap="round"/>
+    <circle cx="124" cy="328" r="15" fill="#58a6ff"/>
+    <circle cx="234" cy="264" r="15" fill="#f5efe7"/>
+    <circle cx="322" cy="298" r="15" fill="#f5efe7"/>
+    <circle cx="398" cy="190" r="16" fill="#72e0bd"/>
+  </g>
+  <text x="472" y="210" fill="#fdfcfc" font-family="IBM Plex Mono, Menlo, Consolas, monospace" font-size="82" font-weight="700">Farm<tspan fill="#72e0bd">Track</tspan></text>
+  <text x="478" y="268" fill="#d4d0d0" font-family="IBM Plex Mono, Menlo, Consolas, monospace" font-size="24" font-weight="500">local desktop tracker for airdrop farming</text>
+  <g fill="#9a9898" font-family="IBM Plex Mono, Menlo, Consolas, monospace" font-size="18" font-weight="500">
+    <text x="480" y="326">protocols</text>
+    <text x="628" y="326">wallets</text>
+    <text x="748" y="326">points</text>
+    <text x="852" y="326">perps</text>
+    <text x="944" y="326">alerts</text>
+  </g>
+</svg>
